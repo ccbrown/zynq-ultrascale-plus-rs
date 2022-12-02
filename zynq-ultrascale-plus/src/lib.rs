@@ -1,6 +1,6 @@
 #![no_std]
-#[macro_use]
-extern crate tock_registers;
+
+use zynq_ultrascale_plus_modules as mods;
 
 pub mod iou_scntrs;
 pub mod uart;
@@ -21,9 +21,9 @@ impl Device {
     /// If you create more than one device, it's up to you to ensure that they don't simultaneously access the same resources.
     pub unsafe fn new() -> Self {
         Self {
-            iou_scntrs: iou_scntrs::Module::new(0x00FF260000),
-            uart0: uart::Module::new(0x00FF000000),
-            uart1: uart::Module::new(0x00FF010000),
+            iou_scntrs: iou_scntrs::Module::new(&mut *mods::iou_scntrs::IOU_SCNTRS),
+            uart0: uart::Module::new(&mut *mods::uart::UART0),
+            uart1: uart::Module::new(&mut *mods::uart::UART1),
         }
     }
 

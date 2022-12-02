@@ -1,7 +1,6 @@
-[package]
-name = "zynq-ultrascale-plus"
-version = "0.1.0"
-edition = "2021"
+[workspace]
 
-[dependencies]
-tock-registers = "0.8.1"
+members = [
+    "zynq-ultrascale-plus",
+    "zynq-ultrascale-plus-modules",
+]

@@ -1,0 +1,7 @@
+[package]
+name = "zynq-ultrascale-plus-modules"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+tock-registers = "0.8.0"

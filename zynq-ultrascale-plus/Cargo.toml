@@ -1,0 +1,8 @@
+[package]
+name = "zynq-ultrascale-plus"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+tock-registers = "0.8.0"
+zynq-ultrascale-plus-modules = { path = "../zynq-ultrascale-plus-modules" }
