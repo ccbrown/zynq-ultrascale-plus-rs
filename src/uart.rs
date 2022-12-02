@@ -1,53 +1,70 @@
-use core::ptr::{read_volatile, write_volatile};
+use tock_registers::{
+    interfaces::{Readable, Writeable},
+    registers::ReadWrite,
+};
 
-pub struct Controller {
-    base_address: usize,
+pub struct Module {
+    registers: &'static mut Registers,
 }
 
-bitflags! {
-    struct ChannelStatus: u32 {
-        const RTRIG = (1 << 0);
-        const REMPTY = (1 << 1);
-        const RFUL = (1 << 2);
-        const TEMPTY = (1 << 3);
-        const TFUL = (1 << 4);
-        const RACTIVE = (1 << 10);
-        const TACTIVE = (1 << 11);
-        const FDELT = (1 << 12);
-        const TTRIG = (1 << 13);
-        const TNFUL = (1 << 14);
+register_structs! {
+    pub Registers {
+        // TODO: implement remaining registers
+        (0x0000000000 => _not_implemented),
+        (0x000000002C => channel_status: ReadWrite<u32, ChannelStatus::Register>),
+        (0x0000000030 => tx_rx_fifo: ReadWrite<u32, TxRxFifo::Register>),
+        (0x0000000034 => _not_implemented_2),
+        (0x000000004C => @END),
     }
 }
 
-impl Controller {
+register_bitfields! [
+    u32,
+    ChannelStatus [
+        TNFUL 9,
+        TTRIG 8,
+        FDELT 7,
+        TACTIVE 6,
+        RACTIVE 5,
+        TFUL 4,
+        TEMPTY 3,
+        RFUL 2,
+        REMPTY 1,
+        RTRIG 0,
+    ],
+    TxRxFifo [
+        FIFO OFFSET(0) NUMBITS(8) []
+    ]
+];
+
+impl Module {
     /// Creates a new UART controller.
     ///
     /// # Safety
     /// `base_address` must be the base address for a UART controller that is not being used elsewhere.
     pub unsafe fn new(base_address: usize) -> Self {
-        Self { base_address }
-    }
-
-    fn read_channel_status(&self) -> ChannelStatus {
-        unsafe {
-            ChannelStatus::from_bits_unchecked(read_volatile(
-                &mut *((self.base_address + 0x000000002C) as *mut u32),
-            ))
+        Self {
+            registers: &mut *(base_address as *mut Registers),
         }
     }
 
+    /// Provides raw access to the registers.
+    ///
+    /// # Safety
+    /// Refer to the module's reference material to understand what is and isn't safe.
+    pub unsafe fn registers(&mut self) -> &mut Registers {
+        self.registers
+    }
+
     fn is_transmit_full(&self) -> bool {
-        self.read_channel_status().contains(ChannelStatus::TFUL)
+        self.registers.channel_status.is_set(ChannelStatus::TFUL)
     }
 
     pub fn send_byte(&mut self, b: u8) {
         while self.is_transmit_full() {}
-        unsafe {
-            write_volatile(
-                &mut *((self.base_address + 0x0000000030) as *mut u32),
-                b as u32,
-            );
-        }
+        self.registers
+            .tx_rx_fifo
+            .write(TxRxFifo::FIFO.val(b as u32))
     }
 
     pub fn send_bytes<T: AsRef<[u8]>>(&mut self, buf: T) {

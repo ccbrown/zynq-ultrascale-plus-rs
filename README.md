@@ -1,12 +1,65 @@
 # zynq-ultrascale-plus-rs
 
-This crate contains high-ish, mostly safe code for interfacing with Zynq UltraScale+ devices.
+This crate contains high-ish level, mostly safe code for interfacing with Zynq UltraScale+ devices.
 
-## Using
+## Getting Started
 
-This crate is a library. It's meant to be used for your existing Rust codebase. If you aren't already using Rust with your Zynq UltraScale+ device, the easiest way to get started is to create a new staticlib Rust crate with C exports that you call from your C code.
+If you're already using Rust with your Zynq UltraScale+ device, you can use this crate like any other library.
+
+If you're using C with your Zynq UltraScale+ device, you should create a new staticlib Rust crate with C exports that you can call from your C code.
+
+If you're building a new project from scratch, you should start with a C "hello world" like described in [this bare-metal example for the Kria SOM](https://xilinx.github.io/kria-apps-docs/creating_applications/2022.1/build/html/docs/baremetal.html). Then delete all the C files from the project, create a new staticlib Rust crate with a lib.rs that looks like the following, and link it to your project.
+
+```rust
+#![no_std]
+
+#[no_mangle]
+pub extern "C" fn main() {
+    unsafe {
+        zynq_ultrascale_plus::Device::new().uart1().send_bytes("hello from rust!\n\r");
+    }
+}
+
+#[panic_handler]
+fn panic_handler(_info: &core::panic::PanicInfo) -> ! {
+    // todo: dump the info via uart or reboot or something
+    loop {}
+}
+```
+
+## Tips for Working with Bare Metal
+
+### Using an Allocator
+
+If you want to use `alloc`, you can use [rust-osdev/linked-list-allocator](https://github.com/rust-osdev/linked-list-allocator) to add an allocator like this:
+
+```rust
+#![feature(default_alloc_error_handler)]
+
+#[macro_use]
+extern crate alloc;
+
+use linked_list_allocator::LockedHeap;
+
+#[global_allocator]
+static ALLOCATOR: LockedHeap = LockedHeap::empty();
+
+extern "C" {
+    // these are defined by the project's linker script (usually src/lscript.ld)
+    static mut _heap_start: u32;
+    static mut _heap_end: u32;
+}
+
+// CALL THIS BEFORE DOING ANYTHING ELSE!
+pub fn init_heap() {
+    unsafe {
+        let heap_start_ptr = &mut _heap_start as *mut u32;
+        let heap_end_ptr = &mut _heap_end as *mut u32;
+        ALLOCATOR.lock().init(heap_start_ptr as *mut u8, heap_end_ptr as usize - heap_start_ptr as usize);
+    }
+}
+```
 
 ## References
 
 - The specs which this crate is based on can be found [here](https://www.xilinx.com/htmldocs/registers/ug1087/ug1087-zynq-ultrascale-registers.html).
-- For a C "hello world" on a Zynq UltraScale+ using Vivado, Vitis, and a Kria SOM, see [this bare-metal workflow example](https://xilinx.github.io/kria-apps-docs/creating_applications/2022.1/build/html/docs/baremetal.html). Once you're up and running with C, you can link Rust libraries targeting aarch64-unknown-none in the usual way.
