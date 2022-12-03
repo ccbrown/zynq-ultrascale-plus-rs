@@ -2,131 +2,129 @@
 use tock_registers::registers::{ReadOnly, ReadWrite, WriteOnly};
 /// Fabric Trigger Macrocell, Fabric Trigger Macrocell interface from PL to ECT
 pub static mut CORESIGHT_SOC_FTM: *mut Registers = 0xfe9d0000 as *mut Registers;
-register_structs! {
-    pub Registers {
-        (0x00000000 => _padding0),
-        /// General Purpose Input
-        (0x00000010 => pub gpi: ReadOnly<u32>),
-        (0x00000014 => _padding20),
-        /// General Purpose Output
-        (0x00000020 => pub gpo: ReadWrite<u32>),
-        (0x00000024 => _padding36),
-        /// Trigger Output Register
-        (0x00000ed0 => pub ittrigout: WriteOnly<u8, Ittrigout::Register>),
-        (0x00000ed1 => _padding3793),
-        /// Trigger Output Acknowledge Register
-        (0x00000ed4 => pub ittrigoutack: ReadOnly<u8, Ittrigoutack::Register>),
-        (0x00000ed5 => _padding3797),
-        /// Trigger Input Register
-        (0x00000ed8 => pub ittrigin: ReadOnly<u8, Ittrigin::Register>),
-        (0x00000ed9 => _padding3801),
-        /// Trigger Input Acknowledge Register
-        (0x00000edc => pub ittriginack: WriteOnly<u8, Ittriginack::Register>),
-        (0x00000edd => _padding3805),
-        /// Integration Control Register
-        (0x00000f00 => pub itctrl: ReadWrite<u8, Itctrl::Register>),
-        (0x00000f01 => _padding3841),
-        /// Claim Tag Set Register
-        (0x00000fa0 => pub claimset: ReadWrite<u8, Claimset::Register>),
-        (0x00000fa1 => _padding4001),
-        /// Claim Tag Clear Register
-        (0x00000fa4 => pub claimclr: ReadWrite<u8, Claimclr::Register>),
-        (0x00000fa5 => _padding4005),
-        /// Lock Access Register
-        (0x00000fb0 => pub lar: WriteOnly<u32>),
-        /// Lock Status Register
-        (0x00000fb4 => pub lsr: ReadOnly<u8, Lsr::Register>),
-        (0x00000fb5 => _padding4021),
-        /// Authentication Status Register
-        (0x00000fb8 => pub authstatus: ReadOnly<u8, Authstatus::Register>),
-        (0x00000fb9 => _padding4025),
-        /// Device ID
-        (0x00000fc8 => pub devid: ReadOnly<u8, Devid::Register>),
-        (0x00000fc9 => _padding4041),
-        /// Device Type
-        (0x00000fcc => pub devtype: ReadOnly<u8, Devtype::Register>),
-        (0x00000fcd => _padding4045),
-        /// Peripheral ID4
-        (0x00000fd0 => pub pidr4: ReadOnly<u8, Pidr4::Register>),
-        (0x00000fd1 => _padding4049),
-        /// Peripheral ID5
-        (0x00000fd4 => pub pidr5: ReadOnly<u8, Pidr5::Register>),
-        (0x00000fd5 => _padding4053),
-        /// Peripheral ID6
-        (0x00000fd8 => pub pidr6: ReadOnly<u8, Pidr6::Register>),
-        (0x00000fd9 => _padding4057),
-        /// Peripheral ID7
-        (0x00000fdc => pub pidr7: ReadOnly<u8, Pidr7::Register>),
-        (0x00000fdd => _padding4061),
-        /// Peripheral ID0
-        (0x00000fe0 => pub pidr0: ReadOnly<u8, Pidr0::Register>),
-        (0x00000fe1 => _padding4065),
-        /// Peripheral ID1
-        (0x00000fe4 => pub pidr1: ReadOnly<u8, Pidr1::Register>),
-        (0x00000fe5 => _padding4069),
-        /// Peripheral ID2
-        (0x00000fe8 => pub pidr2: ReadOnly<u8, Pidr2::Register>),
-        (0x00000fe9 => _padding4073),
-        /// Peripheral ID3
-        (0x00000fec => pub pidr3: ReadOnly<u8, Pidr3::Register>),
-        (0x00000fed => _padding4077),
-        /// Component ID0
-        (0x00000ff0 => pub cidr0: ReadOnly<u8, Cidr0::Register>),
-        (0x00000ff1 => _padding4081),
-        /// Component ID1
-        (0x00000ff4 => pub cidr1: ReadOnly<u8, Cidr1::Register>),
-        (0x00000ff5 => _padding4085),
-        /// Component ID2
-        (0x00000ff8 => pub cidr2: ReadOnly<u8, Cidr2::Register>),
-        (0x00000ff9 => _padding4089),
-        /// Component ID3
-        (0x00000ffc => pub cidr3: ReadOnly<u8, Cidr3::Register>),
-        (0x00000ffd => @END),
-    }
+#[repr(C)]
+pub struct Registers {
+    _padding0: [u8; 16],
+    /// General Purpose Input
+    pub gpi: ReadOnly<u32>,
+    _padding20: [u8; 12],
+    /// General Purpose Output
+    pub gpo: ReadWrite<u32>,
+    _padding36: [u8; 3756],
+    /// Trigger Output Register
+    pub ittrigout: WriteOnly<u8, Ittrigout::Register>,
+    _padding3793: [u8; 3],
+    /// Trigger Output Acknowledge Register
+    pub ittrigoutack: ReadOnly<u8, Ittrigoutack::Register>,
+    _padding3797: [u8; 3],
+    /// Trigger Input Register
+    pub ittrigin: ReadOnly<u8, Ittrigin::Register>,
+    _padding3801: [u8; 3],
+    /// Trigger Input Acknowledge Register
+    pub ittriginack: WriteOnly<u8, Ittriginack::Register>,
+    _padding3805: [u8; 35],
+    /// Integration Control Register
+    pub itctrl: ReadWrite<u8, Itctrl::Register>,
+    _padding3841: [u8; 159],
+    /// Claim Tag Set Register
+    pub claimset: ReadWrite<u8, Claimset::Register>,
+    _padding4001: [u8; 3],
+    /// Claim Tag Clear Register
+    pub claimclr: ReadWrite<u8, Claimclr::Register>,
+    _padding4005: [u8; 11],
+    /// Lock Access Register
+    pub lar: WriteOnly<u32>,
+    /// Lock Status Register
+    pub lsr: ReadOnly<u8, Lsr::Register>,
+    _padding4021: [u8; 3],
+    /// Authentication Status Register
+    pub authstatus: ReadOnly<u8, Authstatus::Register>,
+    _padding4025: [u8; 15],
+    /// Device ID
+    pub devid: ReadOnly<u8, Devid::Register>,
+    _padding4041: [u8; 3],
+    /// Device Type
+    pub devtype: ReadOnly<u8, Devtype::Register>,
+    _padding4045: [u8; 3],
+    /// Peripheral ID4
+    pub pidr4: ReadOnly<u8, Pidr4::Register>,
+    _padding4049: [u8; 3],
+    /// Peripheral ID5
+    pub pidr5: ReadOnly<u8, Pidr5::Register>,
+    _padding4053: [u8; 3],
+    /// Peripheral ID6
+    pub pidr6: ReadOnly<u8, Pidr6::Register>,
+    _padding4057: [u8; 3],
+    /// Peripheral ID7
+    pub pidr7: ReadOnly<u8, Pidr7::Register>,
+    _padding4061: [u8; 3],
+    /// Peripheral ID0
+    pub pidr0: ReadOnly<u8, Pidr0::Register>,
+    _padding4065: [u8; 3],
+    /// Peripheral ID1
+    pub pidr1: ReadOnly<u8, Pidr1::Register>,
+    _padding4069: [u8; 3],
+    /// Peripheral ID2
+    pub pidr2: ReadOnly<u8, Pidr2::Register>,
+    _padding4073: [u8; 3],
+    /// Peripheral ID3
+    pub pidr3: ReadOnly<u8, Pidr3::Register>,
+    _padding4077: [u8; 3],
+    /// Component ID0
+    pub cidr0: ReadOnly<u8, Cidr0::Register>,
+    _padding4081: [u8; 3],
+    /// Component ID1
+    pub cidr1: ReadOnly<u8, Cidr1::Register>,
+    _padding4085: [u8; 3],
+    /// Component ID2
+    pub cidr2: ReadOnly<u8, Cidr2::Register>,
+    _padding4089: [u8; 3],
+    /// Component ID3
+    pub cidr3: ReadOnly<u8, Cidr3::Register>,
 }
-register_bitfields! [
+tock_registers::register_bitfields! [
     u8,
     pub Ittrigout [
         TRIGOUT OFFSET(0) NUMBITS(1) [],
     ]
 ];
-register_bitfields! [
+tock_registers::register_bitfields! [
     u8,
     pub Ittrigoutack [
         TRIGOUTACK OFFSET(0) NUMBITS(1) [],
     ]
 ];
-register_bitfields! [
+tock_registers::register_bitfields! [
     u8,
     pub Ittrigin [
         TRIGIN OFFSET(0) NUMBITS(1) [],
     ]
 ];
-register_bitfields! [
+tock_registers::register_bitfields! [
     u8,
     pub Ittriginack [
         TRIGINACK OFFSET(0) NUMBITS(1) [],
     ]
 ];
-register_bitfields! [
+tock_registers::register_bitfields! [
     u8,
     pub Itctrl [
         INTEGRATION OFFSET(0) NUMBITS(1) [],
     ]
 ];
-register_bitfields! [
+tock_registers::register_bitfields! [
     u8,
     pub Claimset [
         SET OFFSET(0) NUMBITS(4) [],
     ]
 ];
-register_bitfields! [
+tock_registers::register_bitfields! [
     u8,
     pub Claimclr [
         CLEAR OFFSET(0) NUMBITS(4) [],
     ]
 ];
-register_bitfields! [
+tock_registers::register_bitfields! [
     u8,
     pub Lsr [
         _8BIT OFFSET(2) NUMBITS(1) [],
@@ -134,7 +132,7 @@ register_bitfields! [
         IMP OFFSET(0) NUMBITS(1) [],
     ]
 ];
-register_bitfields! [
+tock_registers::register_bitfields! [
     u8,
     pub Authstatus [
         SNI OFFSET(6) NUMBITS(2) [],
@@ -143,85 +141,85 @@ register_bitfields! [
         NSI OFFSET(0) NUMBITS(2) [],
     ]
 ];
-register_bitfields! [
+tock_registers::register_bitfields! [
     u8,
     pub Devid [
         ID OFFSET(0) NUMBITS(8) [],
     ]
 ];
-register_bitfields! [
+tock_registers::register_bitfields! [
     u8,
     pub Devtype [
         TYPE OFFSET(0) NUMBITS(8) [],
     ]
 ];
-register_bitfields! [
+tock_registers::register_bitfields! [
     u8,
     pub Pidr4 [
         ID OFFSET(0) NUMBITS(8) [],
     ]
 ];
-register_bitfields! [
+tock_registers::register_bitfields! [
     u8,
     pub Pidr5 [
         ID OFFSET(0) NUMBITS(8) [],
     ]
 ];
-register_bitfields! [
+tock_registers::register_bitfields! [
     u8,
     pub Pidr6 [
         ID OFFSET(0) NUMBITS(8) [],
     ]
 ];
-register_bitfields! [
+tock_registers::register_bitfields! [
     u8,
     pub Pidr7 [
         ID OFFSET(0) NUMBITS(8) [],
     ]
 ];
-register_bitfields! [
+tock_registers::register_bitfields! [
     u8,
     pub Pidr0 [
         ID OFFSET(0) NUMBITS(8) [],
     ]
 ];
-register_bitfields! [
+tock_registers::register_bitfields! [
     u8,
     pub Pidr1 [
         ID OFFSET(0) NUMBITS(8) [],
     ]
 ];
-register_bitfields! [
+tock_registers::register_bitfields! [
     u8,
     pub Pidr2 [
         ID OFFSET(0) NUMBITS(8) [],
     ]
 ];
-register_bitfields! [
+tock_registers::register_bitfields! [
     u8,
     pub Pidr3 [
         ID OFFSET(0) NUMBITS(8) [],
     ]
 ];
-register_bitfields! [
+tock_registers::register_bitfields! [
     u8,
     pub Cidr0 [
         ID OFFSET(0) NUMBITS(8) [],
     ]
 ];
-register_bitfields! [
+tock_registers::register_bitfields! [
     u8,
     pub Cidr1 [
         ID OFFSET(0) NUMBITS(8) [],
     ]
 ];
-register_bitfields! [
+tock_registers::register_bitfields! [
     u8,
     pub Cidr2 [
         ID OFFSET(0) NUMBITS(8) [],
     ]
 ];
-register_bitfields! [
+tock_registers::register_bitfields! [
     u8,
     pub Cidr3 [
         ID OFFSET(0) NUMBITS(8) [],

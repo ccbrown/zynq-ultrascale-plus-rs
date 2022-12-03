@@ -4,52 +4,50 @@ use tock_registers::registers::{Aliased, ReadOnly, ReadWrite};
 pub static mut SATA_AHCI_PORT0_CNTRL: *mut Registers = 0xfd0c0100 as *mut Registers;
 /// SATA AHCI Port Control, SATA AHCI Port 1 Control
 pub static mut SATA_AHCI_PORT1_CNTRL: *mut Registers = 0xfd0c0180 as *mut Registers;
-register_structs! {
-    pub Registers {
-        /// Port x Command List Base Address (PxCLB)
-        (0x00000000 => pub pxclb: Aliased<u32, PxclbR::Register, PxclbW::Register>),
-        /// Port x Command List Base Address Upper 32-bits (PxCLBU)
-        (0x00000004 => pub pxclbu: ReadWrite<u32>),
-        /// Port x FIS Base Address (PxFB)
-        (0x00000008 => pub pxfb: Aliased<u32, PxfbR::Register, PxfbW::Register>),
-        /// Port x FIS Base Address Upper 32-bits (PxFBU)
-        (0x0000000c => pub pxfbu: ReadWrite<u32>),
-        /// Port x Interupt Status (PxIS)
-        (0x00000010 => pub pxis: Aliased<u32, PxisR::Register, PxisW::Register>),
-        /// Port x Interrupt Enable (PxIE)
-        (0x00000014 => pub pxie: Aliased<u32, PxieR::Register, PxieW::Register>),
-        /// Port x Command and Status (PxCMD)
-        (0x00000018 => pub pxcmd: Aliased<u32, PxcmdR::Register, PxcmdW::Register>),
-        (0x0000001c => _padding28),
-        /// Port x Task File Data (PxTFD)
-        (0x00000020 => pub pxtfd: ReadOnly<u32, Pxtfd::Register>),
-        /// Port x Signature (PxSIG).
-        (0x00000024 => pub pxsig: ReadOnly<u32>),
-        /// Port x serial ATA Status (SCR0: Sstatus) (PxSSTS)
-        (0x00000028 => pub pxssts: ReadOnly<u32, Pxssts::Register>),
-        /// Port x Serial ATA Control (SCR2: SControl) (PxSCTL)
-        (0x0000002c => pub pxsctl: Aliased<u32, PxsctlR::Register, PxsctlW::Register>),
-        /// Port x Serial ATA Error (SCR1: SError)
-        (0x00000030 => pub pxserr: ReadWrite<u32, Pxserr::Register>),
-        /// Port x Serial ATA Active (SCR3: SActive)
-        (0x00000034 => pub pxsact: ReadWrite<u32>),
-        /// PxCI: Port x Command Issue
-        (0x00000038 => pub pxci: ReadWrite<u32>),
-        /// Port x Serial ATA Notification (SCR4: SNotification)
-        (0x0000003c => pub pxsntf: Aliased<u32, PxsntfR::Register, PxsntfW::Register>),
-        /// Port x FIS-based Switching Control
-        (0x00000040 => pub pxfbs: Aliased<u32, PxfbsR::Register, PxfbsW::Register>),
-        /// PxDEVSLP - Port x Device Sleep
-        (0x00000044 => pub pxdevslp: Aliased<u32, PxdevslpR::Register, PxdevslpW::Register>),
-        (0x00000048 => _padding72),
-        /// PBERR - Port 0/1 BIST Error.
-        (0x00000070 => pub pberr: Aliased<u32, PberrR::Register, PberrW::Register>),
-        /// CMDS - Port 0/1 Command Status Error.
-        (0x00000074 => pub cmds: ReadOnly<u32, Cmds::Register>),
-        (0x00000078 => @END),
-    }
+#[repr(C)]
+pub struct Registers {
+    /// Port x Command List Base Address (PxCLB)
+    pub pxclb: Aliased<u32, PxclbR::Register, PxclbW::Register>,
+    /// Port x Command List Base Address Upper 32-bits (PxCLBU)
+    pub pxclbu: ReadWrite<u32>,
+    /// Port x FIS Base Address (PxFB)
+    pub pxfb: Aliased<u32, PxfbR::Register, PxfbW::Register>,
+    /// Port x FIS Base Address Upper 32-bits (PxFBU)
+    pub pxfbu: ReadWrite<u32>,
+    /// Port x Interupt Status (PxIS)
+    pub pxis: Aliased<u32, PxisR::Register, PxisW::Register>,
+    /// Port x Interrupt Enable (PxIE)
+    pub pxie: Aliased<u32, PxieR::Register, PxieW::Register>,
+    /// Port x Command and Status (PxCMD)
+    pub pxcmd: Aliased<u32, PxcmdR::Register, PxcmdW::Register>,
+    _padding28: [u8; 4],
+    /// Port x Task File Data (PxTFD)
+    pub pxtfd: ReadOnly<u32, Pxtfd::Register>,
+    /// Port x Signature (PxSIG).
+    pub pxsig: ReadOnly<u32>,
+    /// Port x serial ATA Status (SCR0: Sstatus) (PxSSTS)
+    pub pxssts: ReadOnly<u32, Pxssts::Register>,
+    /// Port x Serial ATA Control (SCR2: SControl) (PxSCTL)
+    pub pxsctl: Aliased<u32, PxsctlR::Register, PxsctlW::Register>,
+    /// Port x Serial ATA Error (SCR1: SError)
+    pub pxserr: ReadWrite<u32, Pxserr::Register>,
+    /// Port x Serial ATA Active (SCR3: SActive)
+    pub pxsact: ReadWrite<u32>,
+    /// PxCI: Port x Command Issue
+    pub pxci: ReadWrite<u32>,
+    /// Port x Serial ATA Notification (SCR4: SNotification)
+    pub pxsntf: Aliased<u32, PxsntfR::Register, PxsntfW::Register>,
+    /// Port x FIS-based Switching Control
+    pub pxfbs: Aliased<u32, PxfbsR::Register, PxfbsW::Register>,
+    /// PxDEVSLP - Port x Device Sleep
+    pub pxdevslp: Aliased<u32, PxdevslpR::Register, PxdevslpW::Register>,
+    _padding72: [u8; 40],
+    /// PBERR - Port 0/1 BIST Error.
+    pub pberr: Aliased<u32, PberrR::Register, PberrW::Register>,
+    /// CMDS - Port 0/1 Command Status Error.
+    pub cmds: ReadOnly<u32, Cmds::Register>,
 }
-register_bitfields! [
+tock_registers::register_bitfields! [
     u32,
     pub PxclbR [
         CLB OFFSET(10) NUMBITS(22) [],
@@ -59,7 +57,7 @@ register_bitfields! [
         CLB OFFSET(10) NUMBITS(22) [],
     ]
 ];
-register_bitfields! [
+tock_registers::register_bitfields! [
     u32,
     pub PxfbR [
         FB OFFSET(8) NUMBITS(24) [],
@@ -69,7 +67,7 @@ register_bitfields! [
         FB OFFSET(8) NUMBITS(24) [],
     ]
 ];
-register_bitfields! [
+tock_registers::register_bitfields! [
     u32,
     pub PxisR [
         CPDS OFFSET(31) NUMBITS(1) [],
@@ -109,7 +107,7 @@ register_bitfields! [
         DHRS OFFSET(0) NUMBITS(1) [],
     ]
 ];
-register_bitfields! [
+tock_registers::register_bitfields! [
     u32,
     pub PxieR [
         CPDE OFFSET(31) NUMBITS(1) [],
@@ -152,7 +150,7 @@ register_bitfields! [
         DHRE OFFSET(0) NUMBITS(1) [],
     ]
 ];
-register_bitfields! [
+tock_registers::register_bitfields! [
     u32,
     pub PxcmdR [
         ICC OFFSET(28) NUMBITS(4) [],
@@ -192,7 +190,7 @@ register_bitfields! [
         ST OFFSET(0) NUMBITS(1) [],
     ]
 ];
-register_bitfields! [
+tock_registers::register_bitfields! [
     u32,
     pub Pxtfd [
         RESERVED0 OFFSET(16) NUMBITS(16) [],
@@ -204,7 +202,7 @@ register_bitfields! [
         STS_ERR OFFSET(0) NUMBITS(1) [],
     ]
 ];
-register_bitfields! [
+tock_registers::register_bitfields! [
     u32,
     pub Pxssts [
         RESERVED0 OFFSET(12) NUMBITS(20) [],
@@ -213,7 +211,7 @@ register_bitfields! [
         DET OFFSET(0) NUMBITS(4) [],
     ]
 ];
-register_bitfields! [
+tock_registers::register_bitfields! [
     u32,
     pub PxsctlR [
         RESERVED0 OFFSET(20) NUMBITS(12) [],
@@ -229,7 +227,7 @@ register_bitfields! [
         DET OFFSET(0) NUMBITS(4) [],
     ]
 ];
-register_bitfields! [
+tock_registers::register_bitfields! [
     u32,
     pub Pxserr [
         RESERVED0 OFFSET(27) NUMBITS(5) [],
@@ -254,7 +252,7 @@ register_bitfields! [
         ERR_I OFFSET(0) NUMBITS(1) [],
     ]
 ];
-register_bitfields! [
+tock_registers::register_bitfields! [
     u32,
     pub PxsntfR [
         RESERVED0 OFFSET(16) NUMBITS(16) [],
@@ -264,7 +262,7 @@ register_bitfields! [
         PMN OFFSET(0) NUMBITS(16) [],
     ]
 ];
-register_bitfields! [
+tock_registers::register_bitfields! [
     u32,
     pub PxfbsR [
         RESERVED0 OFFSET(20) NUMBITS(12) [],
@@ -282,7 +280,7 @@ register_bitfields! [
         EN OFFSET(0) NUMBITS(1) [],
     ]
 ];
-register_bitfields! [
+tock_registers::register_bitfields! [
     u32,
     pub PxdevslpR [
         RESERVED0 OFFSET(29) NUMBITS(3) [],
@@ -300,7 +298,7 @@ register_bitfields! [
         ADSE OFFSET(0) NUMBITS(1) [],
     ]
 ];
-register_bitfields! [
+tock_registers::register_bitfields! [
     u32,
     pub PberrR [
         RESERVED0 OFFSET(2) NUMBITS(30) [],
@@ -312,7 +310,7 @@ register_bitfields! [
         BERR OFFSET(0) NUMBITS(1) [],
     ]
 ];
-register_bitfields! [
+tock_registers::register_bitfields! [
     u32,
     pub Cmds [
         RESERVED0 OFFSET(12) NUMBITS(20) [],

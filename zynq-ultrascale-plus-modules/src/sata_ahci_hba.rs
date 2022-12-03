@@ -2,34 +2,32 @@
 use tock_registers::registers::{Aliased, ReadOnly, ReadWrite};
 /// SATA AHCI HBA Spec, SATA AHCI HBA Spec
 pub static mut SATA_AHCI_HBA: *mut Registers = 0xfd0c0000 as *mut Registers;
-register_structs! {
-    pub Registers {
-        /// HBA Capabilities
-        (0x00000000 => pub cap: ReadOnly<u32, Cap::Register>),
-        /// Global HBA Control
-        (0x00000004 => pub ghc: Aliased<u32, GhcR::Register, GhcW::Register>),
-        /// Interrupt Status
-        (0x00000008 => pub is: ReadWrite<u32>),
-        /// Ports Implemented
-        (0x0000000c => pub pi: ReadOnly<u32>),
-        /// AHCI Version
-        (0x00000010 => pub vs: ReadOnly<u32, Vs::Register>),
-        /// Command Completion Coalescing Control
-        (0x00000014 => pub ccc_ctl: Aliased<u32, CccCtlR::Register, CccCtlW::Register>),
-        /// Command Completion Coalescing Ports.
-        (0x00000018 => pub ccc_ports: ReadWrite<u32>),
-        /// Enclosure Management Location
-        (0x0000001c => pub em_loc: ReadOnly<u32, EmLoc::Register>),
-        /// Enclosure Management Control.
-        (0x00000020 => pub em_ctl: Aliased<u32, EmCtlR::Register, EmCtlW::Register>),
-        /// HBA Capabilities Extended
-        (0x00000024 => pub cap2: ReadOnly<u32, Cap2::Register>),
-        /// BIOS/OS Handoff Control and Status
-        (0x00000028 => pub bohc: Aliased<u32, BohcR::Register, BohcW::Register>),
-        (0x0000002c => @END),
-    }
+#[repr(C)]
+pub struct Registers {
+    /// HBA Capabilities
+    pub cap: ReadOnly<u32, Cap::Register>,
+    /// Global HBA Control
+    pub ghc: Aliased<u32, GhcR::Register, GhcW::Register>,
+    /// Interrupt Status
+    pub is: ReadWrite<u32>,
+    /// Ports Implemented
+    pub pi: ReadOnly<u32>,
+    /// AHCI Version
+    pub vs: ReadOnly<u32, Vs::Register>,
+    /// Command Completion Coalescing Control
+    pub ccc_ctl: Aliased<u32, CccCtlR::Register, CccCtlW::Register>,
+    /// Command Completion Coalescing Ports.
+    pub ccc_ports: ReadWrite<u32>,
+    /// Enclosure Management Location
+    pub em_loc: ReadOnly<u32, EmLoc::Register>,
+    /// Enclosure Management Control.
+    pub em_ctl: Aliased<u32, EmCtlR::Register, EmCtlW::Register>,
+    /// HBA Capabilities Extended
+    pub cap2: ReadOnly<u32, Cap2::Register>,
+    /// BIOS/OS Handoff Control and Status
+    pub bohc: Aliased<u32, BohcR::Register, BohcW::Register>,
 }
-register_bitfields! [
+tock_registers::register_bitfields! [
     u32,
     pub Cap [
         S64A OFFSET(31) NUMBITS(1) [],
@@ -55,7 +53,7 @@ register_bitfields! [
         NP OFFSET(0) NUMBITS(5) [],
     ]
 ];
-register_bitfields! [
+tock_registers::register_bitfields! [
     u32,
     pub GhcR [
         AE OFFSET(31) NUMBITS(1) [],
@@ -70,14 +68,14 @@ register_bitfields! [
         HR OFFSET(0) NUMBITS(1) [],
     ]
 ];
-register_bitfields! [
+tock_registers::register_bitfields! [
     u32,
     pub Vs [
         MJR OFFSET(16) NUMBITS(16) [],
         MNR OFFSET(0) NUMBITS(16) [],
     ]
 ];
-register_bitfields! [
+tock_registers::register_bitfields! [
     u32,
     pub CccCtlR [
         TV OFFSET(16) NUMBITS(16) [],
@@ -92,14 +90,14 @@ register_bitfields! [
         EN OFFSET(0) NUMBITS(1) [],
     ]
 ];
-register_bitfields! [
+tock_registers::register_bitfields! [
     u32,
     pub EmLoc [
         OFST OFFSET(16) NUMBITS(16) [],
         SZ OFFSET(0) NUMBITS(16) [],
     ]
 ];
-register_bitfields! [
+tock_registers::register_bitfields! [
     u32,
     pub EmCtlR [
         RESERVED0 OFFSET(28) NUMBITS(4) [],
@@ -124,7 +122,7 @@ register_bitfields! [
         STS_MR OFFSET(0) NUMBITS(1) [],
     ]
 ];
-register_bitfields! [
+tock_registers::register_bitfields! [
     u32,
     pub Cap2 [
         RESERVED0 OFFSET(6) NUMBITS(26) [],
@@ -136,7 +134,7 @@ register_bitfields! [
         BOH OFFSET(0) NUMBITS(1) [],
     ]
 ];
-register_bitfields! [
+tock_registers::register_bitfields! [
     u32,
     pub BohcR [
         RESERVED0 OFFSET(5) NUMBITS(27) [],

@@ -2,71 +2,69 @@
 use tock_registers::registers::{Aliased, ReadOnly, WriteOnly};
 /// PMU MicroBlaze Processor I/O Module, PMU IO Module
 pub static mut PMU_IOMODULE: *mut Registers = 0xffd40000 as *mut Registers;
-register_structs! {
-    pub Registers {
-        (0x00000000 => _padding0),
-        /// Interrupt Mode Register
-        (0x0000000c => pub irq_mode: WriteOnly<u32>),
-        /// IOModule Misc Control Register (GPO0)
-        (0x00000010 => pub gpo0: WriteOnly<u32, Gpo0::Register>),
-        /// PMU to MIO Signals (GPO1)
-        (0x00000014 => pub gpo1: Aliased<u32, Gpo1R::Register, Gpo1W::Register>),
-        /// PMU Acknowlegements (GPO2)
-        (0x00000018 => pub gpo2: Aliased<u32, Gpo2R::Register, Gpo2W::Register>),
-        /// PMU to PL Signals (GPO3)
-        (0x0000001c => pub gpo3: WriteOnly<u32, Gpo3::Register>),
-        /// Fault Tolerance Status Register (GPI0)
-        (0x00000020 => pub gpi0: ReadOnly<u32, Gpi0::Register>),
-        /// General Purpose Input Register 1
-        (0x00000024 => pub gpi1: ReadOnly<u32, Gpi1::Register>),
-        /// General Purpose Input Register 2
-        (0x00000028 => pub gpi2: ReadOnly<u32, Gpi2::Register>),
-        /// General Purpose Input Register 3
-        (0x0000002c => pub gpi3: ReadOnly<u32, Gpi3::Register>),
-        /// Interrupt Status Register
-        (0x00000030 => pub irq_status: ReadOnly<u32, IrqStatus::Register>),
-        /// Interrupt Pending Register
-        (0x00000034 => pub irq_pending: ReadOnly<u32, IrqPending::Register>),
-        /// Interrupt Enable Register
-        (0x00000038 => pub irq_enable: Aliased<u32, IrqEnableR::Register, IrqEnableW::Register>),
-        /// Interrupt Acknowledge Register
-        (0x0000003c => pub irq_ack: Aliased<u32, IrqAckR::Register, IrqAckW::Register>),
-        /// PIT0 Preload Register
-        (0x00000040 => pub pit0_preload: ReadOnly<u32>),
-        /// PIT0 Counter Register
-        (0x00000044 => pub pit0_counter: ReadOnly<u32>),
-        /// PIT0 Control Register
-        (0x00000048 => pub pit0_control: Aliased<u32, Pit0ControlR::Register, Pit0ControlW::Register>),
-        (0x0000004c => _padding76),
-        /// PIT1 Preload Register
-        (0x00000050 => pub pit1_preload: ReadOnly<u32>),
-        /// PIT1 Counter Register
-        (0x00000054 => pub pit1_counter: ReadOnly<u32>),
-        /// PIT1 Control Register
-        (0x00000058 => pub pit1_control: Aliased<u32, Pit1ControlR::Register, Pit1ControlW::Register>),
-        (0x0000005c => _padding92),
-        /// PIT2 Preload Register
-        (0x00000060 => pub pit2_preload: ReadOnly<u32>),
-        /// PIT2 Counter Register
-        (0x00000064 => pub pit2_counter: ReadOnly<u32>),
-        /// PIT2 Control Register
-        (0x00000068 => pub pit2_control: Aliased<u32, Pit2ControlR::Register, Pit2ControlW::Register>),
-        (0x0000006c => _padding108),
-        /// PIT3 Preload Register
-        (0x00000070 => pub pit3_preload: ReadOnly<u32>),
-        /// PIT3 Counter Register
-        (0x00000074 => pub pit3_counter: ReadOnly<u32>),
-        /// PIT3 Control Register
-        (0x00000078 => pub pit3_control: Aliased<u32, Pit3ControlR::Register, Pit3ControlW::Register>),
-        (0x0000007c => _padding124),
-        /// Instruction Injection Address (IOModule_1.GPO1)
-        (0x00001014 => pub instruction_inject_addr: WriteOnly<u32>),
-        /// Instruction Injection (IOModule_1.GPO2)
-        (0x00001018 => pub instruction_inject: WriteOnly<u32>),
-        (0x0000101c => @END),
-    }
+#[repr(C)]
+pub struct Registers {
+    _padding0: [u8; 12],
+    /// Interrupt Mode Register
+    pub irq_mode: WriteOnly<u32>,
+    /// IOModule Misc Control Register (GPO0)
+    pub gpo0: WriteOnly<u32, Gpo0::Register>,
+    /// PMU to MIO Signals (GPO1)
+    pub gpo1: Aliased<u32, Gpo1R::Register, Gpo1W::Register>,
+    /// PMU Acknowlegements (GPO2)
+    pub gpo2: Aliased<u32, Gpo2R::Register, Gpo2W::Register>,
+    /// PMU to PL Signals (GPO3)
+    pub gpo3: WriteOnly<u32, Gpo3::Register>,
+    /// Fault Tolerance Status Register (GPI0)
+    pub gpi0: ReadOnly<u32, Gpi0::Register>,
+    /// General Purpose Input Register 1
+    pub gpi1: ReadOnly<u32, Gpi1::Register>,
+    /// General Purpose Input Register 2
+    pub gpi2: ReadOnly<u32, Gpi2::Register>,
+    /// General Purpose Input Register 3
+    pub gpi3: ReadOnly<u32, Gpi3::Register>,
+    /// Interrupt Status Register
+    pub irq_status: ReadOnly<u32, IrqStatus::Register>,
+    /// Interrupt Pending Register
+    pub irq_pending: ReadOnly<u32, IrqPending::Register>,
+    /// Interrupt Enable Register
+    pub irq_enable: Aliased<u32, IrqEnableR::Register, IrqEnableW::Register>,
+    /// Interrupt Acknowledge Register
+    pub irq_ack: Aliased<u32, IrqAckR::Register, IrqAckW::Register>,
+    /// PIT0 Preload Register
+    pub pit0_preload: ReadOnly<u32>,
+    /// PIT0 Counter Register
+    pub pit0_counter: ReadOnly<u32>,
+    /// PIT0 Control Register
+    pub pit0_control: Aliased<u32, Pit0ControlR::Register, Pit0ControlW::Register>,
+    _padding76: [u8; 4],
+    /// PIT1 Preload Register
+    pub pit1_preload: ReadOnly<u32>,
+    /// PIT1 Counter Register
+    pub pit1_counter: ReadOnly<u32>,
+    /// PIT1 Control Register
+    pub pit1_control: Aliased<u32, Pit1ControlR::Register, Pit1ControlW::Register>,
+    _padding92: [u8; 4],
+    /// PIT2 Preload Register
+    pub pit2_preload: ReadOnly<u32>,
+    /// PIT2 Counter Register
+    pub pit2_counter: ReadOnly<u32>,
+    /// PIT2 Control Register
+    pub pit2_control: Aliased<u32, Pit2ControlR::Register, Pit2ControlW::Register>,
+    _padding108: [u8; 4],
+    /// PIT3 Preload Register
+    pub pit3_preload: ReadOnly<u32>,
+    /// PIT3 Counter Register
+    pub pit3_counter: ReadOnly<u32>,
+    /// PIT3 Control Register
+    pub pit3_control: Aliased<u32, Pit3ControlR::Register, Pit3ControlW::Register>,
+    _padding124: [u8; 3992],
+    /// Instruction Injection Address (IOModule_1.GPO1)
+    pub instruction_inject_addr: WriteOnly<u32>,
+    /// Instruction Injection (IOModule_1.GPO2)
+    pub instruction_inject: WriteOnly<u32>,
 }
-register_bitfields! [
+tock_registers::register_bitfields! [
     u32,
     pub Gpo0 [
         MAGIC_WORD_1 OFFSET(24) NUMBITS(8) [],
@@ -84,7 +82,7 @@ register_bitfields! [
         DEBUG_REMAP OFFSET(0) NUMBITS(1) [],
     ]
 ];
-register_bitfields! [
+tock_registers::register_bitfields! [
     u32,
     pub Gpo1R [
         RESERVED0 OFFSET(11) NUMBITS(21) [],
@@ -100,7 +98,7 @@ register_bitfields! [
         MIO_0 OFFSET(0) NUMBITS(1) [],
     ]
 ];
-register_bitfields! [
+tock_registers::register_bitfields! [
     u32,
     pub Gpo2R [
         RESERVED0 OFFSET(10) NUMBITS(22) [],
@@ -113,7 +111,7 @@ register_bitfields! [
         PCAP_EN OFFSET(6) NUMBITS(1) [],
     ]
 ];
-register_bitfields! [
+tock_registers::register_bitfields! [
     u32,
     pub Gpo3 [
         PL_GPO_31 OFFSET(31) NUMBITS(1) [],
@@ -150,7 +148,7 @@ register_bitfields! [
         PL_GPO_0 OFFSET(0) NUMBITS(1) [],
     ]
 ];
-register_bitfields! [
+tock_registers::register_bitfields! [
     u32,
     pub Gpi0 [
         RFT_ECC_FATAL_ERR OFFSET(31) NUMBITS(1) [],
@@ -187,7 +185,7 @@ register_bitfields! [
         NFT_LS_MISMATCH_12_A OFFSET(0) NUMBITS(1) [],
     ]
 ];
-register_bitfields! [
+tock_registers::register_bitfields! [
     u32,
     pub Gpi1 [
         APB_AIB_ERROR OFFSET(31) NUMBITS(1) [],
@@ -219,7 +217,7 @@ register_bitfields! [
         ACPU_0_WAKE OFFSET(0) NUMBITS(1) [],
     ]
 ];
-register_bitfields! [
+tock_registers::register_bitfields! [
     u32,
     pub Gpi2 [
         VCC_INT_FP_DISCONNECT OFFSET(31) NUMBITS(1) [],
@@ -246,7 +244,7 @@ register_bitfields! [
         ACPU_0_SLEEP OFFSET(0) NUMBITS(1) [],
     ]
 ];
-register_bitfields! [
+tock_registers::register_bitfields! [
     u32,
     pub Gpi3 [
         PL_GPI_31 OFFSET(31) NUMBITS(1) [],
@@ -283,7 +281,7 @@ register_bitfields! [
         PL_GPI_0 OFFSET(0) NUMBITS(1) [],
     ]
 ];
-register_bitfields! [
+tock_registers::register_bitfields! [
     u32,
     pub IrqStatus [
         CSU_PMU_SEC_LOCK OFFSET(31) NUMBITS(1) [],
@@ -317,7 +315,7 @@ register_bitfields! [
         RESERVED5 OFFSET(0) NUMBITS(1) [],
     ]
 ];
-register_bitfields! [
+tock_registers::register_bitfields! [
     u32,
     pub IrqPending [
         CSU_PMU_SEC_LOCK OFFSET(31) NUMBITS(1) [],
@@ -351,7 +349,7 @@ register_bitfields! [
         RESERVED5 OFFSET(0) NUMBITS(1) [],
     ]
 ];
-register_bitfields! [
+tock_registers::register_bitfields! [
     u32,
     pub IrqEnableR [
         INV_ADDR OFFSET(29) NUMBITS(1) [],
@@ -387,7 +385,7 @@ register_bitfields! [
         PIT0 OFFSET(3) NUMBITS(1) [],
     ]
 ];
-register_bitfields! [
+tock_registers::register_bitfields! [
     u32,
     pub IrqAckR [
         INV_ADDR OFFSET(29) NUMBITS(1) [],
@@ -423,7 +421,7 @@ register_bitfields! [
         PIT0 OFFSET(3) NUMBITS(1) [],
     ]
 ];
-register_bitfields! [
+tock_registers::register_bitfields! [
     u32,
     pub Pit0ControlR [
         RESERVED0 OFFSET(2) NUMBITS(30) [],
@@ -433,7 +431,7 @@ register_bitfields! [
         EN OFFSET(0) NUMBITS(1) [],
     ]
 ];
-register_bitfields! [
+tock_registers::register_bitfields! [
     u32,
     pub Pit1ControlR [
         RESERVED0 OFFSET(2) NUMBITS(30) [],
@@ -443,7 +441,7 @@ register_bitfields! [
         EN OFFSET(0) NUMBITS(1) [],
     ]
 ];
-register_bitfields! [
+tock_registers::register_bitfields! [
     u32,
     pub Pit2ControlR [
         RESERVED0 OFFSET(2) NUMBITS(30) [],
@@ -453,7 +451,7 @@ register_bitfields! [
         EN OFFSET(0) NUMBITS(1) [],
     ]
 ];
-register_bitfields! [
+tock_registers::register_bitfields! [
     u32,
     pub Pit3ControlR [
         RESERVED0 OFFSET(2) NUMBITS(30) [],

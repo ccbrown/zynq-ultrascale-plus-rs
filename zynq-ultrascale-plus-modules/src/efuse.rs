@@ -2,137 +2,135 @@
 use tock_registers::registers::{Aliased, ReadOnly, ReadWrite, WriteOnly};
 /// eFuse Controller, eFUSE Control
 pub static mut EFUSE: *mut Registers = 0xffcc0000 as *mut Registers;
-register_structs! {
-    pub Registers {
-        /// Write Lock
-        (0x00000000 => pub wr_lock: ReadWrite<u16>),
-        (0x00000002 => _padding2),
-        /// Configuration
-        (0x00000004 => pub cfg: ReadWrite<u32, Cfg::Register>),
-        /// Status
-        (0x00000008 => pub status: ReadOnly<u32, Status::Register>),
-        /// eFuse Program Bit Address
-        (0x0000000c => pub efuse_pgm_addr: WriteOnly<u32, EfusePgmAddr::Register>),
-        /// eFuse Read Address
-        (0x00000010 => pub efuse_rd_addr: WriteOnly<u32, EfuseRdAddr::Register>),
-        /// eFuse Read Data
-        (0x00000014 => pub efuse_rd_data: ReadOnly<u32>),
-        /// Program Strobe Width
-        (0x00000018 => pub tpgm: ReadWrite<u32, Tpgm::Register>),
-        /// Read Strobe Width
-        (0x0000001c => pub trd: ReadWrite<u32, Trd::Register>),
-        /// PS to STROBE timing
-        (0x00000020 => pub tsu_h_ps: ReadWrite<u32, TsuHPs::Register>),
-        /// PS to CS timing
-        (0x00000024 => pub tsu_h_ps_cs: ReadWrite<u32, TsuHPsCs::Register>),
-        (0x00000028 => _padding40),
-        /// CS to STROBE timing
-        (0x0000002c => pub tsu_h_cs: ReadWrite<u32, TsuHCs::Register>),
-        /// eFuse Interrupt Status
-        (0x00000030 => pub efuse_isr: Aliased<u32, EfuseIsrR::Register, EfuseIsrW::Register>),
-        /// eFuse Interrupt Mask Status
-        (0x00000034 => pub efuse_imr: ReadOnly<u32, EfuseImr::Register>),
-        /// eFuse Interrupt Enable
-        (0x00000038 => pub efuse_ier: WriteOnly<u32, EfuseIer::Register>),
-        /// eFuse Interrupt Disable
-        (0x0000003c => pub efuse_idr: WriteOnly<u32, EfuseIdr::Register>),
-        /// eFuse Cache Load
-        (0x00000040 => pub efuse_cache_load: WriteOnly<u32, EfuseCacheLoad::Register>),
-        /// eFuse Program Lock
-        (0x00000044 => pub efuse_pgm_lock: ReadWrite<u32, EfusePgmLock::Register>),
-        /// EFUSE AES Key Integrity Check
-        (0x00000048 => pub efuse_aes_crc: WriteOnly<u32>),
-        (0x0000004c => _padding76),
-        /// Device DNA 0
-        (0x0000100c => pub dna_0: ReadOnly<u32>),
-        /// Device DNA 1
-        (0x00001010 => pub dna_1: ReadOnly<u32>),
-        /// Device DNA 2
-        (0x00001014 => pub dna_2: ReadOnly<u32>),
-        /// Available Functionality
-        (0x00001018 => pub extended_idcode: ReadOnly<u32, ExtendedIdcode::Register>),
-        /// SysOsc Clock Control
-        (0x0000101c => pub sysosc_ctrl: ReadOnly<u32, SysoscCtrl::Register>),
-        /// User Fuses 0
-        (0x00001020 => pub user_0: ReadOnly<u32>),
-        /// User Fuses 1
-        (0x00001024 => pub user_1: ReadOnly<u32>),
-        /// User Fuses 2
-        (0x00001028 => pub user_2: ReadOnly<u32>),
-        /// User Fuses 3
-        (0x0000102c => pub user_3: ReadOnly<u32>),
-        /// User Fuses 4
-        (0x00001030 => pub user_4: ReadOnly<u32>),
-        /// User Fuses 5
-        (0x00001034 => pub user_5: ReadOnly<u32>),
-        /// User Fuses 6
-        (0x00001038 => pub user_6: ReadOnly<u32>),
-        /// User Fuses 7
-        (0x0000103c => pub user_7: ReadOnly<u32>),
-        /// Miscellaneous User Control
-        (0x00001040 => pub misc_user_ctrl: ReadOnly<u32, MiscUserCtrl::Register>),
-        /// ROM Control
-        (0x00001044 => pub rom_ctrl: ReadOnly<u32, RomCtrl::Register>),
-        (0x00001048 => _padding4168),
-        /// PUF Miscellaneous Control
-        (0x00001054 => pub pmu_bootrom_ctrl: ReadOnly<u32, PmuBootromCtrl::Register>),
-        /// Security Control
-        (0x00001058 => pub sec_ctrl: ReadOnly<u32, SecCtrl::Register>),
-        /// SPK Identification code
-        (0x0000105c => pub spk_id: ReadOnly<u32>),
-        (0x00001060 => _padding4192),
-        /// PPK0 0
-        (0x000010a0 => pub ppk0_0: ReadOnly<u32>),
-        /// PPK0 1
-        (0x000010a4 => pub ppk0_1: ReadOnly<u32>),
-        /// PPK0 2
-        (0x000010a8 => pub ppk0_2: ReadOnly<u32>),
-        /// PPK0 3
-        (0x000010ac => pub ppk0_3: ReadOnly<u32>),
-        /// PPK0 4
-        (0x000010b0 => pub ppk0_4: ReadOnly<u32>),
-        /// PPK0 5
-        (0x000010b4 => pub ppk0_5: ReadOnly<u32>),
-        /// PPK0 6
-        (0x000010b8 => pub ppk0_6: ReadOnly<u32>),
-        /// PPK0 7
-        (0x000010bc => pub ppk0_7: ReadOnly<u32>),
-        /// PPK0 8
-        (0x000010c0 => pub ppk0_8: ReadOnly<u32>),
-        /// PPK0 9
-        (0x000010c4 => pub ppk0_9: ReadOnly<u32>),
-        /// PPK0 10
-        (0x000010c8 => pub ppk0_10: ReadOnly<u32>),
-        /// PPK0 11
-        (0x000010cc => pub ppk0_11: ReadOnly<u32>),
-        /// PPK1 0
-        (0x000010d0 => pub ppk1_0: ReadOnly<u32>),
-        /// PPK1 1
-        (0x000010d4 => pub ppk1_1: ReadOnly<u32>),
-        /// PPK1 2
-        (0x000010d8 => pub ppk1_2: ReadOnly<u32>),
-        /// PPK1 3
-        (0x000010dc => pub ppk1_3: ReadOnly<u32>),
-        /// PPK1 4
-        (0x000010e0 => pub ppk1_4: ReadOnly<u32>),
-        /// PPK1 5
-        (0x000010e4 => pub ppk1_5: ReadOnly<u32>),
-        /// PPK1 6
-        (0x000010e8 => pub ppk1_6: ReadOnly<u32>),
-        /// PPK1 7
-        (0x000010ec => pub ppk1_7: ReadOnly<u32>),
-        /// PPK1 8
-        (0x000010f0 => pub ppk1_8: ReadOnly<u32>),
-        /// PPK1 9
-        (0x000010f4 => pub ppk1_9: ReadOnly<u32>),
-        /// PPK1 10
-        (0x000010f8 => pub ppk1_10: ReadOnly<u32>),
-        /// PPK1 11
-        (0x000010fc => pub ppk1_11: ReadOnly<u32>),
-        (0x00001100 => @END),
-    }
+#[repr(C)]
+pub struct Registers {
+    /// Write Lock
+    pub wr_lock: ReadWrite<u16>,
+    _padding2: [u8; 2],
+    /// Configuration
+    pub cfg: ReadWrite<u32, Cfg::Register>,
+    /// Status
+    pub status: ReadOnly<u32, Status::Register>,
+    /// eFuse Program Bit Address
+    pub efuse_pgm_addr: WriteOnly<u32, EfusePgmAddr::Register>,
+    /// eFuse Read Address
+    pub efuse_rd_addr: WriteOnly<u32, EfuseRdAddr::Register>,
+    /// eFuse Read Data
+    pub efuse_rd_data: ReadOnly<u32>,
+    /// Program Strobe Width
+    pub tpgm: ReadWrite<u32, Tpgm::Register>,
+    /// Read Strobe Width
+    pub trd: ReadWrite<u32, Trd::Register>,
+    /// PS to STROBE timing
+    pub tsu_h_ps: ReadWrite<u32, TsuHPs::Register>,
+    /// PS to CS timing
+    pub tsu_h_ps_cs: ReadWrite<u32, TsuHPsCs::Register>,
+    _padding40: [u8; 4],
+    /// CS to STROBE timing
+    pub tsu_h_cs: ReadWrite<u32, TsuHCs::Register>,
+    /// eFuse Interrupt Status
+    pub efuse_isr: Aliased<u32, EfuseIsrR::Register, EfuseIsrW::Register>,
+    /// eFuse Interrupt Mask Status
+    pub efuse_imr: ReadOnly<u32, EfuseImr::Register>,
+    /// eFuse Interrupt Enable
+    pub efuse_ier: WriteOnly<u32, EfuseIer::Register>,
+    /// eFuse Interrupt Disable
+    pub efuse_idr: WriteOnly<u32, EfuseIdr::Register>,
+    /// eFuse Cache Load
+    pub efuse_cache_load: WriteOnly<u32, EfuseCacheLoad::Register>,
+    /// eFuse Program Lock
+    pub efuse_pgm_lock: ReadWrite<u32, EfusePgmLock::Register>,
+    /// EFUSE AES Key Integrity Check
+    pub efuse_aes_crc: WriteOnly<u32>,
+    _padding76: [u8; 4032],
+    /// Device DNA 0
+    pub dna_0: ReadOnly<u32>,
+    /// Device DNA 1
+    pub dna_1: ReadOnly<u32>,
+    /// Device DNA 2
+    pub dna_2: ReadOnly<u32>,
+    /// Available Functionality
+    pub extended_idcode: ReadOnly<u32, ExtendedIdcode::Register>,
+    /// SysOsc Clock Control
+    pub sysosc_ctrl: ReadOnly<u32, SysoscCtrl::Register>,
+    /// User Fuses 0
+    pub user_0: ReadOnly<u32>,
+    /// User Fuses 1
+    pub user_1: ReadOnly<u32>,
+    /// User Fuses 2
+    pub user_2: ReadOnly<u32>,
+    /// User Fuses 3
+    pub user_3: ReadOnly<u32>,
+    /// User Fuses 4
+    pub user_4: ReadOnly<u32>,
+    /// User Fuses 5
+    pub user_5: ReadOnly<u32>,
+    /// User Fuses 6
+    pub user_6: ReadOnly<u32>,
+    /// User Fuses 7
+    pub user_7: ReadOnly<u32>,
+    /// Miscellaneous User Control
+    pub misc_user_ctrl: ReadOnly<u32, MiscUserCtrl::Register>,
+    /// ROM Control
+    pub rom_ctrl: ReadOnly<u32, RomCtrl::Register>,
+    _padding4168: [u8; 12],
+    /// PUF Miscellaneous Control
+    pub pmu_bootrom_ctrl: ReadOnly<u32, PmuBootromCtrl::Register>,
+    /// Security Control
+    pub sec_ctrl: ReadOnly<u32, SecCtrl::Register>,
+    /// SPK Identification code
+    pub spk_id: ReadOnly<u32>,
+    _padding4192: [u8; 64],
+    /// PPK0 0
+    pub ppk0_0: ReadOnly<u32>,
+    /// PPK0 1
+    pub ppk0_1: ReadOnly<u32>,
+    /// PPK0 2
+    pub ppk0_2: ReadOnly<u32>,
+    /// PPK0 3
+    pub ppk0_3: ReadOnly<u32>,
+    /// PPK0 4
+    pub ppk0_4: ReadOnly<u32>,
+    /// PPK0 5
+    pub ppk0_5: ReadOnly<u32>,
+    /// PPK0 6
+    pub ppk0_6: ReadOnly<u32>,
+    /// PPK0 7
+    pub ppk0_7: ReadOnly<u32>,
+    /// PPK0 8
+    pub ppk0_8: ReadOnly<u32>,
+    /// PPK0 9
+    pub ppk0_9: ReadOnly<u32>,
+    /// PPK0 10
+    pub ppk0_10: ReadOnly<u32>,
+    /// PPK0 11
+    pub ppk0_11: ReadOnly<u32>,
+    /// PPK1 0
+    pub ppk1_0: ReadOnly<u32>,
+    /// PPK1 1
+    pub ppk1_1: ReadOnly<u32>,
+    /// PPK1 2
+    pub ppk1_2: ReadOnly<u32>,
+    /// PPK1 3
+    pub ppk1_3: ReadOnly<u32>,
+    /// PPK1 4
+    pub ppk1_4: ReadOnly<u32>,
+    /// PPK1 5
+    pub ppk1_5: ReadOnly<u32>,
+    /// PPK1 6
+    pub ppk1_6: ReadOnly<u32>,
+    /// PPK1 7
+    pub ppk1_7: ReadOnly<u32>,
+    /// PPK1 8
+    pub ppk1_8: ReadOnly<u32>,
+    /// PPK1 9
+    pub ppk1_9: ReadOnly<u32>,
+    /// PPK1 10
+    pub ppk1_10: ReadOnly<u32>,
+    /// PPK1 11
+    pub ppk1_11: ReadOnly<u32>,
 }
-register_bitfields! [
+tock_registers::register_bitfields! [
     u32,
     pub Cfg [
         SLVERR_ENABLE OFFSET(5) NUMBITS(1) [],
@@ -141,7 +139,7 @@ register_bitfields! [
         EFUSE_CLK_SEL OFFSET(0) NUMBITS(1) [],
     ]
 ];
-register_bitfields! [
+tock_registers::register_bitfields! [
     u32,
     pub Status [
         AES_CRC_PASS OFFSET(7) NUMBITS(1) [],
@@ -154,7 +152,7 @@ register_bitfields! [
         EFUSE_0_TBIT OFFSET(0) NUMBITS(1) [],
     ]
 ];
-register_bitfields! [
+tock_registers::register_bitfields! [
     u32,
     pub EfusePgmAddr [
         EFUSE OFFSET(11) NUMBITS(2) [],
@@ -162,44 +160,44 @@ register_bitfields! [
         COLUMN OFFSET(0) NUMBITS(5) [],
     ]
 ];
-register_bitfields! [
+tock_registers::register_bitfields! [
     u32,
     pub EfuseRdAddr [
         EFUSE OFFSET(11) NUMBITS(2) [],
         ROW OFFSET(5) NUMBITS(6) [],
     ]
 ];
-register_bitfields! [
+tock_registers::register_bitfields! [
     u32,
     pub Tpgm [
         VALUE OFFSET(0) NUMBITS(16) [],
     ]
 ];
-register_bitfields! [
+tock_registers::register_bitfields! [
     u32,
     pub Trd [
         VALUE OFFSET(0) NUMBITS(8) [],
     ]
 ];
-register_bitfields! [
+tock_registers::register_bitfields! [
     u32,
     pub TsuHPs [
         VALUE OFFSET(0) NUMBITS(8) [],
     ]
 ];
-register_bitfields! [
+tock_registers::register_bitfields! [
     u32,
     pub TsuHPsCs [
         VALUE OFFSET(0) NUMBITS(8) [],
     ]
 ];
-register_bitfields! [
+tock_registers::register_bitfields! [
     u32,
     pub TsuHCs [
         VALUE OFFSET(0) NUMBITS(4) [],
     ]
 ];
-register_bitfields! [
+tock_registers::register_bitfields! [
     u32,
     pub EfuseIsrR [
         APB_SLVERR OFFSET(31) NUMBITS(1) [],
@@ -219,7 +217,7 @@ register_bitfields! [
         PGM_DONE OFFSET(0) NUMBITS(1) [],
     ]
 ];
-register_bitfields! [
+tock_registers::register_bitfields! [
     u32,
     pub EfuseImr [
         APB_SLVERR OFFSET(31) NUMBITS(1) [],
@@ -231,7 +229,7 @@ register_bitfields! [
         PGM_DONE OFFSET(0) NUMBITS(1) [],
     ]
 ];
-register_bitfields! [
+tock_registers::register_bitfields! [
     u32,
     pub EfuseIer [
         APB_SLVERR OFFSET(31) NUMBITS(1) [],
@@ -243,7 +241,7 @@ register_bitfields! [
         PGM_DONE OFFSET(0) NUMBITS(1) [],
     ]
 ];
-register_bitfields! [
+tock_registers::register_bitfields! [
     u32,
     pub EfuseIdr [
         APB_SLVERR OFFSET(31) NUMBITS(1) [],
@@ -255,19 +253,19 @@ register_bitfields! [
         PGM_DONE OFFSET(0) NUMBITS(1) [],
     ]
 ];
-register_bitfields! [
+tock_registers::register_bitfields! [
     u32,
     pub EfuseCacheLoad [
         LOAD OFFSET(0) NUMBITS(1) [],
     ]
 ];
-register_bitfields! [
+tock_registers::register_bitfields! [
     u32,
     pub EfusePgmLock [
         SPK_ID_LOCK OFFSET(0) NUMBITS(1) [],
     ]
 ];
-register_bitfields! [
+tock_registers::register_bitfields! [
     u32,
     pub ExtendedIdcode [
         RESERVED0 OFFSET(16) NUMBITS(16) [],
@@ -289,7 +287,7 @@ register_bitfields! [
         APU0_DIS OFFSET(0) NUMBITS(1) [],
     ]
 ];
-register_bitfields! [
+tock_registers::register_bitfields! [
     u32,
     pub SysoscCtrl [
         RESERVED0 OFFSET(5) NUMBITS(27) [],
@@ -300,7 +298,7 @@ register_bitfields! [
         SYSOSC_EN OFFSET(0) NUMBITS(1) [],
     ]
 ];
-register_bitfields! [
+tock_registers::register_bitfields! [
     u32,
     pub MiscUserCtrl [
         RESERVED0 OFFSET(31) NUMBITS(1) [],
@@ -337,7 +335,7 @@ register_bitfields! [
         USR_WRLK_0 OFFSET(0) NUMBITS(1) [],
     ]
 ];
-register_bitfields! [
+tock_registers::register_bitfields! [
     u32,
     pub RomCtrl [
         RESERVED0 OFFSET(17) NUMBITS(15) [],
@@ -348,7 +346,7 @@ register_bitfields! [
         PBR_BOOT_ERROR OFFSET(0) NUMBITS(3) [],
     ]
 ];
-register_bitfields! [
+tock_registers::register_bitfields! [
     u32,
     pub PmuBootromCtrl [
         REGISTER_DIS OFFSET(31) NUMBITS(1) [],
@@ -362,7 +360,7 @@ register_bitfields! [
         AUX OFFSET(0) NUMBITS(24) [],
     ]
 ];
-register_bitfields! [
+tock_registers::register_bitfields! [
     u32,
     pub SecCtrl [
         PPK1_INVLD OFFSET(30) NUMBITS(2) [],

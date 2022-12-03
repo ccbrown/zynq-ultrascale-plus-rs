@@ -2,68 +2,70 @@
 use tock_registers::registers::{Aliased, ReadOnly, ReadWrite};
 /// NAND ONFI Control, NAND ONFI Control
 pub static mut NAND: *mut Registers = 0xff100000 as *mut Registers;
-register_structs! {
-    pub Registers {
-        /// Packet Configuration.
-        (0x00000000 => pub packet: Aliased<u32, PacketR::Register, PacketW::Register>),
-        /// Memory Address, reg 1.
-        (0x00000004 => pub memory_address_register1: ReadWrite<u32>),
-        /// Memory Address, reg 2.
-        (0x00000008 => pub memory_address_register2: Aliased<u32, MemoryAddressRegister2R::Register, MemoryAddressRegister2W::Register>),
-        /// Command and Configuration.
-        (0x0000000c => pub command: Aliased<u32, CommandR::Register, CommandW::Register>),
-        /// Initiate Controller Operations.
-        (0x00000010 => pub program: Aliased<u32, ProgramR::Register, ProgramW::Register>),
-        /// Interrupt Status Enable.
-        (0x00000014 => pub interrupt_status_enable: Aliased<u32, InterruptStatusEnableR::Register, InterruptStatusEnableW::Register>),
-        /// Interrupt Signal Enable.
-        (0x00000018 => pub interrupt_signal_enable: Aliased<u32, InterruptSignalEnableR::Register, InterruptSignalEnableW::Register>),
-        /// Interrupt Status.
-        (0x0000001c => pub interrupt_status: Aliased<u32, InterruptStatusR::Register, InterruptStatusW::Register>),
-        /// Ready Busy Status.
-        (0x00000020 => pub ready_busy: ReadOnly<u32, ReadyBusy::Register>),
-        /// DMA System Address, reg 1.
-        (0x00000024 => pub dma_system_address1: ReadWrite<u32>),
-        /// Flash Memory Status.
-        (0x00000028 => pub flash_status: ReadOnly<u32, FlashStatus::Register>),
-        /// Interface Timing Control.
-        (0x0000002c => pub timing: Aliased<u32, TimingR::Register, TimingW::Register>),
-        /// Buffer Data Port.
-        (0x00000030 => pub buffer_data_port: ReadWrite<u32>),
-        /// ECC Configuration.
-        (0x00000034 => pub ecc: Aliased<u32, EccR::Register, EccW::Register>),
-        /// ECC Error Count
-        (0x00000038 => pub ecc_error_count: ReadOnly<u32, EccErrorCount::Register>),
-        /// ECC Spare Command
-        (0x0000003c => pub ecc_spare_command: Aliased<u32, EccSpareCommandR::Register, EccSpareCommandW::Register>),
-        /// Count of 1-bit Errors
-        (0x00000040 => pub error_count_1bit: ReadWrite<u32>),
-        /// Count of 2-bit Errors
-        (0x00000044 => pub error_count_2bit: ReadWrite<u32>),
-        /// Count of 3-bit Errors
-        (0x00000048 => pub error_count_3bit: ReadWrite<u32>),
-        /// Count of 4-bit Errors
-        (0x0000004c => pub error_count_4bit: ReadWrite<u32>),
-        /// DMA System Address, reg2.
-        (0x00000050 => pub dma_system_address0: ReadWrite<u32>),
-        /// DMA Buffer Boundary.
-        (0x00000054 => pub dma_buffer_boundary: Aliased<u32, DmaBufferBoundaryR::Register, DmaBufferBoundaryW::Register>),
-        /// CPU Release after Transferring Primary Boot Code.
-        (0x00000058 => pub cpu_release: Aliased<u32, CpuReleaseR::Register, CpuReleaseW::Register>),
-        /// Count of 5-bit Errors
-        (0x0000005c => pub error_count_5bit: ReadWrite<u32>),
-        /// Count of 6-bit Errors
-        (0x00000060 => pub error_count_6bit: ReadWrite<u32>),
-        /// Count of 7-bit Errors
-        (0x00000064 => pub error_count_7bit: ReadWrite<u32>),
-        /// Count of 8-bit Errors
-        (0x00000068 => pub error_count_8bit: ReadWrite<u32>),
-        /// Data Interface Configuration
-        (0x0000006c => pub data_interface: Aliased<u32, DataInterfaceR::Register, DataInterfaceW::Register>),
-        (0x00000070 => @END),
-    }
+#[repr(C)]
+pub struct Registers {
+    /// Packet Configuration.
+    pub packet: Aliased<u32, PacketR::Register, PacketW::Register>,
+    /// Memory Address, reg 1.
+    pub memory_address_register1: ReadWrite<u32>,
+    /// Memory Address, reg 2.
+    pub memory_address_register2:
+        Aliased<u32, MemoryAddressRegister2R::Register, MemoryAddressRegister2W::Register>,
+    /// Command and Configuration.
+    pub command: Aliased<u32, CommandR::Register, CommandW::Register>,
+    /// Initiate Controller Operations.
+    pub program: Aliased<u32, ProgramR::Register, ProgramW::Register>,
+    /// Interrupt Status Enable.
+    pub interrupt_status_enable:
+        Aliased<u32, InterruptStatusEnableR::Register, InterruptStatusEnableW::Register>,
+    /// Interrupt Signal Enable.
+    pub interrupt_signal_enable:
+        Aliased<u32, InterruptSignalEnableR::Register, InterruptSignalEnableW::Register>,
+    /// Interrupt Status.
+    pub interrupt_status: Aliased<u32, InterruptStatusR::Register, InterruptStatusW::Register>,
+    /// Ready Busy Status.
+    pub ready_busy: ReadOnly<u32, ReadyBusy::Register>,
+    /// DMA System Address, reg 1.
+    pub dma_system_address1: ReadWrite<u32>,
+    /// Flash Memory Status.
+    pub flash_status: ReadOnly<u32, FlashStatus::Register>,
+    /// Interface Timing Control.
+    pub timing: Aliased<u32, TimingR::Register, TimingW::Register>,
+    /// Buffer Data Port.
+    pub buffer_data_port: ReadWrite<u32>,
+    /// ECC Configuration.
+    pub ecc: Aliased<u32, EccR::Register, EccW::Register>,
+    /// ECC Error Count
+    pub ecc_error_count: ReadOnly<u32, EccErrorCount::Register>,
+    /// ECC Spare Command
+    pub ecc_spare_command: Aliased<u32, EccSpareCommandR::Register, EccSpareCommandW::Register>,
+    /// Count of 1-bit Errors
+    pub error_count_1bit: ReadWrite<u32>,
+    /// Count of 2-bit Errors
+    pub error_count_2bit: ReadWrite<u32>,
+    /// Count of 3-bit Errors
+    pub error_count_3bit: ReadWrite<u32>,
+    /// Count of 4-bit Errors
+    pub error_count_4bit: ReadWrite<u32>,
+    /// DMA System Address, reg2.
+    pub dma_system_address0: ReadWrite<u32>,
+    /// DMA Buffer Boundary.
+    pub dma_buffer_boundary:
+        Aliased<u32, DmaBufferBoundaryR::Register, DmaBufferBoundaryW::Register>,
+    /// CPU Release after Transferring Primary Boot Code.
+    pub cpu_release: Aliased<u32, CpuReleaseR::Register, CpuReleaseW::Register>,
+    /// Count of 5-bit Errors
+    pub error_count_5bit: ReadWrite<u32>,
+    /// Count of 6-bit Errors
+    pub error_count_6bit: ReadWrite<u32>,
+    /// Count of 7-bit Errors
+    pub error_count_7bit: ReadWrite<u32>,
+    /// Count of 8-bit Errors
+    pub error_count_8bit: ReadWrite<u32>,
+    /// Data Interface Configuration
+    pub data_interface: Aliased<u32, DataInterfaceR::Register, DataInterfaceW::Register>,
 }
-register_bitfields! [
+tock_registers::register_bitfields! [
     u32,
     pub PacketR [
         RESERVED0 OFFSET(24) NUMBITS(8) [],
@@ -76,7 +78,7 @@ register_bitfields! [
         PACKET_SIZE OFFSET(0) NUMBITS(11) [],
     ]
 ];
-register_bitfields! [
+tock_registers::register_bitfields! [
     u32,
     pub MemoryAddressRegister2R [
         CHIP_SELECT OFFSET(30) NUMBITS(2) [],
@@ -94,7 +96,7 @@ register_bitfields! [
         MEMORY_ADDRESS OFFSET(0) NUMBITS(8) [],
     ]
 ];
-register_bitfields! [
+tock_registers::register_bitfields! [
     u32,
     pub CommandR [
         ECC_ON_OFF OFFSET(31) NUMBITS(1) [],
@@ -114,7 +116,7 @@ register_bitfields! [
         COMMAND1 OFFSET(0) NUMBITS(8) [],
     ]
 ];
-register_bitfields! [
+tock_registers::register_bitfields! [
     u32,
     pub ProgramR [
         RESERVED0 OFFSET(27) NUMBITS(5) [],
@@ -176,7 +178,7 @@ register_bitfields! [
         READ OFFSET(0) NUMBITS(1) [],
     ]
 ];
-register_bitfields! [
+tock_registers::register_bitfields! [
     u32,
     pub InterruptStatusEnableR [
         RESERVED0 OFFSET(8) NUMBITS(24) [],
@@ -200,7 +202,7 @@ register_bitfields! [
         BUFF_WR_RDY_STS_EN OFFSET(0) NUMBITS(1) [],
     ]
 ];
-register_bitfields! [
+tock_registers::register_bitfields! [
     u32,
     pub InterruptSignalEnableR [
         RESERVED0 OFFSET(8) NUMBITS(24) [],
@@ -224,7 +226,7 @@ register_bitfields! [
         BUFF_WR_RDY_SIG_EN OFFSET(0) NUMBITS(1) [],
     ]
 ];
-register_bitfields! [
+tock_registers::register_bitfields! [
     u32,
     pub InterruptStatusR [
         RESERVED0 OFFSET(8) NUMBITS(24) [],
@@ -248,7 +250,7 @@ register_bitfields! [
         BUFF_WR_RDY_REG OFFSET(0) NUMBITS(1) [],
     ]
 ];
-register_bitfields! [
+tock_registers::register_bitfields! [
     u32,
     pub ReadyBusy [
         RESERVED0 OFFSET(2) NUMBITS(30) [],
@@ -256,14 +258,14 @@ register_bitfields! [
         RB_N0_STATUS OFFSET(0) NUMBITS(1) [],
     ]
 ];
-register_bitfields! [
+tock_registers::register_bitfields! [
     u32,
     pub FlashStatus [
         RESERVED0 OFFSET(16) NUMBITS(16) [],
         FLASH_STATUS OFFSET(0) NUMBITS(16) [],
     ]
 ];
-register_bitfields! [
+tock_registers::register_bitfields! [
     u32,
     pub TimingR [
         RESERVED0 OFFSET(19) NUMBITS(13) [],
@@ -281,7 +283,7 @@ register_bitfields! [
         TCCS_TIME OFFSET(0) NUMBITS(2) [],
     ]
 ];
-register_bitfields! [
+tock_registers::register_bitfields! [
     u32,
     pub EccR [
         RESERVED0 OFFSET(28) NUMBITS(4) [],
@@ -295,7 +297,7 @@ register_bitfields! [
         ECC_ADDR OFFSET(0) NUMBITS(16) [],
     ]
 ];
-register_bitfields! [
+tock_registers::register_bitfields! [
     u32,
     pub EccErrorCount [
         RESERVED0 OFFSET(17) NUMBITS(15) [],
@@ -303,7 +305,7 @@ register_bitfields! [
         PACKET_BOUND_ERR_COUNT OFFSET(0) NUMBITS(8) [],
     ]
 ];
-register_bitfields! [
+tock_registers::register_bitfields! [
     u32,
     pub EccSpareCommandR [
         RESERVED0 OFFSET(31) NUMBITS(1) [],
@@ -316,7 +318,7 @@ register_bitfields! [
         ECC_SPARE_CMD OFFSET(0) NUMBITS(16) [],
     ]
 ];
-register_bitfields! [
+tock_registers::register_bitfields! [
     u32,
     pub DmaBufferBoundaryR [
         RESERVED0 OFFSET(4) NUMBITS(28) [],
@@ -328,7 +330,7 @@ register_bitfields! [
         DMA_BUFFER_BOUNDARY_REGISTER OFFSET(0) NUMBITS(3) [],
     ]
 ];
-register_bitfields! [
+tock_registers::register_bitfields! [
     u32,
     pub CpuReleaseR [
         RESERVED0 OFFSET(1) NUMBITS(31) [],
@@ -338,7 +340,7 @@ register_bitfields! [
         RELEASE_RESET_TO_CPU OFFSET(0) NUMBITS(1) [],
     ]
 ];
-register_bitfields! [
+tock_registers::register_bitfields! [
     u32,
     pub DataInterfaceR [
         RESERVED0 OFFSET(11) NUMBITS(21) [],

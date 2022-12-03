@@ -4,127 +4,130 @@ use tock_registers::registers::{Aliased, ReadOnly, ReadWrite, WriteOnly};
 pub static mut SD0: *mut Registers = 0xff160000 as *mut Registers;
 /// SDIO Controller, SDIO 1 Controller
 pub static mut SD1: *mut Registers = 0xff170000 as *mut Registers;
-register_structs! {
-    pub Registers {
-        /// Dual purpose: low SDMA address, Auto CMD23 arg.
-        (0x00000000 => pub reg_sdmasysaddrlo: ReadWrite<u16>),
-        /// Dual purpose: high SDMA address, Auto CMD23 arg.
-        (0x00000002 => pub reg_sdmasysaddrhi: ReadWrite<u16>),
-        /// Configure the Number of Bytes in a Data Block.
-        (0x00000004 => pub reg_blocksize: ReadWrite<u16, RegBlocksize::Register>),
-        /// Configure the number of data blocks
-        (0x00000006 => pub reg_blockcount: ReadWrite<u16>),
-        /// Lower bits of SD Command Argument
-        (0x00000008 => pub reg_argument1lo: ReadWrite<u16>),
-        /// Upper bits of SD Command Argument
-        (0x0000000a => pub reg_argument1hi: ReadWrite<u16>),
-        /// Control the Data Transfer Operations.
-        (0x0000000c => pub reg_transfermode: ReadWrite<u16, RegTransfermode::Register>),
-        /// Controller Commands.
-        (0x0000000e => pub reg_command: ReadWrite<u16, RegCommand::Register>),
-        /// Response 0 from SD Card.
-        (0x00000010 => pub reg_response0: ReadOnly<u16>),
-        /// This register is used to store responses from SD Cards
-        (0x00000012 => pub reg_response1: ReadOnly<u16>),
-        /// This register is used to store responses from SD Cards
-        (0x00000014 => pub reg_response2: ReadOnly<u16>),
-        /// This register is used to store responses from SD Cards
-        (0x00000016 => pub reg_response3: ReadOnly<u16>),
-        /// This register is used to store responses from SD Cards
-        (0x00000018 => pub reg_response4: ReadOnly<u16>),
-        /// This register is used to store responses from SD Cards
-        (0x0000001a => pub reg_response5: ReadOnly<u16>),
-        /// This register is used to store responses from SD Cards
-        (0x0000001c => pub reg_response6: ReadOnly<u16>),
-        /// This register is used to store responses from SD Cards
-        (0x0000001e => pub reg_response7: ReadOnly<u16>),
-        /// Read/write internal buffer.
-        (0x00000020 => pub reg_dataport: ReadWrite<u32>),
-        /// SDIO Controller Status, read-only.
-        (0x00000024 => pub reg_presentstate: ReadOnly<u32, RegPresentstate::Register>),
-        /// Controller Configuration.
-        (0x00000028 => pub reg_hostcontrol1: ReadWrite<u8, RegHostcontrol1::Register>),
-        /// SD Bus Power and Voltage Level.
-        (0x00000029 => pub reg_powercontrol: ReadWrite<u8, RegPowercontrol::Register>),
-        /// This register is used to program the block gap request, read wait control and interrupt at block gap
-        (0x0000002a => pub reg_blockgapcontrol: ReadWrite<u8, RegBlockgapcontrol::Register>),
-        /// Wakeup Functionality Control.
-        (0x0000002b => pub reg_wakeupcontrol: ReadWrite<u8, RegWakeupcontrol::Register>),
-        /// Clock Frequency Control and State.
-        (0x0000002c => pub reg_clockcontrol: Aliased<u16, RegClockcontrolR::Register, RegClockcontrolW::Register>),
-        /// Set the Data Timeout Counter Value.
-        (0x0000002e => pub reg_timeoutcontrol: ReadWrite<u8, RegTimeoutcontrol::Register>),
-        /// Software reset for data, command and all.
-        (0x0000002f => pub reg_softwarereset: ReadWrite<u8, RegSoftwarereset::Register>),
-        /// Status of allInterrupts
-        (0x00000030 => pub reg_normalintrsts: Aliased<u16, RegNormalintrstsR::Register, RegNormalintrstsW::Register>),
-        /// Error Interrupts Status
-        (0x00000032 => pub reg_errorintrsts: ReadWrite<u16, RegErrorintrsts::Register>),
-        /// Normal-type Interrupts Status Enables.
-        (0x00000034 => pub reg_normalintrstsena: Aliased<u16, RegNormalintrstsenaR::Register, RegNormalintrstsenaW::Register>),
-        /// Error-type Interrupts Status Enables.
-        (0x00000036 => pub reg_errorintrstsena: ReadWrite<u16, RegErrorintrstsena::Register>),
-        /// Normal-type Interrupts Signal Enables.
-        (0x00000038 => pub reg_normalintrsigena: Aliased<u16, RegNormalintrsigenaR::Register, RegNormalintrsigenaW::Register>),
-        /// Error-type Interrupts Signal Enables.
-        (0x0000003a => pub reg_errorintrsigena: Aliased<u16, RegErrorintrsigenaR::Register, RegErrorintrsigenaW::Register>),
-        /// CMD12 response error of Auto CMD12 and CMD23.
-        (0x0000003c => pub reg_autocmderrsts: ReadOnly<u16, RegAutocmderrsts::Register>),
-        /// UHS Mode, I/O Drive, Tuning, Clocking, Intr, and Presets.
-        (0x0000003e => pub reg_hostcontrol2: ReadWrite<u16, RegHostcontrol2::Register>),
-        /// Host controller implementation.
-        (0x00000040 => pub reg_capabilities: ReadOnly<u64, RegCapabilities::Register>),
-        /// Maximum current capability for each voltage.
-        (0x00000048 => pub reg_maxcurrentcap: ReadOnly<u64, RegMaxcurrentcap::Register>),
-        /// Generate Auto CMD Error Status Interrupts, write-only.
-        (0x00000050 => pub reg_forceeventforautocmderrorstatus: WriteOnly<u16, RegForceeventforautocmderrorstatus::Register>),
-        /// Generate Error Interrupt Status Interrupts.
-        (0x00000052 => pub reg_forceeventforerrintsts: Aliased<u16, RegForceeventforerrintstsR::Register, RegForceeventforerrintstsW::Register>),
-        /// SDIO ADMA Error State and Address.
-        (0x00000054 => pub reg_admaerrsts: ReadOnly<u8, RegAdmaerrsts::Register>),
-        (0x00000055 => _padding85),
-        /// Lower physical address for ADMA data transfer.
-        (0x00000058 => pub reg_admasysaddr0: ReadWrite<u16>),
-        /// ADMA Physical Address, 16 LSBs.
-        (0x0000005a => pub reg_admasysaddr1: ReadWrite<u16>),
-        /// ADMA Physical Address, 16 bits.
-        (0x0000005c => pub reg_admasysaddr2: ReadWrite<u16>),
-        /// ADMA Physical Address, 16 MSBs.
-        (0x0000005e => pub reg_admasysaddr3: ReadWrite<u16>),
-        /// This register is used to read the SDCLK Frequency Select Value,Clock Generator Select Value,Driver Strength Select Value
-        (0x00000060 => pub reg_presetvalue0: ReadOnly<u16, RegPresetvalue0::Register>),
-        /// Default Clock and I/O Drive Preset Values.Read clock select values and I/O drive.
-        (0x00000062 => pub reg_presetvalue1: ReadOnly<u16, RegPresetvalue1::Register>),
-        /// High-Speed Clock and I/O Drive Preset Values.Read clock select values and I/O drive.
-        (0x00000064 => pub reg_presetvalue2: ReadOnly<u16, RegPresetvalue2::Register>),
-        /// SDR12 Clock and I/O Drive Preset Values.
-        (0x00000066 => pub reg_presetvalue3: ReadOnly<u16, RegPresetvalue3::Register>),
-        /// SDR25 Clock and I/O Drive Preset Values.
-        (0x00000068 => pub reg_presetvalue4: ReadOnly<u16, RegPresetvalue4::Register>),
-        /// SDR50 Clock and I/O Drive Preset Values.
-        (0x0000006a => pub reg_presetvalue5: ReadOnly<u16, RegPresetvalue5::Register>),
-        /// SDR 104 Mode Clock and I/O Drive Preset Values.
-        (0x0000006c => pub reg_presetvalue6: ReadOnly<u16, RegPresetvalue6::Register>),
-        /// DDR50Clock and I/O Drive Preset Values.
-        (0x0000006e => pub reg_presetvalue7: ReadOnly<u16, RegPresetvalue7::Register>),
-        /// Program the boot timeout value counter.
-        (0x00000070 => pub reg_boottimeoutcnt: ReadWrite<u32>),
-        (0x00000074 => _padding116),
-        /// Read the interrupt signal for each slot.
-        (0x000000fc => pub reg_slotintrsts: ReadOnly<u16, RegSlotintrsts::Register>),
-        /// Controller version and specification numbers.
-        (0x000000fe => pub reg_hostcontrollerver: ReadOnly<u16, RegHostcontrollerver::Register>),
-        (0x00000100 => @END),
-    }
+#[repr(C)]
+pub struct Registers {
+    /// Dual purpose: low SDMA address, Auto CMD23 arg.
+    pub reg_sdmasysaddrlo: ReadWrite<u16>,
+    /// Dual purpose: high SDMA address, Auto CMD23 arg.
+    pub reg_sdmasysaddrhi: ReadWrite<u16>,
+    /// Configure the Number of Bytes in a Data Block.
+    pub reg_blocksize: ReadWrite<u16, RegBlocksize::Register>,
+    /// Configure the number of data blocks
+    pub reg_blockcount: ReadWrite<u16>,
+    /// Lower bits of SD Command Argument
+    pub reg_argument1lo: ReadWrite<u16>,
+    /// Upper bits of SD Command Argument
+    pub reg_argument1hi: ReadWrite<u16>,
+    /// Control the Data Transfer Operations.
+    pub reg_transfermode: ReadWrite<u16, RegTransfermode::Register>,
+    /// Controller Commands.
+    pub reg_command: ReadWrite<u16, RegCommand::Register>,
+    /// Response 0 from SD Card.
+    pub reg_response0: ReadOnly<u16>,
+    /// This register is used to store responses from SD Cards
+    pub reg_response1: ReadOnly<u16>,
+    /// This register is used to store responses from SD Cards
+    pub reg_response2: ReadOnly<u16>,
+    /// This register is used to store responses from SD Cards
+    pub reg_response3: ReadOnly<u16>,
+    /// This register is used to store responses from SD Cards
+    pub reg_response4: ReadOnly<u16>,
+    /// This register is used to store responses from SD Cards
+    pub reg_response5: ReadOnly<u16>,
+    /// This register is used to store responses from SD Cards
+    pub reg_response6: ReadOnly<u16>,
+    /// This register is used to store responses from SD Cards
+    pub reg_response7: ReadOnly<u16>,
+    /// Read/write internal buffer.
+    pub reg_dataport: ReadWrite<u32>,
+    /// SDIO Controller Status, read-only.
+    pub reg_presentstate: ReadOnly<u32, RegPresentstate::Register>,
+    /// Controller Configuration.
+    pub reg_hostcontrol1: ReadWrite<u8, RegHostcontrol1::Register>,
+    /// SD Bus Power and Voltage Level.
+    pub reg_powercontrol: ReadWrite<u8, RegPowercontrol::Register>,
+    /// This register is used to program the block gap request, read wait control and interrupt at block gap
+    pub reg_blockgapcontrol: ReadWrite<u8, RegBlockgapcontrol::Register>,
+    /// Wakeup Functionality Control.
+    pub reg_wakeupcontrol: ReadWrite<u8, RegWakeupcontrol::Register>,
+    /// Clock Frequency Control and State.
+    pub reg_clockcontrol: Aliased<u16, RegClockcontrolR::Register, RegClockcontrolW::Register>,
+    /// Set the Data Timeout Counter Value.
+    pub reg_timeoutcontrol: ReadWrite<u8, RegTimeoutcontrol::Register>,
+    /// Software reset for data, command and all.
+    pub reg_softwarereset: ReadWrite<u8, RegSoftwarereset::Register>,
+    /// Status of allInterrupts
+    pub reg_normalintrsts: Aliased<u16, RegNormalintrstsR::Register, RegNormalintrstsW::Register>,
+    /// Error Interrupts Status
+    pub reg_errorintrsts: ReadWrite<u16, RegErrorintrsts::Register>,
+    /// Normal-type Interrupts Status Enables.
+    pub reg_normalintrstsena:
+        Aliased<u16, RegNormalintrstsenaR::Register, RegNormalintrstsenaW::Register>,
+    /// Error-type Interrupts Status Enables.
+    pub reg_errorintrstsena: ReadWrite<u16, RegErrorintrstsena::Register>,
+    /// Normal-type Interrupts Signal Enables.
+    pub reg_normalintrsigena:
+        Aliased<u16, RegNormalintrsigenaR::Register, RegNormalintrsigenaW::Register>,
+    /// Error-type Interrupts Signal Enables.
+    pub reg_errorintrsigena:
+        Aliased<u16, RegErrorintrsigenaR::Register, RegErrorintrsigenaW::Register>,
+    /// CMD12 response error of Auto CMD12 and CMD23.
+    pub reg_autocmderrsts: ReadOnly<u16, RegAutocmderrsts::Register>,
+    /// UHS Mode, I/O Drive, Tuning, Clocking, Intr, and Presets.
+    pub reg_hostcontrol2: ReadWrite<u16, RegHostcontrol2::Register>,
+    /// Host controller implementation.
+    pub reg_capabilities: ReadOnly<u64, RegCapabilities::Register>,
+    /// Maximum current capability for each voltage.
+    pub reg_maxcurrentcap: ReadOnly<u64, RegMaxcurrentcap::Register>,
+    /// Generate Auto CMD Error Status Interrupts, write-only.
+    pub reg_forceeventforautocmderrorstatus:
+        WriteOnly<u16, RegForceeventforautocmderrorstatus::Register>,
+    /// Generate Error Interrupt Status Interrupts.
+    pub reg_forceeventforerrintsts:
+        Aliased<u16, RegForceeventforerrintstsR::Register, RegForceeventforerrintstsW::Register>,
+    /// SDIO ADMA Error State and Address.
+    pub reg_admaerrsts: ReadOnly<u8, RegAdmaerrsts::Register>,
+    _padding85: [u8; 3],
+    /// Lower physical address for ADMA data transfer.
+    pub reg_admasysaddr0: ReadWrite<u16>,
+    /// ADMA Physical Address, 16 LSBs.
+    pub reg_admasysaddr1: ReadWrite<u16>,
+    /// ADMA Physical Address, 16 bits.
+    pub reg_admasysaddr2: ReadWrite<u16>,
+    /// ADMA Physical Address, 16 MSBs.
+    pub reg_admasysaddr3: ReadWrite<u16>,
+    /// This register is used to read the SDCLK Frequency Select Value,Clock Generator Select Value,Driver Strength Select Value
+    pub reg_presetvalue0: ReadOnly<u16, RegPresetvalue0::Register>,
+    /// Default Clock and I/O Drive Preset Values.Read clock select values and I/O drive.
+    pub reg_presetvalue1: ReadOnly<u16, RegPresetvalue1::Register>,
+    /// High-Speed Clock and I/O Drive Preset Values.Read clock select values and I/O drive.
+    pub reg_presetvalue2: ReadOnly<u16, RegPresetvalue2::Register>,
+    /// SDR12 Clock and I/O Drive Preset Values.
+    pub reg_presetvalue3: ReadOnly<u16, RegPresetvalue3::Register>,
+    /// SDR25 Clock and I/O Drive Preset Values.
+    pub reg_presetvalue4: ReadOnly<u16, RegPresetvalue4::Register>,
+    /// SDR50 Clock and I/O Drive Preset Values.
+    pub reg_presetvalue5: ReadOnly<u16, RegPresetvalue5::Register>,
+    /// SDR 104 Mode Clock and I/O Drive Preset Values.
+    pub reg_presetvalue6: ReadOnly<u16, RegPresetvalue6::Register>,
+    /// DDR50Clock and I/O Drive Preset Values.
+    pub reg_presetvalue7: ReadOnly<u16, RegPresetvalue7::Register>,
+    /// Program the boot timeout value counter.
+    pub reg_boottimeoutcnt: ReadWrite<u32>,
+    _padding116: [u8; 136],
+    /// Read the interrupt signal for each slot.
+    pub reg_slotintrsts: ReadOnly<u16, RegSlotintrsts::Register>,
+    /// Controller version and specification numbers.
+    pub reg_hostcontrollerver: ReadOnly<u16, RegHostcontrollerver::Register>,
 }
-register_bitfields! [
+tock_registers::register_bitfields! [
     u16,
     pub RegBlocksize [
         SDMA_BUFBOUNDARY OFFSET(12) NUMBITS(3) [],
         XFER_BLOCKSIZE OFFSET(0) NUMBITS(12) [],
     ]
 ];
-register_bitfields! [
+tock_registers::register_bitfields! [
     u16,
     pub RegTransfermode [
         XFERMODE_MULTIBLKSEL OFFSET(5) NUMBITS(1) [],
@@ -134,7 +137,7 @@ register_bitfields! [
         XFERMODE_DMAENABLE OFFSET(0) NUMBITS(1) [],
     ]
 ];
-register_bitfields! [
+tock_registers::register_bitfields! [
     u16,
     pub RegCommand [
         COMMAND_CMDINDEX OFFSET(8) NUMBITS(6) [],
@@ -145,7 +148,7 @@ register_bitfields! [
         COMMAND_RESPONSETYPE OFFSET(0) NUMBITS(2) [],
     ]
 ];
-register_bitfields! [
+tock_registers::register_bitfields! [
     u32,
     pub RegPresentstate [
         SDIF_DAT7IN_DSYNC OFFSET(28) NUMBITS(1) [],
@@ -171,7 +174,7 @@ register_bitfields! [
         PRESENTSTATE_INHIBITCMD OFFSET(0) NUMBITS(1) [],
     ]
 ];
-register_bitfields! [
+tock_registers::register_bitfields! [
     u8,
     pub RegHostcontrol1 [
         HOSTCTRL1_CDSIGSELECT OFFSET(7) NUMBITS(1) [],
@@ -183,7 +186,7 @@ register_bitfields! [
         HOSTCTRL1_LEDCONTROL OFFSET(0) NUMBITS(1) [],
     ]
 ];
-register_bitfields! [
+tock_registers::register_bitfields! [
     u8,
     pub RegPowercontrol [
         EMMC_HWRESET OFFSET(4) NUMBITS(1) [],
@@ -191,7 +194,7 @@ register_bitfields! [
         PWRCTRL_SDBUSPOWER OFFSET(0) NUMBITS(1) [],
     ]
 ];
-register_bitfields! [
+tock_registers::register_bitfields! [
     u8,
     pub RegBlockgapcontrol [
         BLKGAPCTRL_BOOTACKENA OFFSET(7) NUMBITS(1) [],
@@ -204,7 +207,7 @@ register_bitfields! [
         BLKGAPCTRL_STOPATBLKGAP OFFSET(0) NUMBITS(1) [],
     ]
 ];
-register_bitfields! [
+tock_registers::register_bitfields! [
     u8,
     pub RegWakeupcontrol [
         WKUPCTRL_CARDREMOVAL OFFSET(2) NUMBITS(1) [],
@@ -212,7 +215,7 @@ register_bitfields! [
         WKUPCTRL_CARDINTERRUPT OFFSET(0) NUMBITS(1) [],
     ]
 ];
-register_bitfields! [
+tock_registers::register_bitfields! [
     u16,
     pub RegClockcontrolR [
         CLKCTRL_SDCLKFREQSEL OFFSET(8) NUMBITS(8) [],
@@ -230,13 +233,13 @@ register_bitfields! [
         CLKCTRL_INTCLKENA OFFSET(0) NUMBITS(1) [],
     ]
 ];
-register_bitfields! [
+tock_registers::register_bitfields! [
     u8,
     pub RegTimeoutcontrol [
         TIMEOUT_CTRVALUE OFFSET(0) NUMBITS(4) [],
     ]
 ];
-register_bitfields! [
+tock_registers::register_bitfields! [
     u8,
     pub RegSoftwarereset [
         SWRESET_FOR_DAT OFFSET(2) NUMBITS(1) [],
@@ -244,7 +247,7 @@ register_bitfields! [
         SWRESET_FOR_ALL OFFSET(0) NUMBITS(1) [],
     ]
 ];
-register_bitfields! [
+tock_registers::register_bitfields! [
     u16,
     pub RegNormalintrstsR [
         REG_ERRORINTRSTS OFFSET(15) NUMBITS(1) [],
@@ -277,7 +280,7 @@ register_bitfields! [
         NORMALINTRSTS_CMDCOMPLETE OFFSET(0) NUMBITS(1) [],
     ]
 ];
-register_bitfields! [
+tock_registers::register_bitfields! [
     u16,
     pub RegErrorintrsts [
         ERRORINTRSTS_HOSTERROR OFFSET(12) NUMBITS(1) [],
@@ -293,7 +296,7 @@ register_bitfields! [
         ERRORINTRSTS_CMDTIMEOUTERROR OFFSET(0) NUMBITS(1) [],
     ]
 ];
-register_bitfields! [
+tock_registers::register_bitfields! [
     u16,
     pub RegNormalintrstsenaR [
         NORMALINTRSTS_ENABLEREGBIT15 OFFSET(15) NUMBITS(1) [],
@@ -331,7 +334,7 @@ register_bitfields! [
         NORMALINTRSTS_ENABLEREGBIT0 OFFSET(0) NUMBITS(1) [],
     ]
 ];
-register_bitfields! [
+tock_registers::register_bitfields! [
     u16,
     pub RegErrorintrstsena [
         ERRORINTRSTS_ENABLEREGBIT12 OFFSET(12) NUMBITS(1) [],
@@ -348,7 +351,7 @@ register_bitfields! [
         ERRORINTRSTS_ENABLEREGBIT0 OFFSET(0) NUMBITS(1) [],
     ]
 ];
-register_bitfields! [
+tock_registers::register_bitfields! [
     u16,
     pub RegNormalintrsigenaR [
         NORMALINTRSIG_ENABLEREGBIT15 OFFSET(15) NUMBITS(1) [],
@@ -386,7 +389,7 @@ register_bitfields! [
         NORMALINTRSIG_ENABLEREGBIT0 OFFSET(0) NUMBITS(1) [],
     ]
 ];
-register_bitfields! [
+tock_registers::register_bitfields! [
     u16,
     pub RegErrorintrsigenaR [
         ERRORINTRSIG_ENABLEREGBIT12 OFFSET(12) NUMBITS(1) [],
@@ -416,7 +419,7 @@ register_bitfields! [
         ERRORINTRSIG_ENABLEREGBIT0 OFFSET(0) NUMBITS(1) [],
     ]
 ];
-register_bitfields! [
+tock_registers::register_bitfields! [
     u16,
     pub RegAutocmderrsts [
         AUTOCMDERRSTS_NEXTERROR OFFSET(7) NUMBITS(1) [],
@@ -427,7 +430,7 @@ register_bitfields! [
         AUTOCMDERRSTS_NOTEXECERROR OFFSET(0) NUMBITS(1) [],
     ]
 ];
-register_bitfields! [
+tock_registers::register_bitfields! [
     u16,
     pub RegHostcontrol2 [
         HOSTCTRL2_PRESETVALUEENABLE OFFSET(15) NUMBITS(1) [],
@@ -439,7 +442,7 @@ register_bitfields! [
         HOSTCTRL2_UHSMODESELECT OFFSET(0) NUMBITS(3) [],
     ]
 ];
-register_bitfields! [
+tock_registers::register_bitfields! [
     u64,
     pub RegCapabilities [
         CORECFG_SPIBLKMODE OFFSET(57) NUMBITS(1) [],
@@ -471,7 +474,7 @@ register_bitfields! [
         CORECFG_TIMEOUTCLKFREQ OFFSET(0) NUMBITS(6) [],
     ]
 ];
-register_bitfields! [
+tock_registers::register_bitfields! [
     u64,
     pub RegMaxcurrentcap [
         CORECFG_MAXCURRENT1P8V OFFSET(16) NUMBITS(8) [],
@@ -479,7 +482,7 @@ register_bitfields! [
         CORECFG_MAXCURRENT3P3V OFFSET(0) NUMBITS(8) [],
     ]
 ];
-register_bitfields! [
+tock_registers::register_bitfields! [
     u16,
     pub RegForceeventforautocmderrorstatus [
         FORCECMDNOTISSUEDBYAUTOCMD12ERR OFFSET(7) NUMBITS(1) [],
@@ -490,7 +493,7 @@ register_bitfields! [
         FORCEAUTOCMDNOTEXEC OFFSET(0) NUMBITS(1) [],
     ]
 ];
-register_bitfields! [
+tock_registers::register_bitfields! [
     u16,
     pub RegForceeventforerrintstsR [
         FORCETUNINGERR OFFSET(10) NUMBITS(1) [],
@@ -508,14 +511,14 @@ register_bitfields! [
         FORCECMDTIMEOUTERR OFFSET(0) NUMBITS(1) [],
     ]
 ];
-register_bitfields! [
+tock_registers::register_bitfields! [
     u8,
     pub RegAdmaerrsts [
         ADMAERRSTS_ADMALENMISMATCHERR OFFSET(2) NUMBITS(1) [],
         ADMAERRSTS_ADMAERRORSTATE OFFSET(0) NUMBITS(2) [],
     ]
 ];
-register_bitfields! [
+tock_registers::register_bitfields! [
     u16,
     pub RegPresetvalue0 [
         DRIVERSTRENGTHSELECTVALUE OFFSET(14) NUMBITS(2) [],
@@ -523,7 +526,7 @@ register_bitfields! [
         SDCLKFREQUENCYSELECTVALUE OFFSET(0) NUMBITS(10) [],
     ]
 ];
-register_bitfields! [
+tock_registers::register_bitfields! [
     u16,
     pub RegPresetvalue1 [
         DRIVERSTRENGTHSELECTVALUE OFFSET(14) NUMBITS(2) [],
@@ -531,7 +534,7 @@ register_bitfields! [
         SDCLKFREQUENCYSELECTVALUE OFFSET(0) NUMBITS(10) [],
     ]
 ];
-register_bitfields! [
+tock_registers::register_bitfields! [
     u16,
     pub RegPresetvalue2 [
         DRIVERSTRENGTHSELECTVALUE OFFSET(14) NUMBITS(2) [],
@@ -539,7 +542,7 @@ register_bitfields! [
         SDCLKFREQUENCYSELECTVALUE OFFSET(0) NUMBITS(10) [],
     ]
 ];
-register_bitfields! [
+tock_registers::register_bitfields! [
     u16,
     pub RegPresetvalue3 [
         DRIVERSTRENGTHSELECTVALUE OFFSET(14) NUMBITS(2) [],
@@ -547,7 +550,7 @@ register_bitfields! [
         SDCLKFREQUENCYSELECTVALUE OFFSET(0) NUMBITS(10) [],
     ]
 ];
-register_bitfields! [
+tock_registers::register_bitfields! [
     u16,
     pub RegPresetvalue4 [
         DRIVERSTRENGTHSELECTVALUE OFFSET(14) NUMBITS(2) [],
@@ -555,7 +558,7 @@ register_bitfields! [
         SDCLKFREQUENCYSELECTVALUE OFFSET(0) NUMBITS(10) [],
     ]
 ];
-register_bitfields! [
+tock_registers::register_bitfields! [
     u16,
     pub RegPresetvalue5 [
         DRIVERSTRENGTHSELECTVALUE OFFSET(14) NUMBITS(2) [],
@@ -563,7 +566,7 @@ register_bitfields! [
         SDCLKFREQUENCYSELECTVALUE OFFSET(0) NUMBITS(10) [],
     ]
 ];
-register_bitfields! [
+tock_registers::register_bitfields! [
     u16,
     pub RegPresetvalue6 [
         DRIVERSTRENGTHSELECTVALUE OFFSET(14) NUMBITS(2) [],
@@ -571,7 +574,7 @@ register_bitfields! [
         SDCLKFREQUENCYSELECTVALUE OFFSET(0) NUMBITS(10) [],
     ]
 ];
-register_bitfields! [
+tock_registers::register_bitfields! [
     u16,
     pub RegPresetvalue7 [
         DRIVERSTRENGTHSELECTVALUE OFFSET(14) NUMBITS(2) [],
@@ -579,13 +582,13 @@ register_bitfields! [
         SDCLKFREQUENCYSELECTVALUE OFFSET(0) NUMBITS(10) [],
     ]
 ];
-register_bitfields! [
+tock_registers::register_bitfields! [
     u16,
     pub RegSlotintrsts [
         SDHCHOSTIF_SLOTINTRSTS OFFSET(0) NUMBITS(8) [],
     ]
 ];
-register_bitfields! [
+tock_registers::register_bitfields! [
     u16,
     pub RegHostcontrollerver [
         SDHC_VENVERNUM OFFSET(8) NUMBITS(8) [],

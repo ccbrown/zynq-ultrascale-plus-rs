@@ -89,6 +89,7 @@ def _bitfield_registration_impl(register, read_fields=True, write_fields=True, s
     primitive, _ = rust_primitive_for_register_width(register['width'])
     out.append(f'    pub {rust_bitfield_type(register["name"])}{suffix} [')
     reserved_count = 0
+    underscore_count = 0
     for field in register['fields']:
         allowed_types = READ_WRITE_TYPES
         if read_fields:
@@ -106,6 +107,9 @@ def _bitfield_registration_impl(register, read_fields=True, write_fields=True, s
         if field_name == 'RESERVED':
             field_name += f'{reserved_count}'
             reserved_count += 1
+        elif field_name == '_':
+            field_name += f'{underscore_count}'
+            underscore_count += 1
         elif field_name[0].isdigit():
             field_name = f'_{field_name}'
         out.append(f'        {field_name} OFFSET({offset}) NUMBITS({numbits}) [],')
@@ -116,7 +120,7 @@ def _bitfield_registration_impl(register, read_fields=True, write_fields=True, s
 def bitfield_registration(register):
     primitive, _ = rust_primitive_for_register_width(register['width'])
     out = [
-        'register_bitfields! [',
+        'tock_registers::register_bitfields! [',
         f'    {primitive},',
     ]
     if rust_type_for_register(register) == 'Aliased':
@@ -139,15 +143,15 @@ for module_type_name, module_type in module_types.items():
             out.append('/// ' + desc.replace('\n', ' ').replace('\r', ''))
         out.append(f'pub static mut {module_name.upper()}: *mut Registers = 0x{module["base_address"]:08x} as *mut Registers;')
 
+    # We could use register_structs! but it doesn't work for large structs: https://github.com/tock/tock/issues/2941
     out.extend([
-        'register_structs! {',
-        '    pub Registers {',
+        '#[repr(C)]',
+        'pub struct Registers {',
     ])
 
     rust_types_used = set()
     registers = module_type['registers']
 
-    padding_field_count = 0
     offset = 0
     for register in registers:
         rust_type = rust_type_for_register(register)
@@ -167,29 +171,18 @@ for module_type_name, module_type in module_types.items():
         if address < offset:
             raise RuntimeError(f'address of {module_type_name}.{register["name"]} is lower than expected')
         elif address > offset:
-            out.append(f'        (0x{offset:08x} => _padding{offset}),')
+            out.append(f'_padding{offset}: [u8; {address - offset}],')
             offset = address
-            padding_field_count += 1
 
         desc = register['description'].strip()
         if desc != '':
             out.append('        /// ' + desc)
 
-        out.append(f'        (0x{offset:08x} => pub {rust_name_for_register(register["name"])}: {rust_type}),')
+        out.append(f'pub {rust_name_for_register(register["name"])}: {rust_type},')
 
         offset += primitive_bytes
 
-    field_count = padding_field_count + len(registers)
-    if field_count > 100:
-        # Taking away this check crashes rustc. ;_;
-        print(f'skipping {module_type_name} because it has too many fields to handle ({field_count})')
-        continue
-
-    out.extend([
-        f'        (0x{offset:08x} => @END),',
-        '    }',
-        '}',
-    ])
+    out.append('}')
 
     for register in registers:
         if should_create_bitfield(register['fields'], register['width']):
@@ -206,15 +199,38 @@ for module_type_name, module_type in module_types.items():
 out = [
     WARNING,
     '#![no_std]',
-    '#![recursion_limit = "512"]',
-    '#[macro_use] extern crate tock_registers;',
 ]
 
 for name in rust_modules:
-    out.append(f'pub mod {name};')
+    out.extend([
+        f'#[cfg(feature = "{name.replace("_", "-")}")]',
+        f'pub mod {name};',
+    ])
 
 with open(os.path.join(src_path, 'lib.rs'), 'w') as f:
     f.write('\n'.join(out))
 
+with open(os.path.join(crate_path, 'Cargo.toml'), 'w') as f:
+    out = [
+        '[package]',
+        'name = "zynq-ultrascale-plus-modules"',
+        'version = "0.1.0"',
+        'edition = "2021"',
+        '',
+        '[features]',
+        'default = []',
+    ]
+
+    for name in rust_modules:
+        out.append(f'{name.replace("_", "-")} = []')
+
+    out.extend([
+        '',
+        '[dependencies]',
+        'tock-registers = "0.8.0"',
+    ])
+    f.write('\n'.join(out))
+
 subprocess.check_call(['cargo', 'fmt'], cwd=crate_path)
 subprocess.check_call(['cargo', 'check'], cwd=crate_path)
+subprocess.check_call(['cargo', 'check', '--all-features'], cwd=crate_path)

@@ -4,78 +4,76 @@ use tock_registers::registers::{Aliased, ReadOnly, ReadWrite, WriteOnly};
 pub static mut CAN0: *mut Registers = 0xff060000 as *mut Registers;
 /// Controller Area Network Controller, CAN 1 Controller
 pub static mut CAN1: *mut Registers = 0xff070000 as *mut Registers;
-register_structs! {
-    pub Registers {
-        /// Software Reset and Enable
-        (0x00000000 => pub srr: ReadWrite<u32, Srr::Register>),
-        /// Mode Select
-        (0x00000004 => pub msr: ReadWrite<u32, Msr::Register>),
-        /// Baud Rate Prescaler
-        (0x00000008 => pub brpr: ReadWrite<u32, Brpr::Register>),
-        /// Bit Timing and Synchronization
-        (0x0000000c => pub btr: ReadWrite<u32, Btr::Register>),
-        /// Rx and Tx Error Counters
-        (0x00000010 => pub ecr: ReadOnly<u32, Ecr::Register>),
-        /// Error Status
-        (0x00000014 => pub esr: ReadWrite<u32, Esr::Register>),
-        /// Controller Status
-        (0x00000018 => pub sr: Aliased<u32, SrR::Register, SrW::Register>),
-        /// Interrupt Status
-        (0x0000001c => pub isr: Aliased<u32, IsrR::Register, IsrW::Register>),
-        /// Interrupt Enable
-        (0x00000020 => pub ier: ReadWrite<u32, Ier::Register>),
-        /// Interrupt Clear
-        (0x00000024 => pub icr: Aliased<u32, IcrR::Register, IcrW::Register>),
-        /// Timestamp Clear.
-        (0x00000028 => pub tcr: Aliased<u32, TcrR::Register, TcrW::Register>),
-        /// Rx and Tx Watermark Settings.
-        (0x0000002c => pub wir: ReadWrite<u32, Wir::Register>),
-        /// Tx Message FIFO, Identifier, Request.
-        (0x00000030 => pub txfifo_id: WriteOnly<u32, TxfifoId::Register>),
-        /// Tx Message FIFO Data Length Code.
-        (0x00000034 => pub txfifo_dlc: WriteOnly<u32, TxfifoDlc::Register>),
-        /// Tx Message FIFO, data word 1.
-        (0x00000038 => pub txfifo_data1: WriteOnly<u32, TxfifoData1::Register>),
-        /// Tx Message FIFO, data word 2.
-        (0x0000003c => pub txfifo_data2: WriteOnly<u32, TxfifoData2::Register>),
-        /// High Priority Tx Message FIFO, Identifier, Request.
-        (0x00000040 => pub txhpb_id: WriteOnly<u32, TxhpbId::Register>),
-        /// High Priority Tx Message FIFO Data Length Code.
-        (0x00000044 => pub txhpb_dlc: WriteOnly<u32, TxhpbDlc::Register>),
-        /// High Priority Tx Message FIFO, data word 1.
-        (0x00000048 => pub txhpb_data1: WriteOnly<u32, TxhpbData1::Register>),
-        /// High Priority Tx Message FIFO, data word 0.
-        (0x0000004c => pub txhpb_data2: WriteOnly<u32, TxhpbData2::Register>),
-        /// Rx Message FIFO, Identifier, Request.
-        (0x00000050 => pub rxfifo_id: ReadOnly<u32, RxfifoId::Register>),
-        /// Rx Message FIFO Data Length Code.
-        (0x00000054 => pub rxfifo_dlc: ReadWrite<u32, RxfifoDlc::Register>),
-        /// Rx Message FIFO, data word 1.
-        (0x00000058 => pub rxfifo_data1: ReadWrite<u32, RxfifoData1::Register>),
-        /// Rx Message FIFO, data word 2.
-        (0x0000005c => pub rxfifo_data2: ReadWrite<u32, RxfifoData2::Register>),
-        /// Acceptance Filter Enables.
-        (0x00000060 => pub afr: ReadWrite<u32, Afr::Register>),
-        /// Acceptance Filter 1 Mask.
-        (0x00000064 => pub afmr1: ReadWrite<u32, Afmr1::Register>),
-        /// Acceptance Filter 1 ID.
-        (0x00000068 => pub afir1: ReadWrite<u32, Afir1::Register>),
-        /// Acceptance Filter 2 Mask.
-        (0x0000006c => pub afmr2: ReadWrite<u32, Afmr2::Register>),
-        /// Acceptance Filter 2 ID.
-        (0x00000070 => pub afir2: ReadWrite<u32, Afir2::Register>),
-        /// Acceptance Filter 3 Mask.
-        (0x00000074 => pub afmr3: ReadWrite<u32, Afmr3::Register>),
-        /// Acceptance Filter 3 ID.
-        (0x00000078 => pub afir3: ReadWrite<u32, Afir3::Register>),
-        /// Acceptance Filter 4 Mask.
-        (0x0000007c => pub afmr4: ReadWrite<u32, Afmr4::Register>),
-        /// Acceptance Filter 4 ID.
-        (0x00000080 => pub afir4: ReadWrite<u32, Afir4::Register>),
-        (0x00000084 => @END),
-    }
+#[repr(C)]
+pub struct Registers {
+    /// Software Reset and Enable
+    pub srr: ReadWrite<u32, Srr::Register>,
+    /// Mode Select
+    pub msr: ReadWrite<u32, Msr::Register>,
+    /// Baud Rate Prescaler
+    pub brpr: ReadWrite<u32, Brpr::Register>,
+    /// Bit Timing and Synchronization
+    pub btr: ReadWrite<u32, Btr::Register>,
+    /// Rx and Tx Error Counters
+    pub ecr: ReadOnly<u32, Ecr::Register>,
+    /// Error Status
+    pub esr: ReadWrite<u32, Esr::Register>,
+    /// Controller Status
+    pub sr: Aliased<u32, SrR::Register, SrW::Register>,
+    /// Interrupt Status
+    pub isr: Aliased<u32, IsrR::Register, IsrW::Register>,
+    /// Interrupt Enable
+    pub ier: ReadWrite<u32, Ier::Register>,
+    /// Interrupt Clear
+    pub icr: Aliased<u32, IcrR::Register, IcrW::Register>,
+    /// Timestamp Clear.
+    pub tcr: Aliased<u32, TcrR::Register, TcrW::Register>,
+    /// Rx and Tx Watermark Settings.
+    pub wir: ReadWrite<u32, Wir::Register>,
+    /// Tx Message FIFO, Identifier, Request.
+    pub txfifo_id: WriteOnly<u32, TxfifoId::Register>,
+    /// Tx Message FIFO Data Length Code.
+    pub txfifo_dlc: WriteOnly<u32, TxfifoDlc::Register>,
+    /// Tx Message FIFO, data word 1.
+    pub txfifo_data1: WriteOnly<u32, TxfifoData1::Register>,
+    /// Tx Message FIFO, data word 2.
+    pub txfifo_data2: WriteOnly<u32, TxfifoData2::Register>,
+    /// High Priority Tx Message FIFO, Identifier, Request.
+    pub txhpb_id: WriteOnly<u32, TxhpbId::Register>,
+    /// High Priority Tx Message FIFO Data Length Code.
+    pub txhpb_dlc: WriteOnly<u32, TxhpbDlc::Register>,
+    /// High Priority Tx Message FIFO, data word 1.
+    pub txhpb_data1: WriteOnly<u32, TxhpbData1::Register>,
+    /// High Priority Tx Message FIFO, data word 0.
+    pub txhpb_data2: WriteOnly<u32, TxhpbData2::Register>,
+    /// Rx Message FIFO, Identifier, Request.
+    pub rxfifo_id: ReadOnly<u32, RxfifoId::Register>,
+    /// Rx Message FIFO Data Length Code.
+    pub rxfifo_dlc: ReadWrite<u32, RxfifoDlc::Register>,
+    /// Rx Message FIFO, data word 1.
+    pub rxfifo_data1: ReadWrite<u32, RxfifoData1::Register>,
+    /// Rx Message FIFO, data word 2.
+    pub rxfifo_data2: ReadWrite<u32, RxfifoData2::Register>,
+    /// Acceptance Filter Enables.
+    pub afr: ReadWrite<u32, Afr::Register>,
+    /// Acceptance Filter 1 Mask.
+    pub afmr1: ReadWrite<u32, Afmr1::Register>,
+    /// Acceptance Filter 1 ID.
+    pub afir1: ReadWrite<u32, Afir1::Register>,
+    /// Acceptance Filter 2 Mask.
+    pub afmr2: ReadWrite<u32, Afmr2::Register>,
+    /// Acceptance Filter 2 ID.
+    pub afir2: ReadWrite<u32, Afir2::Register>,
+    /// Acceptance Filter 3 Mask.
+    pub afmr3: ReadWrite<u32, Afmr3::Register>,
+    /// Acceptance Filter 3 ID.
+    pub afir3: ReadWrite<u32, Afir3::Register>,
+    /// Acceptance Filter 4 Mask.
+    pub afmr4: ReadWrite<u32, Afmr4::Register>,
+    /// Acceptance Filter 4 ID.
+    pub afir4: ReadWrite<u32, Afir4::Register>,
 }
-register_bitfields! [
+tock_registers::register_bitfields! [
     u32,
     pub Srr [
         RESERVED0 OFFSET(2) NUMBITS(30) [],
@@ -83,7 +81,7 @@ register_bitfields! [
         SRST OFFSET(0) NUMBITS(1) [],
     ]
 ];
-register_bitfields! [
+tock_registers::register_bitfields! [
     u32,
     pub Msr [
         RESERVED0 OFFSET(3) NUMBITS(29) [],
@@ -92,14 +90,14 @@ register_bitfields! [
         SLEEP OFFSET(0) NUMBITS(1) [],
     ]
 ];
-register_bitfields! [
+tock_registers::register_bitfields! [
     u32,
     pub Brpr [
         RESERVED0 OFFSET(8) NUMBITS(24) [],
         BRP OFFSET(0) NUMBITS(8) [],
     ]
 ];
-register_bitfields! [
+tock_registers::register_bitfields! [
     u32,
     pub Btr [
         RESERVED0 OFFSET(9) NUMBITS(23) [],
@@ -108,7 +106,7 @@ register_bitfields! [
         TS1 OFFSET(0) NUMBITS(4) [],
     ]
 ];
-register_bitfields! [
+tock_registers::register_bitfields! [
     u32,
     pub Ecr [
         RESERVED0 OFFSET(16) NUMBITS(16) [],
@@ -116,7 +114,7 @@ register_bitfields! [
         TEC OFFSET(0) NUMBITS(8) [],
     ]
 ];
-register_bitfields! [
+tock_registers::register_bitfields! [
     u32,
     pub Esr [
         RESERVED0 OFFSET(5) NUMBITS(27) [],
@@ -127,7 +125,7 @@ register_bitfields! [
         CRCER OFFSET(0) NUMBITS(1) [],
     ]
 ];
-register_bitfields! [
+tock_registers::register_bitfields! [
     u32,
     pub SrR [
         RESERVED0 OFFSET(13) NUMBITS(19) [],
@@ -148,7 +146,7 @@ register_bitfields! [
         RESERVED0 OFFSET(13) NUMBITS(19) [],
     ]
 ];
-register_bitfields! [
+tock_registers::register_bitfields! [
     u32,
     pub IsrR [
         RESERVED0 OFFSET(15) NUMBITS(17) [],
@@ -172,7 +170,7 @@ register_bitfields! [
         RESERVED0 OFFSET(15) NUMBITS(17) [],
     ]
 ];
-register_bitfields! [
+tock_registers::register_bitfields! [
     u32,
     pub Ier [
         RESERVED0 OFFSET(15) NUMBITS(17) [],
@@ -193,7 +191,7 @@ register_bitfields! [
         EARBLST OFFSET(0) NUMBITS(1) [],
     ]
 ];
-register_bitfields! [
+tock_registers::register_bitfields! [
     u32,
     pub IcrR [
         RESERVED0 OFFSET(15) NUMBITS(17) [],
@@ -217,7 +215,7 @@ register_bitfields! [
         CARBLST OFFSET(0) NUMBITS(1) [],
     ]
 ];
-register_bitfields! [
+tock_registers::register_bitfields! [
     u32,
     pub TcrR [
         RESERVED0 OFFSET(1) NUMBITS(31) [],
@@ -227,7 +225,7 @@ register_bitfields! [
         CTS OFFSET(0) NUMBITS(1) [],
     ]
 ];
-register_bitfields! [
+tock_registers::register_bitfields! [
     u32,
     pub Wir [
         RESERVED0 OFFSET(16) NUMBITS(16) [],
@@ -235,7 +233,7 @@ register_bitfields! [
         FW OFFSET(0) NUMBITS(8) [],
     ]
 ];
-register_bitfields! [
+tock_registers::register_bitfields! [
     u32,
     pub TxfifoId [
         IDH OFFSET(21) NUMBITS(11) [],
@@ -245,14 +243,14 @@ register_bitfields! [
         RTR OFFSET(0) NUMBITS(1) [],
     ]
 ];
-register_bitfields! [
+tock_registers::register_bitfields! [
     u32,
     pub TxfifoDlc [
         DLC OFFSET(28) NUMBITS(4) [],
         RESERVED0 OFFSET(0) NUMBITS(28) [],
     ]
 ];
-register_bitfields! [
+tock_registers::register_bitfields! [
     u32,
     pub TxfifoData1 [
         DB0 OFFSET(24) NUMBITS(8) [],
@@ -261,7 +259,7 @@ register_bitfields! [
         DB3 OFFSET(0) NUMBITS(8) [],
     ]
 ];
-register_bitfields! [
+tock_registers::register_bitfields! [
     u32,
     pub TxfifoData2 [
         DB4 OFFSET(24) NUMBITS(8) [],
@@ -270,7 +268,7 @@ register_bitfields! [
         DB7 OFFSET(0) NUMBITS(8) [],
     ]
 ];
-register_bitfields! [
+tock_registers::register_bitfields! [
     u32,
     pub TxhpbId [
         IDH OFFSET(21) NUMBITS(11) [],
@@ -280,14 +278,14 @@ register_bitfields! [
         RTR OFFSET(0) NUMBITS(1) [],
     ]
 ];
-register_bitfields! [
+tock_registers::register_bitfields! [
     u32,
     pub TxhpbDlc [
         DLC OFFSET(28) NUMBITS(4) [],
         RESERVED0 OFFSET(0) NUMBITS(28) [],
     ]
 ];
-register_bitfields! [
+tock_registers::register_bitfields! [
     u32,
     pub TxhpbData1 [
         DB0 OFFSET(24) NUMBITS(8) [],
@@ -296,7 +294,7 @@ register_bitfields! [
         DB3 OFFSET(0) NUMBITS(8) [],
     ]
 ];
-register_bitfields! [
+tock_registers::register_bitfields! [
     u32,
     pub TxhpbData2 [
         DB4 OFFSET(24) NUMBITS(8) [],
@@ -305,7 +303,7 @@ register_bitfields! [
         DB7 OFFSET(0) NUMBITS(8) [],
     ]
 ];
-register_bitfields! [
+tock_registers::register_bitfields! [
     u32,
     pub RxfifoId [
         IDH OFFSET(21) NUMBITS(11) [],
@@ -315,7 +313,7 @@ register_bitfields! [
         RTR OFFSET(0) NUMBITS(1) [],
     ]
 ];
-register_bitfields! [
+tock_registers::register_bitfields! [
     u32,
     pub RxfifoDlc [
         DLC OFFSET(28) NUMBITS(4) [],
@@ -323,7 +321,7 @@ register_bitfields! [
         RXT OFFSET(0) NUMBITS(16) [],
     ]
 ];
-register_bitfields! [
+tock_registers::register_bitfields! [
     u32,
     pub RxfifoData1 [
         DB0 OFFSET(24) NUMBITS(8) [],
@@ -332,7 +330,7 @@ register_bitfields! [
         DB3 OFFSET(0) NUMBITS(8) [],
     ]
 ];
-register_bitfields! [
+tock_registers::register_bitfields! [
     u32,
     pub RxfifoData2 [
         DB4 OFFSET(24) NUMBITS(8) [],
@@ -341,7 +339,7 @@ register_bitfields! [
         DB7 OFFSET(0) NUMBITS(8) [],
     ]
 ];
-register_bitfields! [
+tock_registers::register_bitfields! [
     u32,
     pub Afr [
         RESERVED0 OFFSET(4) NUMBITS(28) [],
@@ -351,7 +349,7 @@ register_bitfields! [
         UAF1 OFFSET(0) NUMBITS(1) [],
     ]
 ];
-register_bitfields! [
+tock_registers::register_bitfields! [
     u32,
     pub Afmr1 [
         AMIDH OFFSET(21) NUMBITS(11) [],
@@ -361,7 +359,7 @@ register_bitfields! [
         AMRTR OFFSET(0) NUMBITS(1) [],
     ]
 ];
-register_bitfields! [
+tock_registers::register_bitfields! [
     u32,
     pub Afir1 [
         AIIDH OFFSET(21) NUMBITS(11) [],
@@ -371,7 +369,7 @@ register_bitfields! [
         AIRTR OFFSET(0) NUMBITS(1) [],
     ]
 ];
-register_bitfields! [
+tock_registers::register_bitfields! [
     u32,
     pub Afmr2 [
         AMIDH OFFSET(21) NUMBITS(11) [],
@@ -381,7 +379,7 @@ register_bitfields! [
         AMRTR OFFSET(0) NUMBITS(1) [],
     ]
 ];
-register_bitfields! [
+tock_registers::register_bitfields! [
     u32,
     pub Afir2 [
         AIIDH OFFSET(21) NUMBITS(11) [],
@@ -391,7 +389,7 @@ register_bitfields! [
         AIRTR OFFSET(0) NUMBITS(1) [],
     ]
 ];
-register_bitfields! [
+tock_registers::register_bitfields! [
     u32,
     pub Afmr3 [
         AMIDH OFFSET(21) NUMBITS(11) [],
@@ -401,7 +399,7 @@ register_bitfields! [
         AMRTR OFFSET(0) NUMBITS(1) [],
     ]
 ];
-register_bitfields! [
+tock_registers::register_bitfields! [
     u32,
     pub Afir3 [
         AIIDH OFFSET(21) NUMBITS(11) [],
@@ -411,7 +409,7 @@ register_bitfields! [
         AIRTR OFFSET(0) NUMBITS(1) [],
     ]
 ];
-register_bitfields! [
+tock_registers::register_bitfields! [
     u32,
     pub Afmr4 [
         AMIDH OFFSET(21) NUMBITS(11) [],
@@ -421,7 +419,7 @@ register_bitfields! [
         AMRTR OFFSET(0) NUMBITS(1) [],
     ]
 ];
-register_bitfields! [
+tock_registers::register_bitfields! [
     u32,
     pub Afir4 [
         AIIDH OFFSET(21) NUMBITS(11) [],

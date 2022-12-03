@@ -2,59 +2,57 @@
 use tock_registers::registers::{Aliased, ReadOnly, ReadWrite};
 /// CSU Module DMA Controller, CSU DMA Control
 pub static mut CSUDMA: *mut Registers = 0xffc80000 as *mut Registers;
-register_structs! {
-    pub Registers {
-        /// Source mem address (lsbs) for DMA memory->stream data transfer
-        (0x00000000 => pub csudma_src_addr: Aliased<u32, CsudmaSrcAddrR::Register, CsudmaSrcAddrW::Register>),
-        /// DMA transfer payload for DMA memory-> stream data transfer
-        (0x00000004 => pub csudma_src_size: Aliased<u32, CsudmaSrcSizeR::Register, CsudmaSrcSizeW::Register>),
-        /// General SRC DMA Status
-        (0x00000008 => pub csudma_src_sts: Aliased<u32, CsudmaSrcStsR::Register, CsudmaSrcStsW::Register>),
-        /// General SRC DMA Control Register 1
-        (0x0000000c => pub csudma_src_ctrl: Aliased<u32, CsudmaSrcCtrlR::Register, CsudmaSrcCtrlW::Register>),
-        /// SRC DMA Pseudo CRC
-        (0x00000010 => pub csudma_src_crc: ReadWrite<u32>),
-        /// SRC DMA Interrupt Status Register
-        (0x00000014 => pub csudma_src_i_sts: Aliased<u32, CsudmaSrcIStsR::Register, CsudmaSrcIStsW::Register>),
-        /// SRC DMA Interrupt Enable
-        (0x00000018 => pub csudma_src_i_en: Aliased<u32, CsudmaSrcIEnR::Register, CsudmaSrcIEnW::Register>),
-        /// SRC DMA Interrupt Disable
-        (0x0000001c => pub csudma_src_i_dis: Aliased<u32, CsudmaSrcIDisR::Register, CsudmaSrcIDisW::Register>),
-        /// SRC DMA Interrupt Mask
-        (0x00000020 => pub csudma_src_i_mask: ReadOnly<u32, CsudmaSrcIMask::Register>),
-        /// General SRC DMA Control Register 2
-        (0x00000024 => pub csudma_src_ctrl2: Aliased<u32, CsudmaSrcCtrl2R::Register, CsudmaSrcCtrl2W::Register>),
-        /// Source mem address (msbs) for DMA memory->stream data transfer
-        (0x00000028 => pub csudma_src_addr_msb: Aliased<u32, CsudmaSrcAddrMsbR::Register, CsudmaSrcAddrMsbW::Register>),
-        (0x0000002c => _padding44),
-        /// Destination mem address (lsbs) for DMA stream->memory data transfer
-        (0x00000800 => pub csudma_dst_addr: Aliased<u32, CsudmaDstAddrR::Register, CsudmaDstAddrW::Register>),
-        /// DMA transfer payload for DMA stream-> memory data transfer
-        (0x00000804 => pub csudma_dst_size: Aliased<u32, CsudmaDstSizeR::Register, CsudmaDstSizeW::Register>),
-        /// General DST DMA Status
-        (0x00000808 => pub csudma_dst_sts: Aliased<u32, CsudmaDstStsR::Register, CsudmaDstStsW::Register>),
-        /// General DST DMA Control
-        (0x0000080c => pub csudma_dst_ctrl: ReadWrite<u32, CsudmaDstCtrl::Register>),
-        (0x00000810 => _padding2064),
-        /// DST DMA Interrupt Status Register
-        (0x00000814 => pub csudma_dst_i_sts: Aliased<u32, CsudmaDstIStsR::Register, CsudmaDstIStsW::Register>),
-        /// DST DMA Interrupt Enable
-        (0x00000818 => pub csudma_dst_i_en: Aliased<u32, CsudmaDstIEnR::Register, CsudmaDstIEnW::Register>),
-        /// DST DMA Interrupt Disable
-        (0x0000081c => pub csudma_dst_i_dis: Aliased<u32, CsudmaDstIDisR::Register, CsudmaDstIDisW::Register>),
-        /// DST DMA Interrupt Mask
-        (0x00000820 => pub csudma_dst_i_mask: ReadOnly<u32, CsudmaDstIMask::Register>),
-        /// General DST DMA Control Register 2
-        (0x00000824 => pub csudma_dst_ctrl2: Aliased<u32, CsudmaDstCtrl2R::Register, CsudmaDstCtrl2W::Register>),
-        /// Destination mem address (msbs) for DMA stream->memory data transfer
-        (0x00000828 => pub csudma_dst_addr_msb: Aliased<u32, CsudmaDstAddrMsbR::Register, CsudmaDstAddrMsbW::Register>),
-        (0x0000082c => _padding2092),
-        /// Safety endpoint connectivity check Register
-        (0x00000ff8 => pub csudma_safety_chk: ReadWrite<u32>),
-        (0x00000ffc => @END),
-    }
+#[repr(C)]
+pub struct Registers {
+    /// Source mem address (lsbs) for DMA memory->stream data transfer
+    pub csudma_src_addr: Aliased<u32, CsudmaSrcAddrR::Register, CsudmaSrcAddrW::Register>,
+    /// DMA transfer payload for DMA memory-> stream data transfer
+    pub csudma_src_size: Aliased<u32, CsudmaSrcSizeR::Register, CsudmaSrcSizeW::Register>,
+    /// General SRC DMA Status
+    pub csudma_src_sts: Aliased<u32, CsudmaSrcStsR::Register, CsudmaSrcStsW::Register>,
+    /// General SRC DMA Control Register 1
+    pub csudma_src_ctrl: Aliased<u32, CsudmaSrcCtrlR::Register, CsudmaSrcCtrlW::Register>,
+    /// SRC DMA Pseudo CRC
+    pub csudma_src_crc: ReadWrite<u32>,
+    /// SRC DMA Interrupt Status Register
+    pub csudma_src_i_sts: Aliased<u32, CsudmaSrcIStsR::Register, CsudmaSrcIStsW::Register>,
+    /// SRC DMA Interrupt Enable
+    pub csudma_src_i_en: Aliased<u32, CsudmaSrcIEnR::Register, CsudmaSrcIEnW::Register>,
+    /// SRC DMA Interrupt Disable
+    pub csudma_src_i_dis: Aliased<u32, CsudmaSrcIDisR::Register, CsudmaSrcIDisW::Register>,
+    /// SRC DMA Interrupt Mask
+    pub csudma_src_i_mask: ReadOnly<u32, CsudmaSrcIMask::Register>,
+    /// General SRC DMA Control Register 2
+    pub csudma_src_ctrl2: Aliased<u32, CsudmaSrcCtrl2R::Register, CsudmaSrcCtrl2W::Register>,
+    /// Source mem address (msbs) for DMA memory->stream data transfer
+    pub csudma_src_addr_msb: Aliased<u32, CsudmaSrcAddrMsbR::Register, CsudmaSrcAddrMsbW::Register>,
+    _padding44: [u8; 2004],
+    /// Destination mem address (lsbs) for DMA stream->memory data transfer
+    pub csudma_dst_addr: Aliased<u32, CsudmaDstAddrR::Register, CsudmaDstAddrW::Register>,
+    /// DMA transfer payload for DMA stream-> memory data transfer
+    pub csudma_dst_size: Aliased<u32, CsudmaDstSizeR::Register, CsudmaDstSizeW::Register>,
+    /// General DST DMA Status
+    pub csudma_dst_sts: Aliased<u32, CsudmaDstStsR::Register, CsudmaDstStsW::Register>,
+    /// General DST DMA Control
+    pub csudma_dst_ctrl: ReadWrite<u32, CsudmaDstCtrl::Register>,
+    _padding2064: [u8; 4],
+    /// DST DMA Interrupt Status Register
+    pub csudma_dst_i_sts: Aliased<u32, CsudmaDstIStsR::Register, CsudmaDstIStsW::Register>,
+    /// DST DMA Interrupt Enable
+    pub csudma_dst_i_en: Aliased<u32, CsudmaDstIEnR::Register, CsudmaDstIEnW::Register>,
+    /// DST DMA Interrupt Disable
+    pub csudma_dst_i_dis: Aliased<u32, CsudmaDstIDisR::Register, CsudmaDstIDisW::Register>,
+    /// DST DMA Interrupt Mask
+    pub csudma_dst_i_mask: ReadOnly<u32, CsudmaDstIMask::Register>,
+    /// General DST DMA Control Register 2
+    pub csudma_dst_ctrl2: Aliased<u32, CsudmaDstCtrl2R::Register, CsudmaDstCtrl2W::Register>,
+    /// Destination mem address (msbs) for DMA stream->memory data transfer
+    pub csudma_dst_addr_msb: Aliased<u32, CsudmaDstAddrMsbR::Register, CsudmaDstAddrMsbW::Register>,
+    _padding2092: [u8; 1996],
+    /// Safety endpoint connectivity check Register
+    pub csudma_safety_chk: ReadWrite<u32>,
 }
-register_bitfields! [
+tock_registers::register_bitfields! [
     u32,
     pub CsudmaSrcAddrR [
         ADDR OFFSET(2) NUMBITS(30) [],
@@ -64,7 +62,7 @@ register_bitfields! [
         ADDR OFFSET(2) NUMBITS(30) [],
     ]
 ];
-register_bitfields! [
+tock_registers::register_bitfields! [
     u32,
     pub CsudmaSrcSizeR [
         RESERVED0 OFFSET(29) NUMBITS(3) [],
@@ -77,7 +75,7 @@ register_bitfields! [
         LAST_WORD OFFSET(0) NUMBITS(1) [],
     ]
 ];
-register_bitfields! [
+tock_registers::register_bitfields! [
     u32,
     pub CsudmaSrcStsR [
         RESERVED0 OFFSET(16) NUMBITS(16) [],
@@ -90,7 +88,7 @@ register_bitfields! [
         DONE_CNT OFFSET(13) NUMBITS(3) [],
     ]
 ];
-register_bitfields! [
+tock_registers::register_bitfields! [
     u32,
     pub CsudmaSrcCtrlR [
         RESERVED0 OFFSET(25) NUMBITS(7) [],
@@ -112,7 +110,7 @@ register_bitfields! [
         PAUSE_MEM OFFSET(0) NUMBITS(1) [],
     ]
 ];
-register_bitfields! [
+tock_registers::register_bitfields! [
     u32,
     pub CsudmaSrcIStsR [
         RESERVED0 OFFSET(7) NUMBITS(25) [],
@@ -134,7 +132,7 @@ register_bitfields! [
         MEM_DONE OFFSET(0) NUMBITS(1) [],
     ]
 ];
-register_bitfields! [
+tock_registers::register_bitfields! [
     u32,
     pub CsudmaSrcIEnR [
         RESERVED0 OFFSET(7) NUMBITS(25) [],
@@ -156,7 +154,7 @@ register_bitfields! [
         MEM_DONE OFFSET(0) NUMBITS(1) [],
     ]
 ];
-register_bitfields! [
+tock_registers::register_bitfields! [
     u32,
     pub CsudmaSrcIDisR [
         RESERVED0 OFFSET(7) NUMBITS(25) [],
@@ -178,7 +176,7 @@ register_bitfields! [
         MEM_DONE OFFSET(0) NUMBITS(1) [],
     ]
 ];
-register_bitfields! [
+tock_registers::register_bitfields! [
     u32,
     pub CsudmaSrcIMask [
         RESERVED0 OFFSET(7) NUMBITS(25) [],
@@ -191,7 +189,7 @@ register_bitfields! [
         MEM_DONE OFFSET(0) NUMBITS(1) [],
     ]
 ];
-register_bitfields! [
+tock_registers::register_bitfields! [
     u32,
     pub CsudmaSrcCtrl2R [
         RESERVED0 OFFSET(28) NUMBITS(4) [],
@@ -215,7 +213,7 @@ register_bitfields! [
         MAX_OUTS_CMDS OFFSET(0) NUMBITS(4) [],
     ]
 ];
-register_bitfields! [
+tock_registers::register_bitfields! [
     u32,
     pub CsudmaSrcAddrMsbR [
         RESERVED0 OFFSET(17) NUMBITS(15) [],
@@ -225,7 +223,7 @@ register_bitfields! [
         ADDR_MSB OFFSET(0) NUMBITS(17) [],
     ]
 ];
-register_bitfields! [
+tock_registers::register_bitfields! [
     u32,
     pub CsudmaDstAddrR [
         ADDR OFFSET(2) NUMBITS(30) [],
@@ -235,7 +233,7 @@ register_bitfields! [
         ADDR OFFSET(2) NUMBITS(30) [],
     ]
 ];
-register_bitfields! [
+tock_registers::register_bitfields! [
     u32,
     pub CsudmaDstSizeR [
         RESERVED0 OFFSET(29) NUMBITS(3) [],
@@ -246,7 +244,7 @@ register_bitfields! [
         SIZE OFFSET(2) NUMBITS(27) [],
     ]
 ];
-register_bitfields! [
+tock_registers::register_bitfields! [
     u32,
     pub CsudmaDstStsR [
         RESERVED0 OFFSET(16) NUMBITS(16) [],
@@ -259,7 +257,7 @@ register_bitfields! [
         DONE_CNT OFFSET(13) NUMBITS(3) [],
     ]
 ];
-register_bitfields! [
+tock_registers::register_bitfields! [
     u32,
     pub CsudmaDstCtrl [
         SSS_FIFOTHRESH OFFSET(25) NUMBITS(7) [],
@@ -272,7 +270,7 @@ register_bitfields! [
         PAUSE_MEM OFFSET(0) NUMBITS(1) [],
     ]
 ];
-register_bitfields! [
+tock_registers::register_bitfields! [
     u32,
     pub CsudmaDstIStsR [
         RESERVED0 OFFSET(8) NUMBITS(24) [],
@@ -295,7 +293,7 @@ register_bitfields! [
         DONE OFFSET(1) NUMBITS(1) [],
     ]
 ];
-register_bitfields! [
+tock_registers::register_bitfields! [
     u32,
     pub CsudmaDstIEnR [
         RESERVED0 OFFSET(8) NUMBITS(24) [],
@@ -318,7 +316,7 @@ register_bitfields! [
         DONE OFFSET(1) NUMBITS(1) [],
     ]
 ];
-register_bitfields! [
+tock_registers::register_bitfields! [
     u32,
     pub CsudmaDstIDisR [
         RESERVED0 OFFSET(8) NUMBITS(24) [],
@@ -341,7 +339,7 @@ register_bitfields! [
         DONE OFFSET(1) NUMBITS(1) [],
     ]
 ];
-register_bitfields! [
+tock_registers::register_bitfields! [
     u32,
     pub CsudmaDstIMask [
         RESERVED0 OFFSET(8) NUMBITS(24) [],
@@ -355,7 +353,7 @@ register_bitfields! [
         RESERVED1 OFFSET(0) NUMBITS(1) [],
     ]
 ];
-register_bitfields! [
+tock_registers::register_bitfields! [
     u32,
     pub CsudmaDstCtrl2R [
         RESERVED0 OFFSET(28) NUMBITS(4) [],
@@ -379,7 +377,7 @@ register_bitfields! [
         MAX_OUTS_CMDS OFFSET(0) NUMBITS(4) [],
     ]
 ];
-register_bitfields! [
+tock_registers::register_bitfields! [
     u32,
     pub CsudmaDstAddrMsbR [
         RESERVED0 OFFSET(17) NUMBITS(15) [],

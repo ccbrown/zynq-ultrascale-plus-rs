@@ -4,47 +4,47 @@ use tock_registers::registers::{Aliased, ReadOnly, ReadWrite};
 pub static mut UART0: *mut Registers = 0xff000000 as *mut Registers;
 /// UART Controller, UART 1 Controller
 pub static mut UART1: *mut Registers = 0xff010000 as *mut Registers;
-register_structs! {
-    pub Registers {
-        /// UART Control Register
-        (0x00000000 => pub control: Aliased<u32, ControlR::Register, ControlW::Register>),
-        /// UART Mode Register
-        (0x00000004 => pub mode: Aliased<u32, ModeR::Register, ModeW::Register>),
-        /// Interrupt Enable Register
-        (0x00000008 => pub intrpt_en: Aliased<u32, IntrptEnR::Register, IntrptEnW::Register>),
-        /// Interrupt Disable Register
-        (0x0000000c => pub intrpt_dis: Aliased<u32, IntrptDisR::Register, IntrptDisW::Register>),
-        /// Interrupt Mask Register
-        (0x00000010 => pub intrpt_mask: Aliased<u32, IntrptMaskR::Register, IntrptMaskW::Register>),
-        /// Channel Interrupt Status Register
-        (0x00000014 => pub chnl_int_sts: ReadWrite<u32, ChnlIntSts::Register>),
-        /// Baud Rate Generator Register.
-        (0x00000018 => pub baud_rate_gen: Aliased<u32, BaudRateGenR::Register, BaudRateGenW::Register>),
-        /// Receiver Timeout Register
-        (0x0000001c => pub rcvr_timeout: Aliased<u32, RcvrTimeoutR::Register, RcvrTimeoutW::Register>),
-        /// Receiver FIFO Trigger Level Register
-        (0x00000020 => pub rcvr_fifo_trigger_level: Aliased<u32, RcvrFifoTriggerLevelR::Register, RcvrFifoTriggerLevelW::Register>),
-        /// Modem Control Register
-        (0x00000024 => pub modem_ctrl: Aliased<u32, ModemCtrlR::Register, ModemCtrlW::Register>),
-        /// Modem Status Register
-        (0x00000028 => pub modem_sts: Aliased<u32, ModemStsR::Register, ModemStsW::Register>),
-        /// Channel Status Register
-        (0x0000002c => pub channel_sts: ReadOnly<u32, ChannelSts::Register>),
-        /// Transmit and Receive FIFO
-        (0x00000030 => pub tx_rx_fifo: Aliased<u32, TxRxFifoR::Register, TxRxFifoW::Register>),
-        /// Baud Rate Divider Register
-        (0x00000034 => pub baud_rate_divider: Aliased<u32, BaudRateDividerR::Register, BaudRateDividerW::Register>),
-        /// Flow Control Delay Register
-        (0x00000038 => pub flow_delay: Aliased<u32, FlowDelayR::Register, FlowDelayW::Register>),
-        (0x0000003c => _padding60),
-        /// Transmitter FIFO Trigger Level Register
-        (0x00000044 => pub tx_fifo_trigger_level: Aliased<u32, TxFifoTriggerLevelR::Register, TxFifoTriggerLevelW::Register>),
-        /// RX FIFO Byte Status Register
-        (0x00000048 => pub rx_fifo_byte_status: Aliased<u32, RxFifoByteStatusR::Register, RxFifoByteStatusW::Register>),
-        (0x0000004c => @END),
-    }
+#[repr(C)]
+pub struct Registers {
+    /// UART Control Register
+    pub control: Aliased<u32, ControlR::Register, ControlW::Register>,
+    /// UART Mode Register
+    pub mode: Aliased<u32, ModeR::Register, ModeW::Register>,
+    /// Interrupt Enable Register
+    pub intrpt_en: Aliased<u32, IntrptEnR::Register, IntrptEnW::Register>,
+    /// Interrupt Disable Register
+    pub intrpt_dis: Aliased<u32, IntrptDisR::Register, IntrptDisW::Register>,
+    /// Interrupt Mask Register
+    pub intrpt_mask: Aliased<u32, IntrptMaskR::Register, IntrptMaskW::Register>,
+    /// Channel Interrupt Status Register
+    pub chnl_int_sts: ReadWrite<u32, ChnlIntSts::Register>,
+    /// Baud Rate Generator Register.
+    pub baud_rate_gen: Aliased<u32, BaudRateGenR::Register, BaudRateGenW::Register>,
+    /// Receiver Timeout Register
+    pub rcvr_timeout: Aliased<u32, RcvrTimeoutR::Register, RcvrTimeoutW::Register>,
+    /// Receiver FIFO Trigger Level Register
+    pub rcvr_fifo_trigger_level:
+        Aliased<u32, RcvrFifoTriggerLevelR::Register, RcvrFifoTriggerLevelW::Register>,
+    /// Modem Control Register
+    pub modem_ctrl: Aliased<u32, ModemCtrlR::Register, ModemCtrlW::Register>,
+    /// Modem Status Register
+    pub modem_sts: Aliased<u32, ModemStsR::Register, ModemStsW::Register>,
+    /// Channel Status Register
+    pub channel_sts: ReadOnly<u32, ChannelSts::Register>,
+    /// Transmit and Receive FIFO
+    pub tx_rx_fifo: Aliased<u32, TxRxFifoR::Register, TxRxFifoW::Register>,
+    /// Baud Rate Divider Register
+    pub baud_rate_divider: Aliased<u32, BaudRateDividerR::Register, BaudRateDividerW::Register>,
+    /// Flow Control Delay Register
+    pub flow_delay: Aliased<u32, FlowDelayR::Register, FlowDelayW::Register>,
+    _padding60: [u8; 8],
+    /// Transmitter FIFO Trigger Level Register
+    pub tx_fifo_trigger_level:
+        Aliased<u32, TxFifoTriggerLevelR::Register, TxFifoTriggerLevelW::Register>,
+    /// RX FIFO Byte Status Register
+    pub rx_fifo_byte_status: Aliased<u32, RxFifoByteStatusR::Register, RxFifoByteStatusW::Register>,
 }
-register_bitfields! [
+tock_registers::register_bitfields! [
     u32,
     pub ControlR [
         RESERVED0 OFFSET(9) NUMBITS(23) [],
@@ -70,7 +70,7 @@ register_bitfields! [
         RXRES OFFSET(0) NUMBITS(1) [],
     ]
 ];
-register_bitfields! [
+tock_registers::register_bitfields! [
     u32,
     pub ModeR [
         RESERVED0 OFFSET(14) NUMBITS(18) [],
@@ -94,7 +94,7 @@ register_bitfields! [
         CLKS OFFSET(0) NUMBITS(1) [],
     ]
 ];
-register_bitfields! [
+tock_registers::register_bitfields! [
     u32,
     pub IntrptEnR [
         RESERVED0 OFFSET(14) NUMBITS(18) [],
@@ -116,7 +116,7 @@ register_bitfields! [
         RTRIG OFFSET(0) NUMBITS(1) [],
     ]
 ];
-register_bitfields! [
+tock_registers::register_bitfields! [
     u32,
     pub IntrptDisR [
         RESERVED0 OFFSET(14) NUMBITS(18) [],
@@ -138,7 +138,7 @@ register_bitfields! [
         RTRIG OFFSET(0) NUMBITS(1) [],
     ]
 ];
-register_bitfields! [
+tock_registers::register_bitfields! [
     u32,
     pub IntrptMaskR [
         RESERVED0 OFFSET(14) NUMBITS(18) [],
@@ -160,7 +160,7 @@ register_bitfields! [
         RBRK OFFSET(13) NUMBITS(1) [],
     ]
 ];
-register_bitfields! [
+tock_registers::register_bitfields! [
     u32,
     pub ChnlIntSts [
         RESERVED0 OFFSET(14) NUMBITS(18) [],
@@ -180,7 +180,7 @@ register_bitfields! [
         RTRIG OFFSET(0) NUMBITS(1) [],
     ]
 ];
-register_bitfields! [
+tock_registers::register_bitfields! [
     u32,
     pub BaudRateGenR [
         RESERVED0 OFFSET(16) NUMBITS(16) [],
@@ -190,7 +190,7 @@ register_bitfields! [
         CD OFFSET(0) NUMBITS(16) [],
     ]
 ];
-register_bitfields! [
+tock_registers::register_bitfields! [
     u32,
     pub RcvrTimeoutR [
         RESERVED0 OFFSET(8) NUMBITS(24) [],
@@ -200,7 +200,7 @@ register_bitfields! [
         RTO OFFSET(0) NUMBITS(8) [],
     ]
 ];
-register_bitfields! [
+tock_registers::register_bitfields! [
     u32,
     pub RcvrFifoTriggerLevelR [
         RESERVED0 OFFSET(6) NUMBITS(26) [],
@@ -210,7 +210,7 @@ register_bitfields! [
         RTRIG OFFSET(0) NUMBITS(6) [],
     ]
 ];
-register_bitfields! [
+tock_registers::register_bitfields! [
     u32,
     pub ModemCtrlR [
         RESERVED0 OFFSET(6) NUMBITS(26) [],
@@ -225,7 +225,7 @@ register_bitfields! [
         DTR OFFSET(0) NUMBITS(1) [],
     ]
 ];
-register_bitfields! [
+tock_registers::register_bitfields! [
     u32,
     pub ModemStsR [
         RESERVED0 OFFSET(9) NUMBITS(23) [],
@@ -247,7 +247,7 @@ register_bitfields! [
         DCTS OFFSET(0) NUMBITS(1) [],
     ]
 ];
-register_bitfields! [
+tock_registers::register_bitfields! [
     u32,
     pub ChannelSts [
         RESERVED0 OFFSET(15) NUMBITS(17) [],
@@ -264,7 +264,7 @@ register_bitfields! [
         RTRIG OFFSET(0) NUMBITS(1) [],
     ]
 ];
-register_bitfields! [
+tock_registers::register_bitfields! [
     u32,
     pub TxRxFifoR [
         RESERVED0 OFFSET(8) NUMBITS(24) [],
@@ -274,7 +274,7 @@ register_bitfields! [
         FIFO OFFSET(0) NUMBITS(8) [],
     ]
 ];
-register_bitfields! [
+tock_registers::register_bitfields! [
     u32,
     pub BaudRateDividerR [
         RESERVED0 OFFSET(8) NUMBITS(24) [],
@@ -284,7 +284,7 @@ register_bitfields! [
         BDIV OFFSET(0) NUMBITS(8) [],
     ]
 ];
-register_bitfields! [
+tock_registers::register_bitfields! [
     u32,
     pub FlowDelayR [
         RESERVED0 OFFSET(6) NUMBITS(26) [],
@@ -294,7 +294,7 @@ register_bitfields! [
         FDEL OFFSET(0) NUMBITS(6) [],
     ]
 ];
-register_bitfields! [
+tock_registers::register_bitfields! [
     u32,
     pub TxFifoTriggerLevelR [
         RESERVED0 OFFSET(6) NUMBITS(26) [],
@@ -304,7 +304,7 @@ register_bitfields! [
         TTRIG OFFSET(0) NUMBITS(6) [],
     ]
 ];
-register_bitfields! [
+tock_registers::register_bitfields! [
     u32,
     pub RxFifoByteStatusR [
         RESERVED0 OFFSET(12) NUMBITS(20) [],

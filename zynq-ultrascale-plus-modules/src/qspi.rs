@@ -2,136 +2,135 @@
 use tock_registers::registers::{Aliased, ReadOnly, ReadWrite, WriteOnly};
 /// Quad-SPI Registers, Quad SPI Controller
 pub static mut QSPI: *mut Registers = 0xff0f0000 as *mut Registers;
-register_structs! {
-    pub Registers {
-        /// QSPI configuration register
-        (0x00000000 => pub config: Aliased<u32, ConfigR::Register, ConfigW::Register>),
-        /// Interrupt Status
-        (0x00000004 => pub isr: Aliased<u32, IsrR::Register, IsrW::Register>),
-        /// Interrupt Enable
-        (0x00000008 => pub ier: Aliased<u32, IerR::Register, IerW::Register>),
-        /// Interrupt Disable
-        (0x0000000c => pub idr: Aliased<u32, IdrR::Register, IdrW::Register>),
-        /// Interrupt Un-Mask (enabled)
-        (0x00000010 => pub imr: ReadOnly<u32, Imr::Register>),
-        /// LQSPI Enable
-        (0x00000014 => pub lqspi_en: Aliased<u32, LqspiEnR::Register, LqspiEnW::Register>),
-        /// Timing Control Delay
-        (0x00000018 => pub delay: ReadWrite<u32, Delay::Register>),
-        /// Transmit Data, 4 Bytes
-        (0x0000001c => pub txd0: WriteOnly<u32>),
-        /// Receive Data in RX FIFO
-        (0x00000020 => pub rx_data: ReadOnly<u32>),
-        /// Slave Idle Count
-        (0x00000024 => pub slave_idle_count: Aliased<u32, SlaveIdleCountR::Register, SlaveIdleCountW::Register>),
-        /// TX FIFO Threshold
-        (0x00000028 => pub tx_thres: ReadWrite<u32>),
-        /// RX FIFO Threshold
-        (0x0000002c => pub rx_thres: ReadWrite<u32>),
-        /// Write Protection Output
-        (0x00000030 => pub gpio: ReadWrite<u32, Gpio::Register>),
-        (0x00000034 => _padding52),
-        /// Loopback Master Clock Delay Adjustment
-        (0x00000038 => pub lpbk_dly_adj: ReadWrite<u32, LpbkDlyAdj::Register>),
-        (0x0000003c => _padding60),
-        /// Transmit Data, 1 Byte
-        (0x00000080 => pub txd1: WriteOnly<u32>),
-        /// Transmit Data, 2 Byte
-        (0x00000084 => pub txd2: WriteOnly<u32>),
-        /// Transmit Data, 3 Bytes
-        (0x00000088 => pub txd3: WriteOnly<u32>),
-        (0x0000008c => _padding140),
-        /// Configuration
-        (0x000000a0 => pub lqspi_cfg: ReadWrite<u32, LqspiCfg::Register>),
-        /// Status
-        (0x000000a4 => pub lqspi_sts: ReadOnly<u16, LqspiSts::Register>),
-        (0x000000a6 => _padding166),
-        /// Command control
-        (0x000000c0 => pub command: Aliased<u32, CommandR::Register, CommandW::Register>),
-        /// Transfer Size
-        (0x000000c4 => pub transfer_size: Aliased<u32, TransferSizeR::Register, TransferSizeW::Register>),
-        /// Dummy Cycles Enable
-        (0x000000c8 => pub dummy_cycle_en: Aliased<u32, DummyCycleEnR::Register, DummyCycleEnW::Register>),
-        (0x000000cc => _padding204),
-        /// Module Identification
-        (0x000000fc => pub mod_id: ReadWrite<u32>),
-        /// GQSPI Configuration
-        (0x00000100 => pub gqspi_cfg: Aliased<u32, GqspiCfgR::Register, GqspiCfgW::Register>),
-        /// Generic QSPI Interrupt Status
-        (0x00000104 => pub gqspi_isr: Aliased<u32, GqspiIsrR::Register, GqspiIsrW::Register>),
-        /// GQSPI Interrupt Enable
-        (0x00000108 => pub gqspi_ier: Aliased<u32, GqspiIerR::Register, GqspiIerW::Register>),
-        /// GQSPI Interrupt disable
-        (0x0000010c => pub gqspi_idr: Aliased<u32, GqspiIdrR::Register, GqspiIdrW::Register>),
-        /// GQSPI Interrupt Mask
-        (0x00000110 => pub gqspi_imr: ReadOnly<u32, GqspiImr::Register>),
-        /// GQSPI_Enable
-        (0x00000114 => pub gqspi_en: Aliased<u32, GqspiEnR::Register, GqspiEnW::Register>),
-        (0x00000118 => _padding280),
-        /// GQSPI Transmit Data
-        (0x0000011c => pub gqspi_txd: WriteOnly<u32>),
-        /// GQSPI Receive Data
-        (0x00000120 => pub gqspi_rxd: ReadOnly<u32>),
-        (0x00000124 => _padding292),
-        /// GQSPI TX FIFO Threshold Level
-        (0x00000128 => pub gqspi_tx_thresh: Aliased<u32, GqspiTxThreshR::Register, GqspiTxThreshW::Register>),
-        /// GQSPI RX FIFO Threshold Level
-        (0x0000012c => pub gqspi_rx_thresh: Aliased<u32, GqspiRxThreshR::Register, GqspiRxThreshW::Register>),
-        /// GQSPI GPIO for Write Protect
-        (0x00000130 => pub gqspi_gpio: Aliased<u32, GqspiGpioR::Register, GqspiGpioW::Register>),
-        (0x00000134 => _padding308),
-        /// GQSPI Loopback clock delay adjustment Register
-        (0x00000138 => pub gqspi_lpbk_dly_adj: Aliased<u32, GqspiLpbkDlyAdjR::Register, GqspiLpbkDlyAdjW::Register>),
-        (0x0000013c => _padding316),
-        /// GQSPI Generic FIFO Configuration
-        (0x00000140 => pub gqspi_gen_fifo: Aliased<u32, GqspiGenFifoR::Register, GqspiGenFifoW::Register>),
-        /// GQSPI Select
-        (0x00000144 => pub gqspi_sel: Aliased<u32, GqspiSelR::Register, GqspiSelW::Register>),
-        (0x00000148 => _padding328),
-        /// GQSPI FIFO Control
-        (0x0000014c => pub gqspi_fifo_ctrl: Aliased<u32, GqspiFifoCtrlR::Register, GqspiFifoCtrlW::Register>),
-        /// GQSPI Generic FIFO ThresholdLevel
-        (0x00000150 => pub gqspi_gf_thresh: Aliased<u32, GqspiGfThreshR::Register, GqspiGfThreshW::Register>),
-        /// GQSPI Poll Configuration Register
-        (0x00000154 => pub gqspi_poll_cfg: Aliased<u32, GqspiPollCfgR::Register, GqspiPollCfgW::Register>),
-        /// GQSPI Poll Time out
-        (0x00000158 => pub gqspi_p_timeout: ReadWrite<u32>),
-        /// GQSPI Transfer Status
-        (0x0000015c => pub gqspi_xfer_sts: ReadOnly<u32>),
-        (0x00000160 => _padding352),
-        /// GQSPI Receive Data Copy
-        (0x00000164 => pub gqspi_rx_copy: ReadOnly<u32, GqspiRxCopy::Register>),
-        (0x00000168 => _padding360),
-        /// QSPI RX Data Delay
-        (0x000001f8 => pub qspi_data_dly_adj: ReadWrite<u32, QspiDataDlyAdj::Register>),
-        /// GQSPI Module Identification register
-        (0x000001fc => pub gqspi_mod_id: ReadWrite<u32>),
-        (0x00000200 => _padding512),
-        /// DMA destination memory address
-        (0x00000800 => pub qspidma_dst_addr: Aliased<u32, QspidmaDstAddrR::Register, QspidmaDstAddrW::Register>),
-        /// DMA transfer payload
-        (0x00000804 => pub qspidma_dst_size: Aliased<u32, QspidmaDstSizeR::Register, QspidmaDstSizeW::Register>),
-        /// General DST DMA Status
-        (0x00000808 => pub qspidma_dst_sts: Aliased<u32, QspidmaDstStsR::Register, QspidmaDstStsW::Register>),
-        /// General DST DMA Control
-        (0x0000080c => pub qspidma_dst_ctrl: ReadWrite<u32, QspidmaDstCtrl::Register>),
-        (0x00000810 => _padding2064),
-        /// DST DMA Interrupt Status
-        (0x00000814 => pub qspidma_dst_i_sts: Aliased<u32, QspidmaDstIStsR::Register, QspidmaDstIStsW::Register>),
-        /// DST DMA Interrupt Enable
-        (0x00000818 => pub qspidma_dst_i_en: Aliased<u32, QspidmaDstIEnR::Register, QspidmaDstIEnW::Register>),
-        /// DST DMA Interrupt Disable
-        (0x0000081c => pub qspidma_dst_i_dis: Aliased<u32, QspidmaDstIDisR::Register, QspidmaDstIDisW::Register>),
-        /// DST DMA Interrupt Mask
-        (0x00000820 => pub qspidma_dst_i_mask: ReadOnly<u32, QspidmaDstIMask::Register>),
-        /// General DST DMA Control Reg 2
-        (0x00000824 => pub qspidma_dst_ctrl2: Aliased<u32, QspidmaDstCtrl2R::Register, QspidmaDstCtrl2W::Register>),
-        /// DMA destination memory address (MSBs)
-        (0x00000828 => pub qspidma_dst_addr_msb: Aliased<u32, QspidmaDstAddrMsbR::Register, QspidmaDstAddrMsbW::Register>),
-        (0x0000082c => @END),
-    }
+#[repr(C)]
+pub struct Registers {
+    /// QSPI configuration register
+    pub config: Aliased<u32, ConfigR::Register, ConfigW::Register>,
+    /// Interrupt Status
+    pub isr: Aliased<u32, IsrR::Register, IsrW::Register>,
+    /// Interrupt Enable
+    pub ier: Aliased<u32, IerR::Register, IerW::Register>,
+    /// Interrupt Disable
+    pub idr: Aliased<u32, IdrR::Register, IdrW::Register>,
+    /// Interrupt Un-Mask (enabled)
+    pub imr: ReadOnly<u32, Imr::Register>,
+    /// LQSPI Enable
+    pub lqspi_en: Aliased<u32, LqspiEnR::Register, LqspiEnW::Register>,
+    /// Timing Control Delay
+    pub delay: ReadWrite<u32, Delay::Register>,
+    /// Transmit Data, 4 Bytes
+    pub txd0: WriteOnly<u32>,
+    /// Receive Data in RX FIFO
+    pub rx_data: ReadOnly<u32>,
+    /// Slave Idle Count
+    pub slave_idle_count: Aliased<u32, SlaveIdleCountR::Register, SlaveIdleCountW::Register>,
+    /// TX FIFO Threshold
+    pub tx_thres: ReadWrite<u32>,
+    /// RX FIFO Threshold
+    pub rx_thres: ReadWrite<u32>,
+    /// Write Protection Output
+    pub gpio: ReadWrite<u32, Gpio::Register>,
+    _padding52: [u8; 4],
+    /// Loopback Master Clock Delay Adjustment
+    pub lpbk_dly_adj: ReadWrite<u32, LpbkDlyAdj::Register>,
+    _padding60: [u8; 68],
+    /// Transmit Data, 1 Byte
+    pub txd1: WriteOnly<u32>,
+    /// Transmit Data, 2 Byte
+    pub txd2: WriteOnly<u32>,
+    /// Transmit Data, 3 Bytes
+    pub txd3: WriteOnly<u32>,
+    _padding140: [u8; 20],
+    /// Configuration
+    pub lqspi_cfg: ReadWrite<u32, LqspiCfg::Register>,
+    /// Status
+    pub lqspi_sts: ReadOnly<u16, LqspiSts::Register>,
+    _padding166: [u8; 26],
+    /// Command control
+    pub command: Aliased<u32, CommandR::Register, CommandW::Register>,
+    /// Transfer Size
+    pub transfer_size: Aliased<u32, TransferSizeR::Register, TransferSizeW::Register>,
+    /// Dummy Cycles Enable
+    pub dummy_cycle_en: Aliased<u32, DummyCycleEnR::Register, DummyCycleEnW::Register>,
+    _padding204: [u8; 48],
+    /// Module Identification
+    pub mod_id: ReadWrite<u32>,
+    /// GQSPI Configuration
+    pub gqspi_cfg: Aliased<u32, GqspiCfgR::Register, GqspiCfgW::Register>,
+    /// Generic QSPI Interrupt Status
+    pub gqspi_isr: Aliased<u32, GqspiIsrR::Register, GqspiIsrW::Register>,
+    /// GQSPI Interrupt Enable
+    pub gqspi_ier: Aliased<u32, GqspiIerR::Register, GqspiIerW::Register>,
+    /// GQSPI Interrupt disable
+    pub gqspi_idr: Aliased<u32, GqspiIdrR::Register, GqspiIdrW::Register>,
+    /// GQSPI Interrupt Mask
+    pub gqspi_imr: ReadOnly<u32, GqspiImr::Register>,
+    /// GQSPI_Enable
+    pub gqspi_en: Aliased<u32, GqspiEnR::Register, GqspiEnW::Register>,
+    _padding280: [u8; 4],
+    /// GQSPI Transmit Data
+    pub gqspi_txd: WriteOnly<u32>,
+    /// GQSPI Receive Data
+    pub gqspi_rxd: ReadOnly<u32>,
+    _padding292: [u8; 4],
+    /// GQSPI TX FIFO Threshold Level
+    pub gqspi_tx_thresh: Aliased<u32, GqspiTxThreshR::Register, GqspiTxThreshW::Register>,
+    /// GQSPI RX FIFO Threshold Level
+    pub gqspi_rx_thresh: Aliased<u32, GqspiRxThreshR::Register, GqspiRxThreshW::Register>,
+    /// GQSPI GPIO for Write Protect
+    pub gqspi_gpio: Aliased<u32, GqspiGpioR::Register, GqspiGpioW::Register>,
+    _padding308: [u8; 4],
+    /// GQSPI Loopback clock delay adjustment Register
+    pub gqspi_lpbk_dly_adj: Aliased<u32, GqspiLpbkDlyAdjR::Register, GqspiLpbkDlyAdjW::Register>,
+    _padding316: [u8; 4],
+    /// GQSPI Generic FIFO Configuration
+    pub gqspi_gen_fifo: Aliased<u32, GqspiGenFifoR::Register, GqspiGenFifoW::Register>,
+    /// GQSPI Select
+    pub gqspi_sel: Aliased<u32, GqspiSelR::Register, GqspiSelW::Register>,
+    _padding328: [u8; 4],
+    /// GQSPI FIFO Control
+    pub gqspi_fifo_ctrl: Aliased<u32, GqspiFifoCtrlR::Register, GqspiFifoCtrlW::Register>,
+    /// GQSPI Generic FIFO ThresholdLevel
+    pub gqspi_gf_thresh: Aliased<u32, GqspiGfThreshR::Register, GqspiGfThreshW::Register>,
+    /// GQSPI Poll Configuration Register
+    pub gqspi_poll_cfg: Aliased<u32, GqspiPollCfgR::Register, GqspiPollCfgW::Register>,
+    /// GQSPI Poll Time out
+    pub gqspi_p_timeout: ReadWrite<u32>,
+    /// GQSPI Transfer Status
+    pub gqspi_xfer_sts: ReadOnly<u32>,
+    _padding352: [u8; 4],
+    /// GQSPI Receive Data Copy
+    pub gqspi_rx_copy: ReadOnly<u32, GqspiRxCopy::Register>,
+    _padding360: [u8; 144],
+    /// QSPI RX Data Delay
+    pub qspi_data_dly_adj: ReadWrite<u32, QspiDataDlyAdj::Register>,
+    /// GQSPI Module Identification register
+    pub gqspi_mod_id: ReadWrite<u32>,
+    _padding512: [u8; 1536],
+    /// DMA destination memory address
+    pub qspidma_dst_addr: Aliased<u32, QspidmaDstAddrR::Register, QspidmaDstAddrW::Register>,
+    /// DMA transfer payload
+    pub qspidma_dst_size: Aliased<u32, QspidmaDstSizeR::Register, QspidmaDstSizeW::Register>,
+    /// General DST DMA Status
+    pub qspidma_dst_sts: Aliased<u32, QspidmaDstStsR::Register, QspidmaDstStsW::Register>,
+    /// General DST DMA Control
+    pub qspidma_dst_ctrl: ReadWrite<u32, QspidmaDstCtrl::Register>,
+    _padding2064: [u8; 4],
+    /// DST DMA Interrupt Status
+    pub qspidma_dst_i_sts: Aliased<u32, QspidmaDstIStsR::Register, QspidmaDstIStsW::Register>,
+    /// DST DMA Interrupt Enable
+    pub qspidma_dst_i_en: Aliased<u32, QspidmaDstIEnR::Register, QspidmaDstIEnW::Register>,
+    /// DST DMA Interrupt Disable
+    pub qspidma_dst_i_dis: Aliased<u32, QspidmaDstIDisR::Register, QspidmaDstIDisW::Register>,
+    /// DST DMA Interrupt Mask
+    pub qspidma_dst_i_mask: ReadOnly<u32, QspidmaDstIMask::Register>,
+    /// General DST DMA Control Reg 2
+    pub qspidma_dst_ctrl2: Aliased<u32, QspidmaDstCtrl2R::Register, QspidmaDstCtrl2W::Register>,
+    /// DMA destination memory address (MSBs)
+    pub qspidma_dst_addr_msb:
+        Aliased<u32, QspidmaDstAddrMsbR::Register, QspidmaDstAddrMsbW::Register>,
 }
-register_bitfields! [
+tock_registers::register_bitfields! [
     u32,
     pub ConfigR [
         LEG_FLSH OFFSET(31) NUMBITS(1) [],
@@ -171,7 +170,7 @@ register_bitfields! [
         MODE_SEL OFFSET(0) NUMBITS(1) [],
     ]
 ];
-register_bitfields! [
+tock_registers::register_bitfields! [
     u32,
     pub IsrR [
         RESERVED0 OFFSET(9) NUMBITS(23) [],
@@ -190,7 +189,7 @@ register_bitfields! [
         RX_OVERFLOW OFFSET(0) NUMBITS(1) [],
     ]
 ];
-register_bitfields! [
+tock_registers::register_bitfields! [
     u32,
     pub IerR [
         RESERVED0 OFFSET(9) NUMBITS(23) [],
@@ -207,7 +206,7 @@ register_bitfields! [
         RX_OVERFLOW OFFSET(0) NUMBITS(1) [],
     ]
 ];
-register_bitfields! [
+tock_registers::register_bitfields! [
     u32,
     pub IdrR [
         RESERVED0 OFFSET(9) NUMBITS(23) [],
@@ -224,7 +223,7 @@ register_bitfields! [
         RX_OVERFLOW OFFSET(0) NUMBITS(1) [],
     ]
 ];
-register_bitfields! [
+tock_registers::register_bitfields! [
     u32,
     pub Imr [
         RESERVED0 OFFSET(9) NUMBITS(23) [],
@@ -239,7 +238,7 @@ register_bitfields! [
         RX_OVERFLOW OFFSET(0) NUMBITS(1) [],
     ]
 ];
-register_bitfields! [
+tock_registers::register_bitfields! [
     u32,
     pub LqspiEnR [
         RESERVED0 OFFSET(1) NUMBITS(31) [],
@@ -249,7 +248,7 @@ register_bitfields! [
         SPI_EN OFFSET(0) NUMBITS(1) [],
     ]
 ];
-register_bitfields! [
+tock_registers::register_bitfields! [
     u32,
     pub Delay [
         D_NSS OFFSET(24) NUMBITS(8) [],
@@ -258,7 +257,7 @@ register_bitfields! [
         D_INT OFFSET(0) NUMBITS(8) [],
     ]
 ];
-register_bitfields! [
+tock_registers::register_bitfields! [
     u32,
     pub SlaveIdleCountR [
         RESERVED0 OFFSET(8) NUMBITS(24) [],
@@ -268,14 +267,14 @@ register_bitfields! [
         RESERVED0 OFFSET(0) NUMBITS(8) [],
     ]
 ];
-register_bitfields! [
+tock_registers::register_bitfields! [
     u32,
     pub Gpio [
         RESERVED0 OFFSET(1) NUMBITS(31) [],
         WP_N OFFSET(0) NUMBITS(1) [],
     ]
 ];
-register_bitfields! [
+tock_registers::register_bitfields! [
     u32,
     pub LpbkDlyAdj [
         RESERVED0 OFFSET(7) NUMBITS(25) [],
@@ -285,7 +284,7 @@ register_bitfields! [
         DLY0 OFFSET(0) NUMBITS(3) [],
     ]
 ];
-register_bitfields! [
+tock_registers::register_bitfields! [
     u32,
     pub LqspiCfg [
         LQ_MODE OFFSET(31) NUMBITS(1) [],
@@ -302,7 +301,7 @@ register_bitfields! [
         INST_CODE OFFSET(0) NUMBITS(8) [],
     ]
 ];
-register_bitfields! [
+tock_registers::register_bitfields! [
     u16,
     pub LqspiSts [
         RESERVED0 OFFSET(3) NUMBITS(6) [],
@@ -311,7 +310,7 @@ register_bitfields! [
         RESERVED1 OFFSET(0) NUMBITS(1) [],
     ]
 ];
-register_bitfields! [
+tock_registers::register_bitfields! [
     u32,
     pub CommandR [
         RESERVED0 OFFSET(21) NUMBITS(11) [],
@@ -333,7 +332,7 @@ register_bitfields! [
         RESERVED1 OFFSET(0) NUMBITS(1) [],
     ]
 ];
-register_bitfields! [
+tock_registers::register_bitfields! [
     u32,
     pub TransferSizeR [
         RESERVED0 OFFSET(29) NUMBITS(3) [],
@@ -343,7 +342,7 @@ register_bitfields! [
         SIZE OFFSET(2) NUMBITS(27) [],
     ]
 ];
-register_bitfields! [
+tock_registers::register_bitfields! [
     u32,
     pub DummyCycleEnR [
         RESERVED0 OFFSET(1) NUMBITS(31) [],
@@ -353,7 +352,7 @@ register_bitfields! [
         DUMMY_CYCLE_EN OFFSET(0) NUMBITS(1) [],
     ]
 ];
-register_bitfields! [
+tock_registers::register_bitfields! [
     u32,
     pub GqspiCfgR [
         MODE_EN OFFSET(30) NUMBITS(2) [],
@@ -381,7 +380,7 @@ register_bitfields! [
         CLK_POL OFFSET(1) NUMBITS(1) [],
     ]
 ];
-register_bitfields! [
+tock_registers::register_bitfields! [
     u32,
     pub GqspiIsrR [
         RESERVED0 OFFSET(12) NUMBITS(20) [],
@@ -402,7 +401,7 @@ register_bitfields! [
         POLL_TIME_EXPIRE OFFSET(1) NUMBITS(1) [],
     ]
 ];
-register_bitfields! [
+tock_registers::register_bitfields! [
     u32,
     pub GqspiIerR [
         RESERVED0 OFFSET(12) NUMBITS(20) [],
@@ -422,7 +421,7 @@ register_bitfields! [
         POLL_TIME_EXPIRE OFFSET(1) NUMBITS(1) [],
     ]
 ];
-register_bitfields! [
+tock_registers::register_bitfields! [
     u32,
     pub GqspiIdrR [
         RESERVED0 OFFSET(12) NUMBITS(20) [],
@@ -442,7 +441,7 @@ register_bitfields! [
         POLL_TIME_EXPIRE OFFSET(1) NUMBITS(1) [],
     ]
 ];
-register_bitfields! [
+tock_registers::register_bitfields! [
     u32,
     pub GqspiImr [
         RESERVED0 OFFSET(12) NUMBITS(20) [],
@@ -460,7 +459,7 @@ register_bitfields! [
         RESERVED2 OFFSET(0) NUMBITS(1) [],
     ]
 ];
-register_bitfields! [
+tock_registers::register_bitfields! [
     u32,
     pub GqspiEnR [
         RESERVED0 OFFSET(1) NUMBITS(31) [],
@@ -470,7 +469,7 @@ register_bitfields! [
         GQSPI_EN OFFSET(0) NUMBITS(1) [],
     ]
 ];
-register_bitfields! [
+tock_registers::register_bitfields! [
     u32,
     pub GqspiTxThreshR [
         RESERVED0 OFFSET(6) NUMBITS(26) [],
@@ -480,7 +479,7 @@ register_bitfields! [
         LEVEL_TX_FIFO OFFSET(0) NUMBITS(6) [],
     ]
 ];
-register_bitfields! [
+tock_registers::register_bitfields! [
     u32,
     pub GqspiRxThreshR [
         RESERVED0 OFFSET(6) NUMBITS(26) [],
@@ -490,7 +489,7 @@ register_bitfields! [
         LEVEL_RX_FIFO OFFSET(0) NUMBITS(6) [],
     ]
 ];
-register_bitfields! [
+tock_registers::register_bitfields! [
     u32,
     pub GqspiGpioR [
         RESERVED0 OFFSET(1) NUMBITS(31) [],
@@ -500,7 +499,7 @@ register_bitfields! [
         WP_N OFFSET(0) NUMBITS(1) [],
     ]
 ];
-register_bitfields! [
+tock_registers::register_bitfields! [
     u32,
     pub GqspiLpbkDlyAdjR [
         RESERVED0 OFFSET(6) NUMBITS(26) [],
@@ -514,7 +513,7 @@ register_bitfields! [
         DLY0 OFFSET(0) NUMBITS(3) [],
     ]
 ];
-register_bitfields! [
+tock_registers::register_bitfields! [
     u32,
     pub GqspiGenFifoR [
         RESERVED0 OFFSET(20) NUMBITS(12) [],
@@ -523,7 +522,7 @@ register_bitfields! [
         GEN_DATA OFFSET(0) NUMBITS(20) [],
     ]
 ];
-register_bitfields! [
+tock_registers::register_bitfields! [
     u32,
     pub GqspiSelR [
         RESERVED0 OFFSET(1) NUMBITS(31) [],
@@ -533,7 +532,7 @@ register_bitfields! [
         GENERIC_QSPI_SEL OFFSET(0) NUMBITS(1) [],
     ]
 ];
-register_bitfields! [
+tock_registers::register_bitfields! [
     u32,
     pub GqspiFifoCtrlR [
         RESERVED0 OFFSET(3) NUMBITS(29) [],
@@ -544,7 +543,7 @@ register_bitfields! [
         RST_GEN_FIFO OFFSET(0) NUMBITS(1) [],
     ]
 ];
-register_bitfields! [
+tock_registers::register_bitfields! [
     u32,
     pub GqspiGfThreshR [
         RESERVED0 OFFSET(5) NUMBITS(27) [],
@@ -554,7 +553,7 @@ register_bitfields! [
         LEVEL_GF_FIFO OFFSET(0) NUMBITS(5) [],
     ]
 ];
-register_bitfields! [
+tock_registers::register_bitfields! [
     u32,
     pub GqspiPollCfgR [
         EN_MASK_UPPER OFFSET(31) NUMBITS(1) [],
@@ -570,7 +569,7 @@ register_bitfields! [
         DATA_VALUE OFFSET(0) NUMBITS(8) [],
     ]
 ];
-register_bitfields! [
+tock_registers::register_bitfields! [
     u32,
     pub GqspiRxCopy [
         RESERVED0 OFFSET(16) NUMBITS(16) [],
@@ -578,7 +577,7 @@ register_bitfields! [
         RESERVED2 OFFSET(0) NUMBITS(8) [],
     ]
 ];
-register_bitfields! [
+tock_registers::register_bitfields! [
     u32,
     pub QspiDataDlyAdj [
         USE_DATA_DLY OFFSET(31) NUMBITS(1) [],
@@ -586,7 +585,7 @@ register_bitfields! [
         RESERVED0 OFFSET(0) NUMBITS(28) [],
     ]
 ];
-register_bitfields! [
+tock_registers::register_bitfields! [
     u32,
     pub QspidmaDstAddrR [
         RESERVED0 OFFSET(0) NUMBITS(2) [],
@@ -595,7 +594,7 @@ register_bitfields! [
         ADDR OFFSET(2) NUMBITS(30) [],
     ]
 ];
-register_bitfields! [
+tock_registers::register_bitfields! [
     u32,
     pub QspidmaDstSizeR [
         RESERVED0 OFFSET(29) NUMBITS(3) [],
@@ -605,7 +604,7 @@ register_bitfields! [
         SIZE OFFSET(2) NUMBITS(27) [],
     ]
 ];
-register_bitfields! [
+tock_registers::register_bitfields! [
     u32,
     pub QspidmaDstStsR [
         RESERVED0 OFFSET(16) NUMBITS(16) [],
@@ -618,7 +617,7 @@ register_bitfields! [
         DONE_CNT OFFSET(13) NUMBITS(3) [],
     ]
 ];
-register_bitfields! [
+tock_registers::register_bitfields! [
     u32,
     pub QspidmaDstCtrl [
         FIFO_LVL_HIT_THRESH OFFSET(25) NUMBITS(7) [],
@@ -631,7 +630,7 @@ register_bitfields! [
         PAUSE_MEM OFFSET(0) NUMBITS(1) [],
     ]
 ];
-register_bitfields! [
+tock_registers::register_bitfields! [
     u32,
     pub QspidmaDstIStsR [
         RESERVED0 OFFSET(8) NUMBITS(24) [],
@@ -654,7 +653,7 @@ register_bitfields! [
         DONE OFFSET(1) NUMBITS(1) [],
     ]
 ];
-register_bitfields! [
+tock_registers::register_bitfields! [
     u32,
     pub QspidmaDstIEnR [
         RESERVED0 OFFSET(8) NUMBITS(24) [],
@@ -677,7 +676,7 @@ register_bitfields! [
         DONE OFFSET(1) NUMBITS(1) [],
     ]
 ];
-register_bitfields! [
+tock_registers::register_bitfields! [
     u32,
     pub QspidmaDstIDisR [
         RESERVED0 OFFSET(8) NUMBITS(24) [],
@@ -700,7 +699,7 @@ register_bitfields! [
         DONE OFFSET(1) NUMBITS(1) [],
     ]
 ];
-register_bitfields! [
+tock_registers::register_bitfields! [
     u32,
     pub QspidmaDstIMask [
         RESERVED0 OFFSET(8) NUMBITS(24) [],
@@ -714,7 +713,7 @@ register_bitfields! [
         RESERVED1 OFFSET(0) NUMBITS(1) [],
     ]
 ];
-register_bitfields! [
+tock_registers::register_bitfields! [
     u32,
     pub QspidmaDstCtrl2R [
         RESERVED0 OFFSET(28) NUMBITS(4) [],
@@ -737,7 +736,7 @@ register_bitfields! [
         MAX_OUTS_CMDS OFFSET(0) NUMBITS(4) [],
     ]
 ];
-register_bitfields! [
+tock_registers::register_bitfields! [
     u32,
     pub QspidmaDstAddrMsbR [
         RESERVED0 OFFSET(12) NUMBITS(20) [],

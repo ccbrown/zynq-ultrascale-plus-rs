@@ -6,144 +6,142 @@ pub static mut APM_CCI_INTC: *mut Registers = 0xfd490000 as *mut Registers;
 pub static mut APM_INTC_OCM: *mut Registers = 0xffa00000 as *mut Registers;
 /// AXI Performance Monitor, LPD Performance Monitor
 pub static mut APM_LPD_FPD: *mut Registers = 0xffa10000 as *mut Registers;
-register_structs! {
-    pub Registers {
-        /// Global Clock Counter
-        (0x00000000 => pub gccr_h: ReadOnly<u32>),
-        /// Global Clock Counter
-        (0x00000004 => pub gccr_l: ReadOnly<u32>),
-        (0x00000008 => _padding8),
-        /// Sample Interval Time Configuration
-        (0x00000024 => pub sir: ReadWrite<u32>),
-        /// Sample Interval Control
-        (0x00000028 => pub sicr: Aliased<u32, SicrR::Register, SicrW::Register>),
-        /// Sample Interval Sample. Reading this initiates sampling of Metric Counters data to the Sample Metric Counters.
-        (0x0000002c => pub sisr: ReadWrite<u32>),
-        /// Global Interrupt Enable Register
-        (0x00000030 => pub gier: Aliased<u32, GierR::Register, GierW::Register>),
-        /// Interrupt Enable
-        (0x00000034 => pub ier: Aliased<u32, IerR::Register, IerW::Register>),
-        /// Interrupt Status
-        (0x00000038 => pub isr: Aliased<u32, IsrR::Register, IsrW::Register>),
-        (0x0000003c => _padding60),
-        /// Metric Selector, Counters 0, 1, 2, and 3
-        (0x00000044 => pub msr_0: ReadWrite<u32, Msr0::Register>),
-        /// Metric Selector, Counters 4, 5, 6, and 7
-        (0x00000048 => pub msr_1: ReadWrite<u32, Msr1::Register>),
-        (0x0000004c => _padding76),
-        /// Incrementer
-        (0x00000104 => pub ir_0: ReadOnly<u32>),
-        /// Range
-        (0x00000108 => pub rr_0: ReadWrite<u32, Rr0::Register>),
-        /// Metric Count Log Enable
-        (0x0000010c => pub mcler_0: ReadWrite<u32>),
-        (0x00000110 => _padding272),
-        /// Incrementer
-        (0x00000114 => pub ir_1: ReadOnly<u32>),
-        /// Range
-        (0x00000118 => pub rr_1: ReadWrite<u32, Rr1::Register>),
-        /// Metric Count Log Enable
-        (0x0000011c => pub mcler_1: ReadWrite<u32>),
-        (0x00000120 => _padding288),
-        /// Incrementer
-        (0x00000124 => pub ir_2: ReadOnly<u32>),
-        /// Range
-        (0x00000128 => pub rr_2: ReadWrite<u32, Rr2::Register>),
-        /// Metric Count Log Enable
-        (0x0000012c => pub mcler_2: ReadWrite<u32>),
-        (0x00000130 => _padding304),
-        /// Incrementer
-        (0x00000134 => pub ir_3: ReadOnly<u32>),
-        /// Range
-        (0x00000138 => pub rr_3: ReadWrite<u32, Rr3::Register>),
-        /// Metric Count Log Enable
-        (0x0000013c => pub mcler_3: ReadWrite<u32>),
-        (0x00000140 => _padding320),
-        /// Incrementer
-        (0x00000144 => pub ir_4: ReadOnly<u32>),
-        /// Range
-        (0x00000148 => pub rr_4: ReadWrite<u32, Rr4::Register>),
-        /// Metric Count Log Enable
-        (0x0000014c => pub mcler_4: ReadWrite<u32>),
-        (0x00000150 => _padding336),
-        /// Incrementer
-        (0x00000154 => pub ir_5: ReadOnly<u32>),
-        /// Range
-        (0x00000158 => pub rr_5: ReadWrite<u32, Rr5::Register>),
-        /// Metric Count Log Enable
-        (0x0000015c => pub mcler_5: ReadWrite<u32>),
-        (0x00000160 => _padding352),
-        /// Incrementer
-        (0x00000164 => pub ir_6: ReadOnly<u32>),
-        /// Range
-        (0x00000168 => pub rr_6: ReadWrite<u32, Rr6::Register>),
-        /// Metric Count Log Enable
-        (0x0000016c => pub mcler_6: ReadWrite<u32>),
-        (0x00000170 => _padding368),
-        /// Incrementer
-        (0x00000174 => pub ir_7: ReadOnly<u32>),
-        /// Range
-        (0x00000178 => pub rr_7: ReadWrite<u32, Rr7::Register>),
-        /// Metric Count Log Enable
-        (0x0000017c => pub mcler_7: ReadWrite<u32>),
-        (0x00000180 => _padding384),
-        /// Sampled Metric Counter
-        (0x00000200 => pub smcr_0: ReadOnly<u32>),
-        /// Sampled Incrementer
-        (0x00000204 => pub sir_0: ReadOnly<u32>),
-        (0x00000208 => _padding520),
-        /// Sampled Metric Counter
-        (0x00000210 => pub smcr_1: ReadOnly<u32>),
-        /// Sampled Incrementer
-        (0x00000214 => pub sir_1: ReadOnly<u32>),
-        (0x00000218 => _padding536),
-        /// Sampled Metric Counter
-        (0x00000220 => pub smcr_2: ReadOnly<u32>),
-        /// Sampled Incrementer
-        (0x00000224 => pub sir_2: ReadOnly<u32>),
-        (0x00000228 => _padding552),
-        /// Sampled Metric Counter
-        (0x00000230 => pub smcr_3: ReadOnly<u32>),
-        /// Sampled Incrementer
-        (0x00000234 => pub sir_3: ReadOnly<u32>),
-        (0x00000238 => _padding568),
-        /// Sampled Metric Counter
-        (0x00000240 => pub smcr_4: ReadOnly<u32>),
-        /// Sampled Incrementer
-        (0x00000244 => pub sir_4: ReadOnly<u32>),
-        (0x00000248 => _padding584),
-        /// Sampled Metric Counter
-        (0x00000250 => pub smcr_5: ReadOnly<u32>),
-        /// Sampled Incrementer
-        (0x00000254 => pub sir_5: ReadOnly<u32>),
-        (0x00000258 => _padding600),
-        /// Sampled Metric Counter
-        (0x00000260 => pub smcr_6: ReadOnly<u32>),
-        /// Sampled Incrementer
-        (0x00000264 => pub sir_6: ReadOnly<u32>),
-        (0x00000268 => _padding616),
-        /// Sampled Metric Counter
-        (0x00000270 => pub smcr_7: ReadOnly<u32>),
-        /// Sampled Incrementer
-        (0x00000274 => pub sir_7: ReadOnly<u32>),
-        (0x00000278 => _padding632),
-        /// Control
-        (0x00000300 => pub cr: Aliased<u32, CrR::Register, CrW::Register>),
-        /// WID
-        (0x00000304 => pub widr: ReadWrite<u32>),
-        /// WID Mask
-        (0x00000308 => pub widmr: ReadWrite<u32>),
-        /// RID
-        (0x0000030c => pub ridr: ReadWrite<u32>),
-        /// RID Mask
-        (0x00000310 => pub ridmr: ReadWrite<u32>),
-        (0x00000314 => _padding788),
-        /// Flag Enable
-        (0x00000400 => pub fecr: Aliased<u32, FecrR::Register, FecrW::Register>),
-        (0x00000404 => @END),
-    }
+#[repr(C)]
+pub struct Registers {
+    /// Global Clock Counter
+    pub gccr_h: ReadOnly<u32>,
+    /// Global Clock Counter
+    pub gccr_l: ReadOnly<u32>,
+    _padding8: [u8; 28],
+    /// Sample Interval Time Configuration
+    pub sir: ReadWrite<u32>,
+    /// Sample Interval Control
+    pub sicr: Aliased<u32, SicrR::Register, SicrW::Register>,
+    /// Sample Interval Sample. Reading this initiates sampling of Metric Counters data to the Sample Metric Counters.
+    pub sisr: ReadWrite<u32>,
+    /// Global Interrupt Enable Register
+    pub gier: Aliased<u32, GierR::Register, GierW::Register>,
+    /// Interrupt Enable
+    pub ier: Aliased<u32, IerR::Register, IerW::Register>,
+    /// Interrupt Status
+    pub isr: Aliased<u32, IsrR::Register, IsrW::Register>,
+    _padding60: [u8; 8],
+    /// Metric Selector, Counters 0, 1, 2, and 3
+    pub msr_0: ReadWrite<u32, Msr0::Register>,
+    /// Metric Selector, Counters 4, 5, 6, and 7
+    pub msr_1: ReadWrite<u32, Msr1::Register>,
+    _padding76: [u8; 184],
+    /// Incrementer
+    pub ir_0: ReadOnly<u32>,
+    /// Range
+    pub rr_0: ReadWrite<u32, Rr0::Register>,
+    /// Metric Count Log Enable
+    pub mcler_0: ReadWrite<u32>,
+    _padding272: [u8; 4],
+    /// Incrementer
+    pub ir_1: ReadOnly<u32>,
+    /// Range
+    pub rr_1: ReadWrite<u32, Rr1::Register>,
+    /// Metric Count Log Enable
+    pub mcler_1: ReadWrite<u32>,
+    _padding288: [u8; 4],
+    /// Incrementer
+    pub ir_2: ReadOnly<u32>,
+    /// Range
+    pub rr_2: ReadWrite<u32, Rr2::Register>,
+    /// Metric Count Log Enable
+    pub mcler_2: ReadWrite<u32>,
+    _padding304: [u8; 4],
+    /// Incrementer
+    pub ir_3: ReadOnly<u32>,
+    /// Range
+    pub rr_3: ReadWrite<u32, Rr3::Register>,
+    /// Metric Count Log Enable
+    pub mcler_3: ReadWrite<u32>,
+    _padding320: [u8; 4],
+    /// Incrementer
+    pub ir_4: ReadOnly<u32>,
+    /// Range
+    pub rr_4: ReadWrite<u32, Rr4::Register>,
+    /// Metric Count Log Enable
+    pub mcler_4: ReadWrite<u32>,
+    _padding336: [u8; 4],
+    /// Incrementer
+    pub ir_5: ReadOnly<u32>,
+    /// Range
+    pub rr_5: ReadWrite<u32, Rr5::Register>,
+    /// Metric Count Log Enable
+    pub mcler_5: ReadWrite<u32>,
+    _padding352: [u8; 4],
+    /// Incrementer
+    pub ir_6: ReadOnly<u32>,
+    /// Range
+    pub rr_6: ReadWrite<u32, Rr6::Register>,
+    /// Metric Count Log Enable
+    pub mcler_6: ReadWrite<u32>,
+    _padding368: [u8; 4],
+    /// Incrementer
+    pub ir_7: ReadOnly<u32>,
+    /// Range
+    pub rr_7: ReadWrite<u32, Rr7::Register>,
+    /// Metric Count Log Enable
+    pub mcler_7: ReadWrite<u32>,
+    _padding384: [u8; 128],
+    /// Sampled Metric Counter
+    pub smcr_0: ReadOnly<u32>,
+    /// Sampled Incrementer
+    pub sir_0: ReadOnly<u32>,
+    _padding520: [u8; 8],
+    /// Sampled Metric Counter
+    pub smcr_1: ReadOnly<u32>,
+    /// Sampled Incrementer
+    pub sir_1: ReadOnly<u32>,
+    _padding536: [u8; 8],
+    /// Sampled Metric Counter
+    pub smcr_2: ReadOnly<u32>,
+    /// Sampled Incrementer
+    pub sir_2: ReadOnly<u32>,
+    _padding552: [u8; 8],
+    /// Sampled Metric Counter
+    pub smcr_3: ReadOnly<u32>,
+    /// Sampled Incrementer
+    pub sir_3: ReadOnly<u32>,
+    _padding568: [u8; 8],
+    /// Sampled Metric Counter
+    pub smcr_4: ReadOnly<u32>,
+    /// Sampled Incrementer
+    pub sir_4: ReadOnly<u32>,
+    _padding584: [u8; 8],
+    /// Sampled Metric Counter
+    pub smcr_5: ReadOnly<u32>,
+    /// Sampled Incrementer
+    pub sir_5: ReadOnly<u32>,
+    _padding600: [u8; 8],
+    /// Sampled Metric Counter
+    pub smcr_6: ReadOnly<u32>,
+    /// Sampled Incrementer
+    pub sir_6: ReadOnly<u32>,
+    _padding616: [u8; 8],
+    /// Sampled Metric Counter
+    pub smcr_7: ReadOnly<u32>,
+    /// Sampled Incrementer
+    pub sir_7: ReadOnly<u32>,
+    _padding632: [u8; 136],
+    /// Control
+    pub cr: Aliased<u32, CrR::Register, CrW::Register>,
+    /// WID
+    pub widr: ReadWrite<u32>,
+    /// WID Mask
+    pub widmr: ReadWrite<u32>,
+    /// RID
+    pub ridr: ReadWrite<u32>,
+    /// RID Mask
+    pub ridmr: ReadWrite<u32>,
+    _padding788: [u8; 236],
+    /// Flag Enable
+    pub fecr: Aliased<u32, FecrR::Register, FecrW::Register>,
 }
-register_bitfields! [
+tock_registers::register_bitfields! [
     u32,
     pub SicrR [
         RESERVED0 OFFSET(9) NUMBITS(23) [],
@@ -158,7 +156,7 @@ register_bitfields! [
         ENABLE OFFSET(0) NUMBITS(1) [],
     ]
 ];
-register_bitfields! [
+tock_registers::register_bitfields! [
     u32,
     pub GierR [
         RESERVED0 OFFSET(1) NUMBITS(31) [],
@@ -168,7 +166,7 @@ register_bitfields! [
         GIE OFFSET(0) NUMBITS(1) [],
     ]
 ];
-register_bitfields! [
+tock_registers::register_bitfields! [
     u32,
     pub IerR [
         RESERVED0 OFFSET(13) NUMBITS(19) [],
@@ -202,7 +200,7 @@ register_bitfields! [
         GLBCLKCNT_OVFLINT_EN OFFSET(0) NUMBITS(1) [],
     ]
 ];
-register_bitfields! [
+tock_registers::register_bitfields! [
     u32,
     pub IsrR [
         RESERVED0 OFFSET(13) NUMBITS(19) [],
@@ -236,7 +234,7 @@ register_bitfields! [
         GLBCLKCNT_OVFLINT OFFSET(0) NUMBITS(1) [],
     ]
 ];
-register_bitfields! [
+tock_registers::register_bitfields! [
     u32,
     pub Msr0 [
         MET_CT3_SLOT OFFSET(29) NUMBITS(3) [],
@@ -249,7 +247,7 @@ register_bitfields! [
         MET_CT0_SEL OFFSET(0) NUMBITS(5) [],
     ]
 ];
-register_bitfields! [
+tock_registers::register_bitfields! [
     u32,
     pub Msr1 [
         MET_CT7_SLOT OFFSET(29) NUMBITS(3) [],
@@ -262,63 +260,63 @@ register_bitfields! [
         MET_CT4_SEL OFFSET(0) NUMBITS(5) [],
     ]
 ];
-register_bitfields! [
+tock_registers::register_bitfields! [
     u32,
     pub Rr0 [
         RANGE_HIGH OFFSET(16) NUMBITS(16) [],
         RANGE_LOW OFFSET(0) NUMBITS(16) [],
     ]
 ];
-register_bitfields! [
+tock_registers::register_bitfields! [
     u32,
     pub Rr1 [
         RANGE_HIGH OFFSET(16) NUMBITS(16) [],
         RANGE_LOW OFFSET(0) NUMBITS(16) [],
     ]
 ];
-register_bitfields! [
+tock_registers::register_bitfields! [
     u32,
     pub Rr2 [
         RANGE_HIGH OFFSET(16) NUMBITS(16) [],
         RANGE_LOW OFFSET(0) NUMBITS(16) [],
     ]
 ];
-register_bitfields! [
+tock_registers::register_bitfields! [
     u32,
     pub Rr3 [
         RANGE_HIGH OFFSET(16) NUMBITS(16) [],
         RANGE_LOW OFFSET(0) NUMBITS(16) [],
     ]
 ];
-register_bitfields! [
+tock_registers::register_bitfields! [
     u32,
     pub Rr4 [
         RANGE_HIGH OFFSET(16) NUMBITS(16) [],
         RANGE_LOW OFFSET(0) NUMBITS(16) [],
     ]
 ];
-register_bitfields! [
+tock_registers::register_bitfields! [
     u32,
     pub Rr5 [
         RANGE_HIGH OFFSET(16) NUMBITS(16) [],
         RANGE_LOW OFFSET(0) NUMBITS(16) [],
     ]
 ];
-register_bitfields! [
+tock_registers::register_bitfields! [
     u32,
     pub Rr6 [
         RANGE_HIGH OFFSET(16) NUMBITS(16) [],
         RANGE_LOW OFFSET(0) NUMBITS(16) [],
     ]
 ];
-register_bitfields! [
+tock_registers::register_bitfields! [
     u32,
     pub Rr7 [
         RANGE_HIGH OFFSET(16) NUMBITS(16) [],
         RANGE_LOW OFFSET(0) NUMBITS(16) [],
     ]
 ];
-register_bitfields! [
+tock_registers::register_bitfields! [
     u32,
     pub CrR [
         RESERVED0 OFFSET(26) NUMBITS(6) [],
@@ -355,7 +353,7 @@ register_bitfields! [
         MET_CNT_EN OFFSET(0) NUMBITS(1) [],
     ]
 ];
-register_bitfields! [
+tock_registers::register_bitfields! [
     u32,
     pub FecrR [
         RESERVED0 OFFSET(31) NUMBITS(1) [],

@@ -4,39 +4,37 @@ use tock_registers::registers::{Aliased, ReadOnly, ReadWrite, WriteOnly};
 pub static mut SPI0: *mut Registers = 0xff040000 as *mut Registers;
 /// Serial Peripheral Interface Controller, SPI 1 Controller
 pub static mut SPI1: *mut Registers = 0xff050000 as *mut Registers;
-register_structs! {
-    pub Registers {
-        /// SPI configuration
-        (0x00000000 => pub config: Aliased<u32, ConfigR::Register, ConfigW::Register>),
-        /// SPI interrupt status
-        (0x00000004 => pub isr: Aliased<u32, IsrR::Register, IsrW::Register>),
-        /// Interrupt Enable
-        (0x00000008 => pub ier: Aliased<u32, IerR::Register, IerW::Register>),
-        /// Interrupt disable
-        (0x0000000c => pub idr: Aliased<u32, IdrR::Register, IdrW::Register>),
-        /// Interrupt mask
-        (0x00000010 => pub imr: ReadOnly<u32, Imr::Register>),
-        /// SPI_Enable
-        (0x00000014 => pub enable: Aliased<u32, EnableR::Register, EnableW::Register>),
-        /// Clock Delay
-        (0x00000018 => pub delay: ReadWrite<u32, Delay::Register>),
-        /// Transmit Data.
-        (0x0000001c => pub tx_data: WriteOnly<u32>),
-        /// Receive Data
-        (0x00000020 => pub rx_data: ReadOnly<u32>),
-        /// Slave Idle Count
-        (0x00000024 => pub slave_idle_count: Aliased<u32, SlaveIdleCountR::Register, SlaveIdleCountW::Register>),
-        /// TX FIFO Threshold
-        (0x00000028 => pub tx_thres: ReadWrite<u32>),
-        /// RX FIFO Threshold
-        (0x0000002c => pub rx_thres: ReadWrite<u32>),
-        (0x00000030 => _padding48),
-        /// Module ID
-        (0x000000fc => pub mod_id: ReadOnly<u32, ModId::Register>),
-        (0x00000100 => @END),
-    }
+#[repr(C)]
+pub struct Registers {
+    /// SPI configuration
+    pub config: Aliased<u32, ConfigR::Register, ConfigW::Register>,
+    /// SPI interrupt status
+    pub isr: Aliased<u32, IsrR::Register, IsrW::Register>,
+    /// Interrupt Enable
+    pub ier: Aliased<u32, IerR::Register, IerW::Register>,
+    /// Interrupt disable
+    pub idr: Aliased<u32, IdrR::Register, IdrW::Register>,
+    /// Interrupt mask
+    pub imr: ReadOnly<u32, Imr::Register>,
+    /// SPI_Enable
+    pub enable: Aliased<u32, EnableR::Register, EnableW::Register>,
+    /// Clock Delay
+    pub delay: ReadWrite<u32, Delay::Register>,
+    /// Transmit Data.
+    pub tx_data: WriteOnly<u32>,
+    /// Receive Data
+    pub rx_data: ReadOnly<u32>,
+    /// Slave Idle Count
+    pub slave_idle_count: Aliased<u32, SlaveIdleCountR::Register, SlaveIdleCountW::Register>,
+    /// TX FIFO Threshold
+    pub tx_thres: ReadWrite<u32>,
+    /// RX FIFO Threshold
+    pub rx_thres: ReadWrite<u32>,
+    _padding48: [u8; 204],
+    /// Module ID
+    pub mod_id: ReadOnly<u32, ModId::Register>,
 }
-register_bitfields! [
+tock_registers::register_bitfields! [
     u32,
     pub ConfigR [
         RESERVED0 OFFSET(18) NUMBITS(14) [],
@@ -67,7 +65,7 @@ register_bitfields! [
         MODE_SEL OFFSET(0) NUMBITS(1) [],
     ]
 ];
-register_bitfields! [
+tock_registers::register_bitfields! [
     u32,
     pub IsrR [
         RESERVED0 OFFSET(7) NUMBITS(25) [],
@@ -89,7 +87,7 @@ register_bitfields! [
         RX_OVERFLOW OFFSET(0) NUMBITS(1) [],
     ]
 ];
-register_bitfields! [
+tock_registers::register_bitfields! [
     u32,
     pub IerR [
         RESERVED0 OFFSET(7) NUMBITS(25) [],
@@ -104,7 +102,7 @@ register_bitfields! [
         RX_OVERFLOW OFFSET(0) NUMBITS(1) [],
     ]
 ];
-register_bitfields! [
+tock_registers::register_bitfields! [
     u32,
     pub IdrR [
         RESERVED0 OFFSET(7) NUMBITS(25) [],
@@ -119,7 +117,7 @@ register_bitfields! [
         RX_OVERFLOW OFFSET(0) NUMBITS(1) [],
     ]
 ];
-register_bitfields! [
+tock_registers::register_bitfields! [
     u32,
     pub Imr [
         RESERVED0 OFFSET(7) NUMBITS(25) [],
@@ -132,7 +130,7 @@ register_bitfields! [
         RX_OVERFLOW OFFSET(0) NUMBITS(1) [],
     ]
 ];
-register_bitfields! [
+tock_registers::register_bitfields! [
     u32,
     pub EnableR [
         RESERVED0 OFFSET(1) NUMBITS(31) [],
@@ -142,7 +140,7 @@ register_bitfields! [
         SPI_EN OFFSET(0) NUMBITS(1) [],
     ]
 ];
-register_bitfields! [
+tock_registers::register_bitfields! [
     u32,
     pub Delay [
         D_NSS OFFSET(24) NUMBITS(8) [],
@@ -151,7 +149,7 @@ register_bitfields! [
         D_INT OFFSET(0) NUMBITS(8) [],
     ]
 ];
-register_bitfields! [
+tock_registers::register_bitfields! [
     u32,
     pub SlaveIdleCountR [
         RESERVED0 OFFSET(8) NUMBITS(24) [],
@@ -161,7 +159,7 @@ register_bitfields! [
         SLAVE_IDLE_COUN OFFSET(0) NUMBITS(8) [],
     ]
 ];
-register_bitfields! [
+tock_registers::register_bitfields! [
     u32,
     pub ModId [
         RESERVED0 OFFSET(25) NUMBITS(7) [],

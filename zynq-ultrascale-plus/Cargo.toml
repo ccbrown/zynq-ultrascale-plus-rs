@@ -5,4 +5,4 @@ edition = "2021"
 
 [dependencies]
 tock-registers = "0.8.0"
-zynq-ultrascale-plus-modules = { path = "../zynq-ultrascale-plus-modules" }
+zynq-ultrascale-plus-modules = { path = "../zynq-ultrascale-plus-modules", features = ["uart", "iou-scntrs"] }

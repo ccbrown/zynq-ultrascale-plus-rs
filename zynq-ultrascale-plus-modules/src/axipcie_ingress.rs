@@ -16,27 +16,28 @@ pub static mut AXIPCIE_INGRESS5: *mut Registers = 0xfd0e08a0 as *mut Registers;
 pub static mut AXIPCIE_INGRESS6: *mut Registers = 0xfd0e08c0 as *mut Registers;
 /// PCIe Bridge - Ingress Addr Translation, PCIe Bridge - Ingress Addr Translation 7
 pub static mut AXIPCIE_INGRESS7: *mut Registers = 0xfd0e08e0 as *mut Registers;
-register_structs! {
-    pub Registers {
-        /// Ingress AXI Translation - Capabilities
-        (0x00000000 => pub tran_ingress_capabilities: ReadOnly<u32, TranIngressCapabilities::Register>),
-        /// Ingress AXI Translation - Status
-        (0x00000004 => pub tran_ingress_status: ReadOnly<u32, TranIngressStatus::Register>),
-        /// Ingress AXI Translation - Control
-        (0x00000008 => pub tran_ingress_control: Aliased<u32, TranIngressControlR::Register, TranIngressControlW::Register>),
-        (0x0000000c => _padding12),
-        /// Ingress AXI Translation - Source Address Low
-        (0x00000010 => pub tran_ingress_src_base_lo: Aliased<u32, TranIngressSrcBaseLoR::Register, TranIngressSrcBaseLoW::Register>),
-        /// Ingress AXI Translation - Source Address High
-        (0x00000014 => pub tran_ingress_src_base_hi: ReadWrite<u32>),
-        /// Ingress AXI Translation - Destination Address Low
-        (0x00000018 => pub tran_ingress_dst_base_lo: Aliased<u32, TranIngressDstBaseLoR::Register, TranIngressDstBaseLoW::Register>),
-        /// Ingress AXI Translation - Destination Address High
-        (0x0000001c => pub tran_ingress_dst_base_hi: ReadWrite<u32>),
-        (0x00000020 => @END),
-    }
+#[repr(C)]
+pub struct Registers {
+    /// Ingress AXI Translation - Capabilities
+    pub tran_ingress_capabilities: ReadOnly<u32, TranIngressCapabilities::Register>,
+    /// Ingress AXI Translation - Status
+    pub tran_ingress_status: ReadOnly<u32, TranIngressStatus::Register>,
+    /// Ingress AXI Translation - Control
+    pub tran_ingress_control:
+        Aliased<u32, TranIngressControlR::Register, TranIngressControlW::Register>,
+    _padding12: [u8; 4],
+    /// Ingress AXI Translation - Source Address Low
+    pub tran_ingress_src_base_lo:
+        Aliased<u32, TranIngressSrcBaseLoR::Register, TranIngressSrcBaseLoW::Register>,
+    /// Ingress AXI Translation - Source Address High
+    pub tran_ingress_src_base_hi: ReadWrite<u32>,
+    /// Ingress AXI Translation - Destination Address Low
+    pub tran_ingress_dst_base_lo:
+        Aliased<u32, TranIngressDstBaseLoR::Register, TranIngressDstBaseLoW::Register>,
+    /// Ingress AXI Translation - Destination Address High
+    pub tran_ingress_dst_base_hi: ReadWrite<u32>,
 }
-register_bitfields! [
+tock_registers::register_bitfields! [
     u32,
     pub TranIngressCapabilities [
         INGRESS_SIZE_MAX OFFSET(24) NUMBITS(8) [],
@@ -45,7 +46,7 @@ register_bitfields! [
         INGRESS_PRESENT OFFSET(0) NUMBITS(1) [],
     ]
 ];
-register_bitfields! [
+tock_registers::register_bitfields! [
     u32,
     pub TranIngressStatus [
         RESERVED0 OFFSET(25) NUMBITS(7) [],
@@ -54,7 +55,7 @@ register_bitfields! [
         RD_PENDING_CTR OFFSET(0) NUMBITS(9) [],
     ]
 ];
-register_bitfields! [
+tock_registers::register_bitfields! [
     u32,
     pub TranIngressControlR [
         INGRESS_ATTR_W OFFSET(28) NUMBITS(4) [],
@@ -81,7 +82,7 @@ register_bitfields! [
         INGRESS_ENABLE OFFSET(0) NUMBITS(1) [],
     ]
 ];
-register_bitfields! [
+tock_registers::register_bitfields! [
     u32,
     pub TranIngressSrcBaseLoR [
         INGRESS_SRC_BASE_LO OFFSET(12) NUMBITS(20) [],
@@ -91,7 +92,7 @@ register_bitfields! [
         INGRESS_SRC_BASE_LO OFFSET(12) NUMBITS(20) [],
     ]
 ];
-register_bitfields! [
+tock_registers::register_bitfields! [
     u32,
     pub TranIngressDstBaseLoR [
         INGRESS_DST_BASE_LO OFFSET(12) NUMBITS(20) [],

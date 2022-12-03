@@ -2,93 +2,91 @@
 use tock_registers::registers::{Aliased, ReadOnly, ReadWrite};
 /// Real-time Processing Unit (RPU), Real time Processing Unit
 pub static mut RPU: *mut Registers = 0xff9a0000 as *mut Registers;
-register_structs! {
-    pub Registers {
-        /// Global Control Regiter for RPU
-        (0x00000000 => pub rpu_glbl_cntl: Aliased<u32, RpuGlblCntlR::Register, RpuGlblCntlW::Register>),
-        /// Miscellaneous status information for RPU
-        (0x00000004 => pub rpu_glbl_status: ReadOnly<u32, RpuGlblStatus::Register>),
-        /// Error Response Enable/Disable Register
-        (0x00000008 => pub rpu_err_cntl: Aliased<u32, RpuErrCntlR::Register, RpuErrCntlW::Register>),
-        /// Control for extra features of RAMs
-        (0x0000000c => pub rpu_ram: Aliased<u32, RpuRamR::Register, RpuRamW::Register>),
-        (0x00000010 => _padding16),
-        /// Reserved for future use
-        (0x00000020 => pub rpu_err_inj: Aliased<u32, RpuErrInjR::Register, RpuErrInjW::Register>),
-        /// Common Cause Signal Mask Register
-        (0x00000024 => pub rpu_ccf_mask: Aliased<u32, RpuCcfMaskR::Register, RpuCcfMaskW::Register>),
-        /// RPU Interrupt Injection register
-        (0x00000028 => pub rpu_intr_0: ReadWrite<u32>),
-        /// RPU Interrupt Injection register
-        (0x0000002c => pub rpu_intr_1: ReadWrite<u32>),
-        /// RPU Interrupt Injection register
-        (0x00000030 => pub rpu_intr_2: ReadWrite<u32>),
-        /// RPU Interrupt Injection register
-        (0x00000034 => pub rpu_intr_3: ReadWrite<u32>),
-        /// RPU Interrupt Injection register
-        (0x00000038 => pub rpu_intr_4: ReadWrite<u32>),
-        (0x0000003c => _padding60),
-        /// RPU Interrupt Injection Mask register
-        (0x00000040 => pub rpu_intr_mask_0: ReadWrite<u32>),
-        /// RPU Interrupt Injection Mask register
-        (0x00000044 => pub rpu_intr_mask_1: ReadWrite<u32>),
-        /// RPU Interrupt Injection Mask register
-        (0x00000048 => pub rpu_intr_mask_2: ReadWrite<u32>),
-        /// RPU Interrupt Injection Mask register
-        (0x0000004c => pub rpu_intr_mask_3: ReadWrite<u32>),
-        /// RPU Interrupt Injection Mask register
-        (0x00000050 => pub rpu_intr_mask_4: ReadWrite<u32>),
-        /// Common Cause Signal Value Register
-        (0x00000054 => pub rpu_ccf_val: Aliased<u32, RpuCcfValR::Register, RpuCcfValW::Register>),
-        (0x00000058 => _padding88),
-        /// RPU Safety Check Register
-        (0x000000f0 => pub rpu_safety_chk: ReadWrite<u32>),
-        /// Reserved for future use
-        (0x000000f4 => pub rpu: ReadWrite<u32>),
-        (0x000000f8 => _padding248),
-        /// Configuration Parameters specific to RPU0
-        (0x00000100 => pub rpu0_cfg: Aliased<u32, Rpu0CfgR::Register, Rpu0CfgW::Register>),
-        /// R5_0 Status Register
-        (0x00000104 => pub rpu0_status: ReadOnly<u32, Rpu0Status::Register>),
-        /// Power down request from R5s
-        (0x00000108 => pub rpu0_pwrdwn: Aliased<u32, Rpu0PwrdwnR::Register, Rpu0PwrdwnW::Register>),
-        (0x0000010c => _padding268),
-        /// Interrupt Status Register
-        (0x00000114 => pub rpu0_isr: Aliased<u32, Rpu0IsrR::Register, Rpu0IsrW::Register>),
-        /// Interrupt Mask Register
-        (0x00000118 => pub rpu0_imr: ReadOnly<u32, Rpu0Imr::Register>),
-        /// Interrupt Enable Register
-        (0x0000011c => pub rpu0_ien: Aliased<u32, Rpu0IenR::Register, Rpu0IenW::Register>),
-        /// Interrupt Disable Register
-        (0x00000120 => pub rpu0_ids: Aliased<u32, Rpu0IdsR::Register, Rpu0IdsW::Register>),
-        /// Slave Base Address Register
-        (0x00000124 => pub rpu0_slv_base: Aliased<u32, Rpu0SlvBaseR::Register, Rpu0SlvBaseW::Register>),
-        /// RPU 0 AXI Override Register
-        (0x00000128 => pub rpu0_axi_over: Aliased<u32, Rpu0AxiOverR::Register, Rpu0AxiOverW::Register>),
-        (0x0000012c => _padding300),
-        /// Configuration Parameters specific to RPU1
-        (0x00000200 => pub rpu1_cfg: Aliased<u32, Rpu1CfgR::Register, Rpu1CfgW::Register>),
-        /// R5_1 Status Register
-        (0x00000204 => pub rpu1_status: ReadOnly<u32, Rpu1Status::Register>),
-        /// Power down request from R5s
-        (0x00000208 => pub rpu1_pwrdwn: Aliased<u32, Rpu1PwrdwnR::Register, Rpu1PwrdwnW::Register>),
-        (0x0000020c => _padding524),
-        /// Interrupt Status Register
-        (0x00000214 => pub rpu1_isr: Aliased<u32, Rpu1IsrR::Register, Rpu1IsrW::Register>),
-        /// Interrupt Mask Register
-        (0x00000218 => pub rpu1_imr: ReadOnly<u32, Rpu1Imr::Register>),
-        /// Interrupt Enable Register
-        (0x0000021c => pub rpu1_ien: Aliased<u32, Rpu1IenR::Register, Rpu1IenW::Register>),
-        /// Interrupt Disable Register
-        (0x00000220 => pub rpu1_ids: Aliased<u32, Rpu1IdsR::Register, Rpu1IdsW::Register>),
-        /// Slave Base Address Register
-        (0x00000224 => pub rpu1_slv_base: Aliased<u32, Rpu1SlvBaseR::Register, Rpu1SlvBaseW::Register>),
-        /// RPU 1 AXI Override Register
-        (0x00000228 => pub rpu1_axi_over: Aliased<u32, Rpu1AxiOverR::Register, Rpu1AxiOverW::Register>),
-        (0x0000022c => @END),
-    }
+#[repr(C)]
+pub struct Registers {
+    /// Global Control Regiter for RPU
+    pub rpu_glbl_cntl: Aliased<u32, RpuGlblCntlR::Register, RpuGlblCntlW::Register>,
+    /// Miscellaneous status information for RPU
+    pub rpu_glbl_status: ReadOnly<u32, RpuGlblStatus::Register>,
+    /// Error Response Enable/Disable Register
+    pub rpu_err_cntl: Aliased<u32, RpuErrCntlR::Register, RpuErrCntlW::Register>,
+    /// Control for extra features of RAMs
+    pub rpu_ram: Aliased<u32, RpuRamR::Register, RpuRamW::Register>,
+    _padding16: [u8; 16],
+    /// Reserved for future use
+    pub rpu_err_inj: Aliased<u32, RpuErrInjR::Register, RpuErrInjW::Register>,
+    /// Common Cause Signal Mask Register
+    pub rpu_ccf_mask: Aliased<u32, RpuCcfMaskR::Register, RpuCcfMaskW::Register>,
+    /// RPU Interrupt Injection register
+    pub rpu_intr_0: ReadWrite<u32>,
+    /// RPU Interrupt Injection register
+    pub rpu_intr_1: ReadWrite<u32>,
+    /// RPU Interrupt Injection register
+    pub rpu_intr_2: ReadWrite<u32>,
+    /// RPU Interrupt Injection register
+    pub rpu_intr_3: ReadWrite<u32>,
+    /// RPU Interrupt Injection register
+    pub rpu_intr_4: ReadWrite<u32>,
+    _padding60: [u8; 4],
+    /// RPU Interrupt Injection Mask register
+    pub rpu_intr_mask_0: ReadWrite<u32>,
+    /// RPU Interrupt Injection Mask register
+    pub rpu_intr_mask_1: ReadWrite<u32>,
+    /// RPU Interrupt Injection Mask register
+    pub rpu_intr_mask_2: ReadWrite<u32>,
+    /// RPU Interrupt Injection Mask register
+    pub rpu_intr_mask_3: ReadWrite<u32>,
+    /// RPU Interrupt Injection Mask register
+    pub rpu_intr_mask_4: ReadWrite<u32>,
+    /// Common Cause Signal Value Register
+    pub rpu_ccf_val: Aliased<u32, RpuCcfValR::Register, RpuCcfValW::Register>,
+    _padding88: [u8; 152],
+    /// RPU Safety Check Register
+    pub rpu_safety_chk: ReadWrite<u32>,
+    /// Reserved for future use
+    pub rpu: ReadWrite<u32>,
+    _padding248: [u8; 8],
+    /// Configuration Parameters specific to RPU0
+    pub rpu0_cfg: Aliased<u32, Rpu0CfgR::Register, Rpu0CfgW::Register>,
+    /// R5_0 Status Register
+    pub rpu0_status: ReadOnly<u32, Rpu0Status::Register>,
+    /// Power down request from R5s
+    pub rpu0_pwrdwn: Aliased<u32, Rpu0PwrdwnR::Register, Rpu0PwrdwnW::Register>,
+    _padding268: [u8; 8],
+    /// Interrupt Status Register
+    pub rpu0_isr: Aliased<u32, Rpu0IsrR::Register, Rpu0IsrW::Register>,
+    /// Interrupt Mask Register
+    pub rpu0_imr: ReadOnly<u32, Rpu0Imr::Register>,
+    /// Interrupt Enable Register
+    pub rpu0_ien: Aliased<u32, Rpu0IenR::Register, Rpu0IenW::Register>,
+    /// Interrupt Disable Register
+    pub rpu0_ids: Aliased<u32, Rpu0IdsR::Register, Rpu0IdsW::Register>,
+    /// Slave Base Address Register
+    pub rpu0_slv_base: Aliased<u32, Rpu0SlvBaseR::Register, Rpu0SlvBaseW::Register>,
+    /// RPU 0 AXI Override Register
+    pub rpu0_axi_over: Aliased<u32, Rpu0AxiOverR::Register, Rpu0AxiOverW::Register>,
+    _padding300: [u8; 212],
+    /// Configuration Parameters specific to RPU1
+    pub rpu1_cfg: Aliased<u32, Rpu1CfgR::Register, Rpu1CfgW::Register>,
+    /// R5_1 Status Register
+    pub rpu1_status: ReadOnly<u32, Rpu1Status::Register>,
+    /// Power down request from R5s
+    pub rpu1_pwrdwn: Aliased<u32, Rpu1PwrdwnR::Register, Rpu1PwrdwnW::Register>,
+    _padding524: [u8; 8],
+    /// Interrupt Status Register
+    pub rpu1_isr: Aliased<u32, Rpu1IsrR::Register, Rpu1IsrW::Register>,
+    /// Interrupt Mask Register
+    pub rpu1_imr: ReadOnly<u32, Rpu1Imr::Register>,
+    /// Interrupt Enable Register
+    pub rpu1_ien: Aliased<u32, Rpu1IenR::Register, Rpu1IenW::Register>,
+    /// Interrupt Disable Register
+    pub rpu1_ids: Aliased<u32, Rpu1IdsR::Register, Rpu1IdsW::Register>,
+    /// Slave Base Address Register
+    pub rpu1_slv_base: Aliased<u32, Rpu1SlvBaseR::Register, Rpu1SlvBaseW::Register>,
+    /// RPU 1 AXI Override Register
+    pub rpu1_axi_over: Aliased<u32, Rpu1AxiOverR::Register, Rpu1AxiOverW::Register>,
 }
-register_bitfields! [
+tock_registers::register_bitfields! [
     u32,
     pub RpuGlblCntlR [
         RESERVED0 OFFSET(11) NUMBITS(21) [],
@@ -117,14 +115,14 @@ register_bitfields! [
         CFGEE OFFSET(0) NUMBITS(1) [],
     ]
 ];
-register_bitfields! [
+tock_registers::register_bitfields! [
     u32,
     pub RpuGlblStatus [
         RESERVED0 OFFSET(1) NUMBITS(31) [],
         DBGNOPWRDWN OFFSET(0) NUMBITS(1) [],
     ]
 ];
-register_bitfields! [
+tock_registers::register_bitfields! [
     u32,
     pub RpuErrCntlR [
         RESERVED0 OFFSET(1) NUMBITS(31) [],
@@ -134,7 +132,7 @@ register_bitfields! [
         APB_ERR_RES OFFSET(0) NUMBITS(1) [],
     ]
 ];
-register_bitfields! [
+tock_registers::register_bitfields! [
     u32,
     pub RpuRamR [
         RESERVED0 OFFSET(16) NUMBITS(16) [],
@@ -146,7 +144,7 @@ register_bitfields! [
         RAMCONTROL0 OFFSET(0) NUMBITS(8) [],
     ]
 ];
-register_bitfields! [
+tock_registers::register_bitfields! [
     u32,
     pub RpuErrInjR [
         RESERVED0 OFFSET(16) NUMBITS(16) [],
@@ -158,7 +156,7 @@ register_bitfields! [
         DCCMINP OFFSET(0) NUMBITS(8) [],
     ]
 ];
-register_bitfields! [
+tock_registers::register_bitfields! [
     u32,
     pub RpuCcfMaskR [
         RESERVED0 OFFSET(8) NUMBITS(24) [],
@@ -182,7 +180,7 @@ register_bitfields! [
         PGE_RST OFFSET(0) NUMBITS(1) [],
     ]
 ];
-register_bitfields! [
+tock_registers::register_bitfields! [
     u32,
     pub RpuCcfValR [
         RESERVED0 OFFSET(8) NUMBITS(24) [],
@@ -206,7 +204,7 @@ register_bitfields! [
         PGE_RST OFFSET(0) NUMBITS(1) [],
     ]
 ];
-register_bitfields! [
+tock_registers::register_bitfields! [
     u32,
     pub Rpu0CfgR [
         RESERVED0 OFFSET(4) NUMBITS(28) [],
@@ -222,7 +220,7 @@ register_bitfields! [
         NCPUHALT OFFSET(0) NUMBITS(1) [],
     ]
 ];
-register_bitfields! [
+tock_registers::register_bitfields! [
     u32,
     pub Rpu0Status [
         RESERVED0 OFFSET(6) NUMBITS(26) [],
@@ -234,7 +232,7 @@ register_bitfields! [
         NCLKSTOPPED OFFSET(0) NUMBITS(1) [],
     ]
 ];
-register_bitfields! [
+tock_registers::register_bitfields! [
     u32,
     pub Rpu0PwrdwnR [
         RESERVED0 OFFSET(1) NUMBITS(31) [],
@@ -244,7 +242,7 @@ register_bitfields! [
         EN OFFSET(0) NUMBITS(1) [],
     ]
 ];
-register_bitfields! [
+tock_registers::register_bitfields! [
     u32,
     pub Rpu0IsrR [
         RESERVED0 OFFSET(25) NUMBITS(7) [],
@@ -302,7 +300,7 @@ register_bitfields! [
         APB_ERR OFFSET(0) NUMBITS(1) [],
     ]
 ];
-register_bitfields! [
+tock_registers::register_bitfields! [
     u32,
     pub Rpu0Imr [
         RESERVED0 OFFSET(25) NUMBITS(7) [],
@@ -333,7 +331,7 @@ register_bitfields! [
         APB_ERR OFFSET(0) NUMBITS(1) [],
     ]
 ];
-register_bitfields! [
+tock_registers::register_bitfields! [
     u32,
     pub Rpu0IenR [
         RESERVED0 OFFSET(25) NUMBITS(7) [],
@@ -366,7 +364,7 @@ register_bitfields! [
         APB_ERR OFFSET(0) NUMBITS(1) [],
     ]
 ];
-register_bitfields! [
+tock_registers::register_bitfields! [
     u32,
     pub Rpu0IdsR [
         RESERVED0 OFFSET(25) NUMBITS(7) [],
@@ -399,7 +397,7 @@ register_bitfields! [
         APB_ERR OFFSET(0) NUMBITS(1) [],
     ]
 ];
-register_bitfields! [
+tock_registers::register_bitfields! [
     u32,
     pub Rpu0SlvBaseR [
         RESERVED0 OFFSET(8) NUMBITS(24) [],
@@ -409,7 +407,7 @@ register_bitfields! [
         ADDR OFFSET(0) NUMBITS(8) [],
     ]
 ];
-register_bitfields! [
+tock_registers::register_bitfields! [
     u32,
     pub Rpu0AxiOverR [
         RESERVED0 OFFSET(10) NUMBITS(22) [],
@@ -425,7 +423,7 @@ register_bitfields! [
         ARCACHE_EN OFFSET(0) NUMBITS(1) [],
     ]
 ];
-register_bitfields! [
+tock_registers::register_bitfields! [
     u32,
     pub Rpu1CfgR [
         RESERVED0 OFFSET(4) NUMBITS(28) [],
@@ -441,7 +439,7 @@ register_bitfields! [
         NCPUHALT OFFSET(0) NUMBITS(1) [],
     ]
 ];
-register_bitfields! [
+tock_registers::register_bitfields! [
     u32,
     pub Rpu1Status [
         RESERVED0 OFFSET(6) NUMBITS(26) [],
@@ -453,7 +451,7 @@ register_bitfields! [
         NCLKSTOPPED OFFSET(0) NUMBITS(1) [],
     ]
 ];
-register_bitfields! [
+tock_registers::register_bitfields! [
     u32,
     pub Rpu1PwrdwnR [
         RESERVED0 OFFSET(1) NUMBITS(31) [],
@@ -463,7 +461,7 @@ register_bitfields! [
         EN OFFSET(0) NUMBITS(1) [],
     ]
 ];
-register_bitfields! [
+tock_registers::register_bitfields! [
     u32,
     pub Rpu1IsrR [
         RESERVED0 OFFSET(25) NUMBITS(7) [],
@@ -521,7 +519,7 @@ register_bitfields! [
         APB_ERR OFFSET(0) NUMBITS(1) [],
     ]
 ];
-register_bitfields! [
+tock_registers::register_bitfields! [
     u32,
     pub Rpu1Imr [
         RESERVED0 OFFSET(25) NUMBITS(7) [],
@@ -552,7 +550,7 @@ register_bitfields! [
         APB_ERR OFFSET(0) NUMBITS(1) [],
     ]
 ];
-register_bitfields! [
+tock_registers::register_bitfields! [
     u32,
     pub Rpu1IenR [
         RESERVED0 OFFSET(25) NUMBITS(7) [],
@@ -585,7 +583,7 @@ register_bitfields! [
         APB_ERR OFFSET(0) NUMBITS(1) [],
     ]
 ];
-register_bitfields! [
+tock_registers::register_bitfields! [
     u32,
     pub Rpu1IdsR [
         RESERVED0 OFFSET(25) NUMBITS(7) [],
@@ -618,7 +616,7 @@ register_bitfields! [
         APB_ERR OFFSET(0) NUMBITS(1) [],
     ]
 ];
-register_bitfields! [
+tock_registers::register_bitfields! [
     u32,
     pub Rpu1SlvBaseR [
         RESERVED0 OFFSET(8) NUMBITS(24) [],
@@ -628,7 +626,7 @@ register_bitfields! [
         ADDR OFFSET(0) NUMBITS(8) [],
     ]
 ];
-register_bitfields! [
+tock_registers::register_bitfields! [
     u32,
     pub Rpu1AxiOverR [
         RESERVED0 OFFSET(10) NUMBITS(22) [],

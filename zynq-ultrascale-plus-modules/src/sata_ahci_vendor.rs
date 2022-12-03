@@ -2,54 +2,52 @@
 use tock_registers::registers::{Aliased, ReadOnly, ReadWrite};
 /// SATA AHCI Control and Status, SATA AHCI Vendor
 pub static mut SATA_AHCI_VENDOR: *mut Registers = 0xfd0c00a0 as *mut Registers;
-register_structs! {
-    pub Registers {
-        /// SerDes control AHB control port.
-        (0x00000000 => pub pctrl: Aliased<u32, PctrlR::Register, PctrlW::Register>),
-        /// Dual lane port select, timer scalars, interrupt separation.
-        (0x00000004 => pub pcfg: Aliased<u32, PcfgR::Register, PcfgW::Register>),
-        /// Phy Control Layer 1 configuration for port 0 or 1.
-        (0x00000008 => pub ppcfg: Aliased<u32, PpcfgR::Register, PpcfgW::Register>),
-        /// Port Phy Configuration 2.
-        (0x0000000c => pub pp2c: ReadWrite<u32, Pp2c::Register>),
-        /// PP3C - Port Phy3 Configuration
-        (0x00000010 => pub pp3c: ReadWrite<u32, Pp3c::Register>),
-        /// Port Phy Configuration 4.
-        (0x00000014 => pub pp4c: ReadWrite<u32, Pp4c::Register>),
-        /// Port Phy Configuration 5.
-        (0x00000018 => pub pp5c: ReadWrite<u32, Pp5c::Register>),
-        /// AXI CACHE Control.
-        (0x0000001c => pub axicc: Aliased<u32, AxiccR::Register, AxiccW::Register>),
-        /// Port AXICfg
-        (0x00000020 => pub paxic: Aliased<u32, PaxicR::Register, PaxicW::Register>),
-        /// AXI PROT Control.
-        (0x00000024 => pub axipc: Aliased<u32, AxipcR::Register, AxipcW::Register>),
-        /// Port Transfer Configuration
-        (0x00000028 => pub ptc: Aliased<u32, PtcR::Register, PtcW::Register>),
-        /// Transport Layer Status (TransStatus).
-        (0x0000002c => pub pts: ReadOnly<u32, Pts::Register>),
-        /// Link Layer Configuration (LinkCfg).
-        (0x00000030 => pub plc: ReadWrite<u32, Plc::Register>),
-        /// Port LinkCfg1
-        (0x00000034 => pub plc1: Aliased<u32, Plc1R::Register, Plc1W::Register>),
-        /// Port LinkCfg2
-        (0x00000038 => pub plc2: ReadWrite<u32>),
-        /// Port Link-layer Status.
-        (0x0000003c => pub pls: ReadOnly<u32, Pls::Register>),
-        /// Port Link-layer Status 1.
-        (0x00000040 => pub pls1: ReadWrite<u32, Pls1::Register>),
-        /// Port CmdConfig
-        (0x00000044 => pub pcmdc: Aliased<u32, PcmdcR::Register, PcmdcW::Register>),
-        /// Port Phy Status (PhyControlStatus).
-        (0x00000048 => pub ppcs: Aliased<u32, PpcsR::Register, PpcsW::Register>),
-        /// AXI Master Status
-        (0x0000004c => pub ams: ReadOnly<u32, Ams::Register>),
-        /// Timer Control
-        (0x00000050 => pub tcr: Aliased<u32, TcrR::Register, TcrW::Register>),
-        (0x00000054 => @END),
-    }
+#[repr(C)]
+pub struct Registers {
+    /// SerDes control AHB control port.
+    pub pctrl: Aliased<u32, PctrlR::Register, PctrlW::Register>,
+    /// Dual lane port select, timer scalars, interrupt separation.
+    pub pcfg: Aliased<u32, PcfgR::Register, PcfgW::Register>,
+    /// Phy Control Layer 1 configuration for port 0 or 1.
+    pub ppcfg: Aliased<u32, PpcfgR::Register, PpcfgW::Register>,
+    /// Port Phy Configuration 2.
+    pub pp2c: ReadWrite<u32, Pp2c::Register>,
+    /// PP3C - Port Phy3 Configuration
+    pub pp3c: ReadWrite<u32, Pp3c::Register>,
+    /// Port Phy Configuration 4.
+    pub pp4c: ReadWrite<u32, Pp4c::Register>,
+    /// Port Phy Configuration 5.
+    pub pp5c: ReadWrite<u32, Pp5c::Register>,
+    /// AXI CACHE Control.
+    pub axicc: Aliased<u32, AxiccR::Register, AxiccW::Register>,
+    /// Port AXICfg
+    pub paxic: Aliased<u32, PaxicR::Register, PaxicW::Register>,
+    /// AXI PROT Control.
+    pub axipc: Aliased<u32, AxipcR::Register, AxipcW::Register>,
+    /// Port Transfer Configuration
+    pub ptc: Aliased<u32, PtcR::Register, PtcW::Register>,
+    /// Transport Layer Status (TransStatus).
+    pub pts: ReadOnly<u32, Pts::Register>,
+    /// Link Layer Configuration (LinkCfg).
+    pub plc: ReadWrite<u32, Plc::Register>,
+    /// Port LinkCfg1
+    pub plc1: Aliased<u32, Plc1R::Register, Plc1W::Register>,
+    /// Port LinkCfg2
+    pub plc2: ReadWrite<u32>,
+    /// Port Link-layer Status.
+    pub pls: ReadOnly<u32, Pls::Register>,
+    /// Port Link-layer Status 1.
+    pub pls1: ReadWrite<u32, Pls1::Register>,
+    /// Port CmdConfig
+    pub pcmdc: Aliased<u32, PcmdcR::Register, PcmdcW::Register>,
+    /// Port Phy Status (PhyControlStatus).
+    pub ppcs: Aliased<u32, PpcsR::Register, PpcsW::Register>,
+    /// AXI Master Status
+    pub ams: ReadOnly<u32, Ams::Register>,
+    /// Timer Control
+    pub tcr: Aliased<u32, TcrR::Register, TcrW::Register>,
 }
-register_bitfields! [
+tock_registers::register_bitfields! [
     u32,
     pub PctrlR [
         BSY OFFSET(31) NUMBITS(1) [],
@@ -64,7 +62,7 @@ register_bitfields! [
         SAV OFFSET(0) NUMBITS(16) [],
     ]
 ];
-register_bitfields! [
+tock_registers::register_bitfields! [
     u32,
     pub PcfgR [
         RESERVED0 OFFSET(23) NUMBITS(9) [],
@@ -83,7 +81,7 @@ register_bitfields! [
         PAD OFFSET(0) NUMBITS(6) [],
     ]
 ];
-register_bitfields! [
+tock_registers::register_bitfields! [
     u32,
     pub PpcfgR [
         ESDF OFFSET(31) NUMBITS(1) [],
@@ -116,7 +114,7 @@ register_bitfields! [
         TTA OFFSET(0) NUMBITS(17) [],
     ]
 ];
-register_bitfields! [
+tock_registers::register_bitfields! [
     u32,
     pub Pp2c [
         CINMP OFFSET(24) NUMBITS(8) [],
@@ -125,7 +123,7 @@ register_bitfields! [
         CIBGMN OFFSET(0) NUMBITS(8) [],
     ]
 ];
-register_bitfields! [
+tock_registers::register_bitfields! [
     u32,
     pub Pp3c [
         CWNMP OFFSET(24) NUMBITS(8) [],
@@ -134,7 +132,7 @@ register_bitfields! [
         CWBGMN OFFSET(0) NUMBITS(8) [],
     ]
 ];
-register_bitfields! [
+tock_registers::register_bitfields! [
     u32,
     pub Pp4c [
         PTST OFFSET(24) NUMBITS(8) [],
@@ -143,14 +141,14 @@ register_bitfields! [
         BMX OFFSET(0) NUMBITS(8) [],
     ]
 ];
-register_bitfields! [
+tock_registers::register_bitfields! [
     u32,
     pub Pp5c [
         RCT OFFSET(20) NUMBITS(12) [],
         RIT OFFSET(0) NUMBITS(20) [],
     ]
 ];
-register_bitfields! [
+tock_registers::register_bitfields! [
     u32,
     pub AxiccR [
         RESERVED0 OFFSET(30) NUMBITS(2) [],
@@ -174,7 +172,7 @@ register_bitfields! [
         ARCA OFFSET(0) NUMBITS(4) [],
     ]
 ];
-register_bitfields! [
+tock_registers::register_bitfields! [
     u32,
     pub PaxicR [
         RESERVED0 OFFSET(29) NUMBITS(3) [],
@@ -205,7 +203,7 @@ register_bitfields! [
         ADBW OFFSET(0) NUMBITS(2) [],
     ]
 ];
-register_bitfields! [
+tock_registers::register_bitfields! [
     u32,
     pub AxipcR [
         RESERVED0 OFFSET(30) NUMBITS(2) [],
@@ -238,7 +236,7 @@ register_bitfields! [
         ARPD OFFSET(0) NUMBITS(3) [],
     ]
 ];
-register_bitfields! [
+tock_registers::register_bitfields! [
     u32,
     pub PtcR [
         RESERVED0 OFFSET(28) NUMBITS(4) [],
@@ -255,7 +253,7 @@ register_bitfields! [
         RXWM OFFSET(0) NUMBITS(7) [],
     ]
 ];
-register_bitfields! [
+tock_registers::register_bitfields! [
     u32,
     pub Pts [
         RESERVED0 OFFSET(9) NUMBITS(23) [],
@@ -263,7 +261,7 @@ register_bitfields! [
         RXSM OFFSET(0) NUMBITS(4) [],
     ]
 ];
-register_bitfields! [
+tock_registers::register_bitfields! [
     u32,
     pub Plc [
         PMPRA OFFSET(27) NUMBITS(5) [],
@@ -280,7 +278,7 @@ register_bitfields! [
         TXBC OFFSET(0) NUMBITS(1) [],
     ]
 ];
-register_bitfields! [
+tock_registers::register_bitfields! [
     u32,
     pub Plc1R [
         RESERVED0 OFFSET(7) NUMBITS(25) [],
@@ -292,7 +290,7 @@ register_bitfields! [
         POS OFFSET(0) NUMBITS(6) [],
     ]
 ];
-register_bitfields! [
+tock_registers::register_bitfields! [
     u32,
     pub Pls [
         SVN OFFSET(28) NUMBITS(4) [],
@@ -303,7 +301,7 @@ register_bitfields! [
         LLS OFFSET(0) NUMBITS(6) [],
     ]
 ];
-register_bitfields! [
+tock_registers::register_bitfields! [
     u32,
     pub Pls1 [
         KCEC OFFSET(24) NUMBITS(8) [],
@@ -312,7 +310,7 @@ register_bitfields! [
         DEC OFFSET(0) NUMBITS(8) [],
     ]
 ];
-register_bitfields! [
+tock_registers::register_bitfields! [
     u32,
     pub PcmdcR [
         RESERVED0 OFFSET(30) NUMBITS(2) [],
@@ -330,7 +328,7 @@ register_bitfields! [
         ETLLB OFFSET(0) NUMBITS(1) [],
     ]
 ];
-register_bitfields! [
+tock_registers::register_bitfields! [
     u32,
     pub PpcsR [
         PHYCE OFFSET(30) NUMBITS(2) [],
@@ -345,7 +343,7 @@ register_bitfields! [
         CCAC OFFSET(10) NUMBITS(1) [],
     ]
 ];
-register_bitfields! [
+tock_registers::register_bitfields! [
     u32,
     pub Ams [
         RESERVED0 OFFSET(12) NUMBITS(20) [],
@@ -355,7 +353,7 @@ register_bitfields! [
         RAS OFFSET(0) NUMBITS(1) [],
     ]
 ];
-register_bitfields! [
+tock_registers::register_bitfields! [
     u32,
     pub TcrR [
         RESERVED0 OFFSET(13) NUMBITS(19) [],
