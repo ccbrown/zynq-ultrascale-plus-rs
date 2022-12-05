@@ -5,4 +5,8 @@ edition = "2021"
 
 [dependencies]
 tock-registers = "0.8.0"
-zynq-ultrascale-plus-modules = { path = "../zynq-ultrascale-plus-modules", features = ["uart", "iou-scntrs"] }
+zynq-ultrascale-plus-modules = { path = "../zynq-ultrascale-plus-modules", features = ["uart"] }
+
+[dev-dependencies]
+qemu-exit = "3.0.1"
+linked_list_allocator = "0.10.4"

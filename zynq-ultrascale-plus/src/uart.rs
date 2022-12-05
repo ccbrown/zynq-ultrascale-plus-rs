@@ -1,11 +1,29 @@
 use tock_registers::interfaces::{Readable, Writeable};
 use zynq_ultrascale_plus_modules::uart::*;
 
-pub struct Module {
+pub struct Controller {
     registers: &'static mut Registers,
 }
 
-impl Module {
+impl Controller {
+    /// Initiatizes and returns the UART 0 controller.
+    ///
+    /// # Safety
+    /// Things will break spectacularly if this is called on an unsupported device or if you create
+    /// multiple controllers at once.
+    pub unsafe fn uart0() -> Self {
+        Self::new(&mut *UART0)
+    }
+
+    /// Initiatizes and returns the UART 1 controller.
+    ///
+    /// # Safety
+    /// Things will break spectacularly if this is called on an unsupported device or if you create
+    /// multiple controllers at once.
+    pub unsafe fn uart1() -> Self {
+        Self::new(&mut *UART1)
+    }
+
     /// Creates a new UART controller.
     pub fn new(registers: &'static mut Registers) -> Self {
         Self { registers }
@@ -34,5 +52,16 @@ impl Module {
         for b in buf.as_ref() {
             self.send_byte(*b);
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test_case]
+    fn test_controller() {
+        let uart = unsafe { Controller::uart1() };
+        assert!(!uart.is_transmit_full());
     }
 }

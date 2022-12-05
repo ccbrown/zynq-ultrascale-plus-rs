@@ -1,41 +1,73 @@
 #![no_std]
+#![cfg_attr(test, no_main)]
+#![cfg_attr(test, feature(custom_test_frameworks))]
+#![cfg_attr(test, test_runner(crate::tests::runner))]
+#![cfg_attr(test, reexport_test_harness_main = "test_main")]
+#![cfg_attr(test, feature(default_alloc_error_handler))]
 
-use zynq_ultrascale_plus_modules as mods;
+#[cfg(test)]
+#[macro_use]
+extern crate alloc;
 
-pub mod iou_scntrs;
 pub mod uart;
 
-pub struct Device {
-    iou_scntrs: iou_scntrs::Module,
-    uart0: uart::Module,
-    uart1: uart::Module,
-}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use core::arch::global_asm;
+    use qemu_exit::QEMUExit;
 
-impl Device {
-    /// Creates a global device instance.
-    ///
-    /// # Safety
-    ///
-    /// Things will blow up spectacularly if this is called on anything other than a Zynq UltraScale+ device.
-    ///
-    /// If you create more than one device, it's up to you to ensure that they don't simultaneously access the same resources.
-    pub unsafe fn new() -> Self {
-        Self {
-            iou_scntrs: iou_scntrs::Module::new(&mut *mods::iou_scntrs::IOU_SCNTRS),
-            uart0: uart::Module::new(&mut *mods::uart::UART0),
-            uart1: uart::Module::new(&mut *mods::uart::UART1),
+    global_asm!(
+        r#"
+.global _Reset
+_Reset:
+    ldr x30, =stack_top
+    mov sp, x30
+    bl main
+    b .
+"#
+    );
+
+    use linked_list_allocator::LockedHeap;
+
+    #[global_allocator]
+    static ALLOCATOR: LockedHeap = LockedHeap::empty();
+
+    extern "C" {
+        static mut _heap_start: u32;
+        static mut _heap_end: u32;
+    }
+
+    fn init_heap() {
+        unsafe {
+            let heap_start_ptr = &mut _heap_start as *mut u32;
+            let heap_end_ptr = &mut _heap_end as *mut u32;
+            ALLOCATOR.lock().init(
+                heap_start_ptr as *mut u8,
+                heap_end_ptr as usize - heap_start_ptr as usize,
+            );
         }
     }
 
-    pub fn iou_scntrs(&mut self) -> &mut iou_scntrs::Module {
-        &mut self.iou_scntrs
+    #[no_mangle]
+    pub unsafe extern "C" fn main() {
+        init_heap();
+        crate::test_main();
+        qemu_exit::AArch64::new().exit(0);
     }
 
-    pub fn uart0(&mut self) -> &mut uart::Module {
-        &mut self.uart0
+    pub fn runner(tests: &[&dyn Fn()]) {
+        let mut uart = unsafe { uart::Controller::uart0() };
+        uart.send_bytes(format!("running {} tests\n", tests.len()));
+        for test in tests {
+            test();
+        }
     }
 
-    pub fn uart1(&mut self) -> &mut uart::Module {
-        &mut self.uart1
+    #[panic_handler]
+    fn panic_handler(info: &core::panic::PanicInfo) -> ! {
+        let mut uart = unsafe { uart::Controller::uart0() };
+        uart.send_bytes(format!("panic: {}\n", info));
+        qemu_exit::AArch64::new().exit(1);
     }
 }
