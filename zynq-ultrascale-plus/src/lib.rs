@@ -10,6 +10,7 @@
 extern crate alloc;
 
 pub mod async_runtime;
+pub mod thread;
 pub mod uart;
 
 pub use zynq_ultrascale_plus_modules as modules;
@@ -64,7 +65,9 @@ _Reset:
         uart.send_bytes(format!("running {} tests\n", tests.len()));
         for test in tests {
             test();
+            uart.send_bytes(".");
         }
+        uart.send_bytes("\n");
     }
 
     #[panic_handler]
