@@ -2,7 +2,9 @@
 
 This repo contains two crates:
 
-- zynq-ultrascale-plus contains high-ish level, mostly safe code for interfacing with Zynq UltraScale+ devices.
+- zynq-ultrascale-plus contains high-ish level, mostly safe code for interfacing with Zynq UltraScale+ devices, including...
+  - UART driver
+  - Async runtime
 - zynq-ultrascale-plus-modules contains [tock-registers](https://crates.io/crates/tock-registers) definitions generated automatically from the [Zynq UltraScale+ Devices Register Reference](https://www.xilinx.com/htmldocs/registers/ug1087/ug1087-zynq-ultrascale-registers.html).
 
 ## Getting Started
@@ -19,7 +21,7 @@ If you're building a new project from scratch, you should start with a C "hello 
 #[no_mangle]
 pub extern "C" fn main() {
     unsafe {
-        zynq_ultrascale_plus::Device::new().uart1().send_bytes("hello from rust!\n\r");
+        zynq_ultrascale_plus::uart::Controller::uart1().send_bytes("hello from rust!\n\r");
     }
 }
 

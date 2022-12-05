@@ -9,7 +9,10 @@
 #[macro_use]
 extern crate alloc;
 
+pub mod async_runtime;
 pub mod uart;
+
+pub use zynq_ultrascale_plus_modules as modules;
 
 #[cfg(test)]
 mod tests {
