@@ -12,8 +12,6 @@ extern crate alloc;
 pub mod async_runtime;
 pub mod interrupt;
 mod interrupt_vector_table;
-pub mod thread;
-pub mod time;
 pub mod uart;
 
 pub use zynq_ultrascale_plus_modules as modules;

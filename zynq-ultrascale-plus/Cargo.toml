@@ -9,5 +9,6 @@ tock-registers = "0.8.0"
 zynq-ultrascale-plus-modules = { path = "../zynq-ultrascale-plus-modules", features = ["gic400", "uart"] }
 
 [dev-dependencies]
+aarch64-std = { git = "https://github.com/ccbrown/aarch64-std", rev = "1f00de16ea526832f967b7d0af36d8c515799e42" }
 qemu-exit = "3.0.1"
 linked_list_allocator = "0.10.4"

@@ -130,7 +130,7 @@ mod tests {
 
         let mut triggered = false;
         while !triggered {
-            crate::thread::sleep(Duration::from_millis(20));
+            aarch64_std::thread::sleep(Duration::from_millis(20));
             triggered = SGI_TRIGGERED.load(Ordering::SeqCst);
         }
         assert!(triggered);
