@@ -9,7 +9,7 @@ pub fn sleep(d: Duration) {
     }
     let start = registers::CNTVCT_EL0.get();
     let end = start + (d.as_secs_f64() * freq as f64) as u64;
-    // TODO: set a timer instead
+    // TODO: use a timer or event stream for lower power usage
     loop {
         if registers::CNTVCT_EL0.get() >= end {
             return;
@@ -23,6 +23,6 @@ mod tests {
 
     #[test_case]
     fn test_sleep() {
-        sleep(Duration::from_secs(1));
+        sleep(Duration::from_millis(500));
     }
 }

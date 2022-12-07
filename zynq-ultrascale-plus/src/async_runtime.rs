@@ -1,5 +1,4 @@
 use core::{
-    arch::asm,
     future::Future,
     pin::Pin,
     ptr,
@@ -18,7 +17,7 @@ unsafe fn sev_waker_clone(_: *const ()) -> RawWaker {
 }
 
 unsafe fn sev_waker_wake(_: *const ()) {
-    unsafe { asm!("sev") }
+    aarch64_cpu::asm::sev();
 }
 
 unsafe fn sev_waker_wake_by_ref(data: *const ()) {
@@ -35,7 +34,7 @@ pub fn block_on<F: Future>(mut future: F) -> F::Output {
     loop {
         match future.as_mut().poll(&mut ctx) {
             Poll::Ready(ret) => return ret,
-            Poll::Pending => unsafe { asm!("wfe") },
+            Poll::Pending => aarch64_cpu::asm::wfe(),
         }
     }
 }

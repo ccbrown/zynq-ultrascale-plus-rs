@@ -4,9 +4,9 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
-aarch64-cpu = "9.0.0"
+aarch64-cpu = { git = "https://github.com/ccbrown/aarch64-cpu", rev = "db125991ee5ba515680f555f53475c5a0b6762d0" }
 tock-registers = "0.8.0"
-zynq-ultrascale-plus-modules = { path = "../zynq-ultrascale-plus-modules", features = ["uart"] }
+zynq-ultrascale-plus-modules = { path = "../zynq-ultrascale-plus-modules", features = ["gic400", "uart"] }
 
 [dev-dependencies]
 qemu-exit = "3.0.1"

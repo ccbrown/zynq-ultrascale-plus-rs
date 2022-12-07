@@ -3,8 +3,10 @@
 This repo contains two crates:
 
 - zynq-ultrascale-plus contains high-ish level, mostly safe code for interfacing with Zynq UltraScale+ devices, including...
+  - Interrupt controller
   - UART driver
   - Async runtime
+  - Timing functions (`Instant`, `sleep`, etc.)
 - zynq-ultrascale-plus-modules contains [tock-registers](https://crates.io/crates/tock-registers) definitions generated automatically from the [Zynq UltraScale+ Devices Register Reference](https://www.xilinx.com/htmldocs/registers/ug1087/ug1087-zynq-ultrascale-registers.html).
 
 ## Getting Started

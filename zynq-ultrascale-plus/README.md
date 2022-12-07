@@ -16,3 +16,9 @@ Once the prerequisites are met, you can simply:
 ```
 cargo +nightly test
 ```
+
+Additional arguments will be forwarded to QEMU. So for example, to see interrupt logging, you can use:
+
+```
+cargo +nightly test -- -d int
+```
