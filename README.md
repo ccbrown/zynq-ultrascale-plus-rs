@@ -6,6 +6,7 @@ This repo contains two crates:
   - Interrupt controller
   - UART driver
   - Async runtime
+  - GEM controller with [smoltcp](https://github.com/smoltcp-rs/smoltcp) integration
 - zynq-ultrascale-plus-modules contains [tock-registers](https://crates.io/crates/tock-registers) definitions generated automatically from the [Zynq UltraScale+ Devices Register Reference](https://www.xilinx.com/htmldocs/registers/ug1087/ug1087-zynq-ultrascale-registers.html).
 
 These crates pair especially well with the [aarch64-std crate](https://github.com/ccbrown/aarch64-std), which provides standard library components for aarch64 bare-metal targets.
