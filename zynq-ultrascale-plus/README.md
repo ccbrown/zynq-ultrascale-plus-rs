@@ -22,3 +22,9 @@ Additional arguments will be forwarded to QEMU. So for example, to see interrupt
 ```
 cargo +nightly test -- -d int
 ```
+
+Or to capture network traffic:
+
+```
+cargo +nightly test -- -object filter-dump,id=f1,netdev=net0,file=dump.pcap
+```

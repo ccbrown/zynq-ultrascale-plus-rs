@@ -3,12 +3,19 @@ name = "zynq-ultrascale-plus"
 version = "0.1.0"
 edition = "2021"
 
+[features]
+default = ["alloc"]
+alloc = ["smoltcp"]
+
 [dependencies]
 aarch64-cpu = { git = "https://github.com/ccbrown/aarch64-cpu", rev = "db125991ee5ba515680f555f53475c5a0b6762d0" }
 tock-registers = "0.8.0"
-zynq-ultrascale-plus-modules = { path = "../zynq-ultrascale-plus-modules", features = ["gic400", "uart"] }
+zynq-ultrascale-plus-modules = { path = "../zynq-ultrascale-plus-modules", features = ["gem", "gic400", "uart"] }
+smoltcp = { version = "0.8.2", default-features = false, features = ["medium-ethernet", "proto-ipv4", "proto-ipv6", "socket-raw", "alloc"], optional = true }
 
 [dev-dependencies]
-aarch64-std = { git = "https://github.com/ccbrown/aarch64-std", rev = "1f00de16ea526832f967b7d0af36d8c515799e42" }
+aarch64-std = { git = "https://github.com/ccbrown/aarch64-std", rev = "a9a7913f19cd14ac98e0827576f1f436490ddfc6" }
 qemu-exit = "3.0.1"
 linked_list_allocator = "0.10.4"
+smoltcp = { version = "0.8.2", default-features = false, features = ["socket-dhcpv4"] }
+test-macro = { path = "./test-macro" }

@@ -118,7 +118,7 @@ mod tests {
         SGI_TRIGGERED.store(true, Ordering::SeqCst);
     }
 
-    #[test_case]
+    #[test]
     fn test_controller() {
         let mut controller = Controller::apu();
         controller.set_interrupt_handler(&sgi_handler);

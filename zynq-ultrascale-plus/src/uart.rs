@@ -2,7 +2,7 @@ use tock_registers::interfaces::{Readable, Writeable};
 use zynq_ultrascale_plus_modules::uart::*;
 
 pub struct Controller {
-    registers: &'static mut Registers,
+    registers: &'static Registers,
 }
 
 impl Controller {
@@ -25,7 +25,7 @@ impl Controller {
     }
 
     /// Creates a new UART controller.
-    pub fn new(registers: &'static mut Registers) -> Self {
+    pub fn new(registers: &'static Registers) -> Self {
         Self { registers }
     }
 
@@ -33,7 +33,7 @@ impl Controller {
     ///
     /// # Safety
     /// Refer to the module's reference material to understand what is and isn't safe.
-    pub unsafe fn registers(&mut self) -> &mut Registers {
+    pub unsafe fn registers(&mut self) -> &Registers {
         self.registers
     }
 
@@ -59,7 +59,7 @@ impl Controller {
 mod tests {
     use super::*;
 
-    #[test_case]
+    #[test]
     fn test_controller() {
         let uart = unsafe { Controller::uart1() };
         assert!(!uart.is_transmit_full());

@@ -5,13 +5,42 @@
 #![cfg_attr(test, reexport_test_harness_main = "test_main")]
 #![cfg_attr(test, feature(default_alloc_error_handler))]
 
-#[cfg(test)]
-#[macro_use]
+#[cfg(any(test, feature = "alloc"))]
+#[cfg_attr(test, macro_use)]
 extern crate alloc;
 
+#[cfg(test)]
+#[cfg_attr(test, macro_use)]
+extern crate test_macro;
+
+#[cfg(test)]
+pub(crate) static PRINT_LOCK: aarch64_std::sync::Mutex<()> = aarch64_std::sync::Mutex::new(());
+
+#[cfg(not(test))]
+#[allow(unused_macros)]
+macro_rules! debug {
+    ($($args:expr),*) => {};
+}
+
+#[cfg(test)]
+macro_rules! debug {
+    ($($args:expr),*) => {
+        {
+            let _lock = $crate::PRINT_LOCK.lock().unwrap();
+            let mut uart = unsafe { $crate::uart::Controller::uart0() };
+            uart.send_bytes(format!($($args),*));
+            uart.send_byte('\n' as _);
+        }
+    }
+}
+
 pub mod async_runtime;
+#[cfg(feature = "alloc")]
+pub mod gem;
 pub mod interrupt;
 mod interrupt_vector_table;
+#[cfg(feature = "alloc")]
+pub mod net;
 pub mod uart;
 
 pub use zynq_ultrascale_plus_modules as modules;
@@ -62,13 +91,10 @@ _Reset:
     }
 
     pub fn runner(tests: &[&dyn Fn()]) {
-        let mut uart = unsafe { uart::Controller::uart0() };
-        uart.send_bytes(format!("running {} tests\n", tests.len()));
+        debug!("running {} tests", tests.len());
         for test in tests {
             test();
-            uart.send_bytes(".");
         }
-        uart.send_bytes("\n");
     }
 
     #[panic_handler]

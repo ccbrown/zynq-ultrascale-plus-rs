@@ -2,5 +2,6 @@
 
 members = [
     "zynq-ultrascale-plus",
+    "zynq-ultrascale-plus/test-macro",
     "zynq-ultrascale-plus-modules",
 ]

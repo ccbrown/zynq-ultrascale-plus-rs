@@ -43,7 +43,7 @@ pub fn block_on<F: Future>(mut future: F) -> F::Output {
 mod tests {
     use super::*;
 
-    #[test_case]
+    #[test]
     fn test_block_on() {
         assert_eq!(block_on(async { 123 }), 123);
     }

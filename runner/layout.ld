@@ -8,7 +8,7 @@ SECTIONS
     .heap (NOLOAD) : {
         . = ALIGN(64);
         _heap_start = .;
-        . += 0x4000;
+        . += 0x80000;
         _heap_end = .;
     }
     .stack (NOLOAD) : {
