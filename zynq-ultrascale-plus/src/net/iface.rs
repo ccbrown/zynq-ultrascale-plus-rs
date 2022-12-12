@@ -1,12 +1,17 @@
-use crate::{gem, net::phy::Phy};
-use alloc::{collections::BTreeMap, vec};
-use smoltcp::iface::{InterfaceBuilder, NeighborCache, Routes};
-use smoltcp::wire::{EthernetAddress, IpCidr, Ipv4Address};
+use crate::net::phy::Phy;
 
-pub type Interface = smoltcp::iface::Interface<'static, Phy>;
+pub type Interface<'a> = smoltcp::iface::Interface<'a, Phy<'a>>;
 
-/// Creates an ethernet interface from a configured GEM controller.
-pub fn from_gem_controller(gem_controller: gem::ConfiguredController) -> Interface {
+#[cfg(feature = "alloc")]
+pub fn from_gem_controller<'a>(
+    gem_controller: crate::gem::ConfiguredController<'a>,
+) -> Interface<'a> {
+    use alloc::{collections::BTreeMap, vec};
+    use smoltcp::{
+        iface::{InterfaceBuilder, NeighborCache, Routes},
+        wire::{EthernetAddress, IpCidr, Ipv4Address},
+    };
+
     let hardware_addr = gem_controller.config().mac_address;
     let phy = Phy::new(gem_controller);
     let ip_addrs = [IpCidr::new(Ipv4Address::UNSPECIFIED.into(), 0)];
@@ -31,6 +36,7 @@ pub fn from_gem_controller(gem_controller: gem::ConfiguredController) -> Interfa
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::gem;
     use smoltcp::{
         socket::{Dhcpv4Event, Dhcpv4Socket},
         time::{Duration, Instant},
@@ -42,6 +48,7 @@ mod tests {
         let controller = controller
             .configure(gem::Config {
                 mac_address: 0x02_00_00_00_00_01,
+                storage: Default::default(),
             })
             .unwrap();
         let mut iface = from_gem_controller(controller);

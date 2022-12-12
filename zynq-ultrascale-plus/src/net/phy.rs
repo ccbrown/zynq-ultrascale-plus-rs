@@ -5,33 +5,33 @@ use smoltcp::{
     Result,
 };
 
-pub struct Phy {
-    gem_controller: gem::ConfiguredController,
+pub struct Phy<'p> {
+    gem_controller: gem::ConfiguredController<'p>,
 }
 
-impl Phy {
-    pub fn new(gem_controller: gem::ConfiguredController) -> Self {
+impl<'p> Phy<'p> {
+    pub fn new(gem_controller: gem::ConfiguredController<'p>) -> Self {
         Self { gem_controller }
     }
 }
 
-impl<'a> phy::Device<'a> for Phy {
-    type RxToken = PhyRxToken<'a>;
-    type TxToken = PhyTxToken<'a>;
+impl<'d, 'p> phy::Device<'d> for Phy<'p> {
+    type RxToken = PhyRxToken<'d>;
+    type TxToken = PhyTxToken<'d>;
 
-    fn receive(&'a mut self) -> Option<(Self::RxToken, Self::TxToken)> {
+    fn receive(&'d mut self) -> Option<(Self::RxToken, Self::TxToken)> {
         let (rx_buf, tx_buf) = self.gem_controller.get_receive_and_transmit_buffers()?;
         Some((PhyRxToken(rx_buf), PhyTxToken(tx_buf)))
     }
 
-    fn transmit(&'a mut self) -> Option<Self::TxToken> {
+    fn transmit(&'d mut self) -> Option<Self::TxToken> {
         let tx_buf = self.gem_controller.get_transmit_buffer()?;
         Some(PhyTxToken(tx_buf))
     }
 
     fn capabilities(&self) -> DeviceCapabilities {
         let mut caps = DeviceCapabilities::default();
-        caps.max_transmission_unit = gem::BUFFER_SIZE;
+        caps.max_transmission_unit = self.gem_controller.config().storage.transmit_buffer_len();
         caps.max_burst_size = Some(1);
         caps.medium = Medium::Ethernet;
         caps.checksum.ipv4 = Checksum::Both;
@@ -41,9 +41,9 @@ impl<'a> phy::Device<'a> for Phy {
     }
 }
 
-pub struct PhyRxToken<'a>(gem::ReceiveBuffer<'a>);
+pub struct PhyRxToken<'d>(gem::ReceiveBuffer<'d>);
 
-impl<'a> phy::RxToken for PhyRxToken<'a> {
+impl<'d> phy::RxToken for PhyRxToken<'d> {
     fn consume<R, F>(mut self, _timestamp: Instant, f: F) -> Result<R>
     where
         F: FnOnce(&mut [u8]) -> Result<R>,
@@ -54,9 +54,9 @@ impl<'a> phy::RxToken for PhyRxToken<'a> {
     }
 }
 
-pub struct PhyTxToken<'a>(gem::TransmitBuffer<'a>);
+pub struct PhyTxToken<'d>(gem::TransmitBuffer<'d>);
 
-impl<'a> phy::TxToken for PhyTxToken<'a> {
+impl<'d> phy::TxToken for PhyTxToken<'d> {
     fn consume<R, F>(mut self, _timestamp: Instant, len: usize, f: F) -> Result<R>
     where
         F: FnOnce(&mut [u8]) -> Result<R>,

@@ -1,4 +1,4 @@
-use alloc::vec::Vec;
+use managed::{Managed, ManagedSlice};
 use tock_registers::{
     interfaces::{ReadWriteable, Readable, Writeable},
     registers::InMemoryRegister,
@@ -9,16 +9,117 @@ pub struct Controller {
     registers: &'static Registers,
 }
 
-pub struct Config {
+/// Provides all of the storage required for GEM operation.
+///
+/// There are very specific requirements and recommendations for these objects. Refer to the
+/// reference manual for details.
+///
+/// At a minimum:
+///
+///  - There must be the same number of receive descriptors and buffers.
+///  - Receive buffers must be a multiple of 64 bytes in length.
+///  - Receive buffers must be 64-byte aligned.
+///  - Descriptors must be 32-bit addressible.
+pub struct Storage<'a> {
+    pub receive_descriptors: ManagedSlice<'a, ReceiveDescriptor>,
+    pub receive_buffers: ManagedSlice<'a, ManagedSlice<'a, u8>>,
+    pub transmit_descriptor: Managed<'a, TransmitDescriptor>,
+    pub transmit_buffer: ManagedSlice<'a, u8>,
+}
+
+impl<'a> Storage<'a> {
+    pub fn receive_buffer_len(&self) -> usize {
+        self.receive_buffers[0].len()
+    }
+
+    pub fn transmit_buffer_len(&self) -> usize {
+        self.transmit_buffer.len()
+    }
+}
+
+#[cfg(feature = "alloc")]
+impl<'a> Default for Storage<'a> {
+    fn default() -> Self {
+        use alloc::{boxed::Box, vec, vec::Vec};
+
+        const RECEIVE_BUFFERS: usize = 64;
+        const BUFFER_SIZE: usize = 1600;
+
+        let mut receive_descriptors = Vec::with_capacity(RECEIVE_BUFFERS);
+        receive_descriptors.resize_with(RECEIVE_BUFFERS, Default::default);
+        let receive_buffers = vec![vec![0u8; BUFFER_SIZE]; RECEIVE_BUFFERS];
+
+        Self {
+            receive_descriptors: receive_descriptors.into(),
+            receive_buffers: receive_buffers
+                .into_iter()
+                .map(ManagedSlice::Owned)
+                .collect::<Vec<_>>()
+                .into(),
+            transmit_descriptor: Box::new(TransmitDescriptor::default()).into(),
+            transmit_buffer: vec![0u8; BUFFER_SIZE].into(),
+        }
+    }
+}
+
+pub struct Config<'a> {
     pub mac_address: u64,
+    pub storage: Storage<'a>,
 }
 
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
 pub enum ConfigurationError {
     NoPhyDevicePresent,
+    BadStorage(&'static str),
 }
 
-pub const BUFFER_SIZE: usize = 1600;
+impl<'a> Storage<'a> {
+    fn initialize_descriptors(&mut self) -> Result<(), &'static str> {
+        if self.receive_descriptors.as_ptr() as u64 > 0xffffffff {
+            return Err("receive descriptors must be 32-bit addressable");
+        } else if &mut *self.transmit_descriptor as *mut _ as u64 > 0xffffffff {
+            return Err("transmit descriptor must be 32-bit addressable");
+        }
+
+        if self.receive_descriptors.is_empty() {
+            return Err("no receive descriptors were given");
+        } else if self.receive_descriptors.len() != self.receive_buffers.len() {
+            return Err("the number of receive descriptors and receive buffers must be the same");
+        }
+
+        let n = self.receive_buffers.len();
+
+        let receive_buffer_len = self.receive_buffers[0].len();
+        if receive_buffer_len == 0 && receive_buffer_len % 64 != 0 {
+            return Err("receive buffers must be a multiple of 64 bytes");
+        }
+
+        for (i, desc) in self.receive_descriptors.iter_mut().enumerate() {
+            let addr = self.receive_buffers[i].as_ptr() as u64;
+            if addr % 8 != 0 {
+                return Err("receive buffers must be 64-bit aligned");
+            }
+            let word_addr = addr / 8;
+            desc.word0.set((word_addr << 3) as u32);
+            desc.word1.set(0);
+            desc.word2.set((word_addr >> 29) as u32);
+            desc.unused = 0;
+            if i == n - 1 {
+                desc.word0.modify(ReceiveDescriptorWord0::WRAP::SET);
+            }
+        }
+
+        {
+            let addr = self.transmit_buffer.as_ptr() as u64;
+            self.transmit_descriptor.word0.set(addr as u32);
+            self.transmit_descriptor.word1.set(0xc0000000);
+            self.transmit_descriptor.word2.set((addr >> 32) as u32);
+            self.transmit_descriptor.unused = 0;
+        }
+
+        Ok(())
+    }
+}
 
 impl Controller {
     /// Initiatizes and returns the GEM 0 controller.
@@ -76,7 +177,7 @@ impl Controller {
     }
 
     /// Configures and enables the controller.
-    pub fn configure(self, config: Config) -> Result<ConfiguredController, ConfigurationError> {
+    pub fn configure(self, mut config: Config) -> Result<ConfiguredController, ConfigurationError> {
         // reset / disable everything
         self.registers.network_control.set(0);
         self.registers
@@ -87,20 +188,22 @@ impl Controller {
         self.registers.int_disable.set(0x7fffeff);
 
         // set up the queues
-        let receive_queue = ReceiveQueue::new(64, BUFFER_SIZE);
-        let transmit_queue = TransmitQueue::new(1, BUFFER_SIZE);
+        config
+            .storage
+            .initialize_descriptors()
+            .map_err(ConfigurationError::BadStorage)?;
         self.registers
             .receive_q_ptr
-            .set(receive_queue.descriptors.as_ptr() as u32);
+            .set(config.storage.receive_descriptors.as_ptr() as u32);
         self.registers
             .receive_q1_ptr
-            .set(receive_queue.descriptors.as_ptr() as u32);
+            .set(config.storage.receive_descriptors.as_ptr() as u32);
         self.registers
             .transmit_q_ptr
-            .set(transmit_queue.descriptors.as_ptr() as u32);
+            .set(&mut *config.storage.transmit_descriptor as *mut TransmitDescriptor as u32);
         self.registers
             .transmit_q1_ptr
-            .set(transmit_queue.descriptors.as_ptr() as u32);
+            .set(&mut *config.storage.transmit_descriptor as *mut TransmitDescriptor as u32);
 
         // configure networking
         self.registers.network_config.write(
@@ -122,7 +225,7 @@ impl Controller {
 
         // configure dma
         self.registers.dma_config.write(
-            DmaConfigW::RX_BUF_SIZE.val(BUFFER_SIZE as u32 / 64)
+            DmaConfigW::RX_BUF_SIZE.val(config.storage.receive_buffer_len() as u32 / 64)
                 + DmaConfigW::RX_PBUF_SIZE.val(3)
                 + DmaConfigW::TX_PBUF_SIZE::SET
                 + DmaConfigW::TX_PBUF_TCP_EN::SET
@@ -150,33 +253,28 @@ impl Controller {
         Ok(ConfiguredController {
             config,
             registers: self.registers,
-            receive_queue,
-            transmit_queue,
         })
     }
 }
 
-pub struct ConfiguredController {
-    config: Config,
+pub struct ConfiguredController<'a> {
+    config: Config<'a>,
     registers: &'static Registers,
-    receive_queue: ReceiveQueue,
-    transmit_queue: TransmitQueue,
 }
 
 pub struct ReceiveBuffer<'a> {
-    queue: &'a mut ReceiveQueue,
-    index: usize,
+    descriptor: &'a mut ReceiveDescriptor,
+    buffer: &'a mut [u8],
 }
 
 impl<'a> ReceiveBuffer<'a> {
     pub fn data(&mut self) -> &mut [u8] {
-        let desc = &self.queue.descriptors[self.index];
-        let frame_length = desc.word1.read(ReceiveDescriptorWord1::LENGTH) as usize;
-        &mut self.queue.buffers[self.index][..frame_length]
+        let frame_length = self.descriptor.word1.read(ReceiveDescriptorWord1::LENGTH) as usize;
+        &mut self.buffer[..frame_length]
     }
 
     pub fn consume(&mut self) {
-        let desc = &self.queue.descriptors[self.index];
+        let desc = &self.descriptor;
         desc.word1.set(0);
         desc.word0.modify(ReceiveDescriptorWord0::OWNERSHIP::CLEAR);
     }
@@ -184,25 +282,20 @@ impl<'a> ReceiveBuffer<'a> {
 
 pub struct TransmitBuffer<'a> {
     registers: &'static Registers,
-    queue: &'a mut TransmitQueue,
-    index: usize,
+    descriptor: &'a mut TransmitDescriptor,
+    buffer: &'a mut [u8],
 }
 
 impl<'a> TransmitBuffer<'a> {
     pub fn data(&mut self) -> &mut [u8] {
-        &mut self.queue.buffers[self.index]
+        &mut self.buffer
     }
 
     pub fn transmit(mut self, len: usize) {
         let len = self.data().len().min(len);
-        let wrap = if self.index == self.queue.descriptors.len() - 1 {
-            1
-        } else {
-            0
-        };
-        self.queue.descriptors[self.index].word1.write(
+        self.descriptor.word1.write(
             TransmitDescriptorWord1::USED::CLEAR
-                + TransmitDescriptorWord1::WRAP.val(wrap)
+                + TransmitDescriptorWord1::WRAP::SET
                 + TransmitDescriptorWord1::LAST_BUFFER::SET
                 + TransmitDescriptorWord1::LENGTH_OF_BUFFER.val(len as _),
         );
@@ -226,17 +319,19 @@ impl<'a> TransmitBuffer<'a> {
     }
 }
 
-impl ConfiguredController {
-    pub fn config(&self) -> &Config {
+impl<'a> ConfiguredController<'a> {
+    pub fn config(&self) -> &Config<'a> {
         &self.config
     }
 
-    pub fn get_receive_buffer(&mut self) -> Option<ReceiveBuffer> {
+    pub fn get_receive_buffer(&mut self) -> Option<ReceiveBuffer<'_>> {
         self.get_receive_and_transmit_buffers().map(|(rx, _)| rx)
     }
 
-    pub fn get_receive_and_transmit_buffers(&mut self) -> Option<(ReceiveBuffer, TransmitBuffer)> {
-        for (i, desc) in self.receive_queue.descriptors.iter().enumerate() {
+    pub fn get_receive_and_transmit_buffers(
+        &mut self,
+    ) -> Option<(ReceiveBuffer<'_>, TransmitBuffer<'_>)> {
+        for (i, desc) in self.config.storage.receive_descriptors.iter().enumerate() {
             if desc.word0.is_set(ReceiveDescriptorWord0::OWNERSHIP) {
                 if !desc.word1.matches_all(
                     ReceiveDescriptorWord1::START_OF_FRAME::SET
@@ -247,16 +342,15 @@ impl ConfiguredController {
                     desc.word0.modify(ReceiveDescriptorWord0::OWNERSHIP::CLEAR);
                     continue;
                 }
-                let tx_buffer_index = self.get_transmit_buffer_index()?;
                 return Some((
                     ReceiveBuffer {
-                        queue: &mut self.receive_queue,
-                        index: i,
+                        descriptor: &mut self.config.storage.receive_descriptors[i],
+                        buffer: &mut self.config.storage.receive_buffers[i],
                     },
                     TransmitBuffer {
                         registers: self.registers,
-                        queue: &mut self.transmit_queue,
-                        index: tx_buffer_index,
+                        descriptor: &mut self.config.storage.transmit_descriptor,
+                        buffer: &mut self.config.storage.transmit_buffer,
                     },
                 ));
             }
@@ -264,26 +358,16 @@ impl ConfiguredController {
         None
     }
 
-    pub fn get_transmit_buffer(&mut self) -> Option<TransmitBuffer> {
-        let index = self.get_transmit_buffer_index()?;
+    pub fn get_transmit_buffer(&mut self) -> Option<TransmitBuffer<'_>> {
         Some(TransmitBuffer {
             registers: self.registers,
-            queue: &mut self.transmit_queue,
-            index,
+            descriptor: &mut self.config.storage.transmit_descriptor,
+            buffer: &mut self.config.storage.transmit_buffer,
         })
-    }
-
-    fn get_transmit_buffer_index(&mut self) -> Option<usize> {
-        for (i, desc) in self.transmit_queue.descriptors.iter().enumerate() {
-            if desc.word1.is_set(TransmitDescriptorWord1::USED) {
-                return Some(i);
-            }
-        }
-        None
     }
 }
 
-impl Drop for ConfiguredController {
+impl<'a> Drop for ConfiguredController<'a> {
     fn drop(&mut self) {
         self.registers.network_control.set(0);
         self.registers
@@ -300,11 +384,22 @@ impl Drop for ConfiguredController {
 }
 
 #[repr(C)]
-struct ReceiveDescriptor {
+pub struct ReceiveDescriptor {
     word0: InMemoryRegister<u32, ReceiveDescriptorWord0::Register>,
     word1: InMemoryRegister<u32, ReceiveDescriptorWord1::Register>,
     word2: InMemoryRegister<u32, ReceiveDescriptorWord2::Register>,
     unused: u32,
+}
+
+impl Default for ReceiveDescriptor {
+    fn default() -> Self {
+        Self {
+            word0: InMemoryRegister::new(0),
+            word1: InMemoryRegister::new(0),
+            word2: InMemoryRegister::new(0),
+            unused: 0,
+        }
+    }
 }
 
 tock_registers::register_bitfields! [
@@ -324,44 +419,23 @@ tock_registers::register_bitfields! [
     ]
 ];
 
-struct ReceiveQueue {
-    buffers: Vec<Vec<u8>>,
-    descriptors: Vec<ReceiveDescriptor>,
-}
-
-impl ReceiveQueue {
-    fn new(n: usize, buffer_size: usize) -> Self {
-        let mut descriptors = Vec::with_capacity(n);
-        let mut buffers = Vec::with_capacity(n);
-        for i in 0..n {
-            let mut buf = Vec::with_capacity(buffer_size);
-            buf.resize(buffer_size, 0u8);
-            let word_addr = buf.as_ptr() as u64 / 8;
-            let desc = ReceiveDescriptor {
-                word0: InMemoryRegister::new((word_addr << 3) as u32),
-                word1: InMemoryRegister::new(0),
-                word2: InMemoryRegister::new((word_addr >> 29) as u32),
-                unused: 0,
-            };
-            if i == n - 1 {
-                desc.word0.modify(ReceiveDescriptorWord0::WRAP::SET);
-            }
-            descriptors.push(desc);
-            buffers.push(buf);
-        }
-        Self {
-            buffers,
-            descriptors,
-        }
-    }
-}
-
 #[repr(C)]
-struct TransmitDescriptor {
+pub struct TransmitDescriptor {
     word0: InMemoryRegister<u32, TransmitDescriptorWord0::Register>,
     word1: InMemoryRegister<u32, TransmitDescriptorWord1::Register>,
     word2: InMemoryRegister<u32, TransmitDescriptorWord2::Register>,
     unused: u32,
+}
+
+impl Default for TransmitDescriptor {
+    fn default() -> Self {
+        Self {
+            word0: InMemoryRegister::new(0),
+            word1: InMemoryRegister::new(0),
+            word2: InMemoryRegister::new(0),
+            unused: 0,
+        }
+    }
 }
 
 tock_registers::register_bitfields! [
@@ -379,38 +453,6 @@ tock_registers::register_bitfields! [
         ADDRESS_HIGH OFFSET(0) NUMBITS(32) [],
     ]
 ];
-
-struct TransmitQueue {
-    buffers: Vec<Vec<u8>>,
-    descriptors: Vec<TransmitDescriptor>,
-}
-
-impl TransmitQueue {
-    fn new(n: usize, buffer_size: usize) -> Self {
-        let mut descriptors = Vec::with_capacity(n);
-        let mut buffers = Vec::with_capacity(n);
-        for i in 0..n {
-            let mut buf = Vec::with_capacity(buffer_size);
-            buf.resize(buffer_size, 0u8);
-            let addr = buf.as_ptr() as u64;
-            let desc = TransmitDescriptor {
-                word0: InMemoryRegister::new(addr as u32),
-                word1: InMemoryRegister::new(0x80000000),
-                word2: InMemoryRegister::new((addr >> 32) as u32),
-                unused: 0,
-            };
-            if i == n - 1 {
-                desc.word1.modify(TransmitDescriptorWord1::WRAP::SET);
-            }
-            descriptors.push(desc);
-            buffers.push(buf);
-        }
-        Self {
-            buffers,
-            descriptors,
-        }
-    }
-}
 
 pub struct PhyManagement<'a> {
     controller: &'a mut Controller,
@@ -527,6 +569,11 @@ mod tests {
     #[test]
     fn test_configured_controller() {
         let controller = unsafe { Controller::gem0() };
-        controller.configure(Config { mac_address: 0 }).unwrap();
+        controller
+            .configure(Config {
+                mac_address: 0,
+                storage: Default::default(),
+            })
+            .unwrap();
     }
 }

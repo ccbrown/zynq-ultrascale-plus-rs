@@ -35,11 +35,9 @@ macro_rules! debug {
 }
 
 pub mod async_runtime;
-#[cfg(feature = "alloc")]
 pub mod gem;
 pub mod interrupt;
 mod interrupt_vector_table;
-#[cfg(feature = "alloc")]
 pub mod net;
 pub mod uart;
 
