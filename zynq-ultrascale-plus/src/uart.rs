@@ -45,7 +45,8 @@ impl Controller {
         while self.is_transmit_full() {}
         self.registers
             .tx_rx_fifo
-            .write(TxRxFifoW::FIFO.val(b as u32))
+            .write(TxRxFifoW::FIFO.val(b as u32));
+        while self.is_transmit_full() {}
     }
 
     pub fn send_bytes<T: AsRef<[u8]>>(&mut self, buf: T) {

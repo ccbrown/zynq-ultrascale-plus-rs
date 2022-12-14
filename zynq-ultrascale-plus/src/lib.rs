@@ -29,7 +29,7 @@ macro_rules! debug {
     ($($args:expr),*) => {
         {
             let _lock = $crate::PRINT_LOCK.lock().unwrap();
-            let mut uart = unsafe { $crate::uart::Controller::uart1() };
+            let mut uart = unsafe { if $crate::tests::is_qemu() { $crate::uart::Controller::uart0() } else { $crate::uart::Controller::uart1() } };
             uart.send_bytes(format!($($args),*));
             uart.send_bytes("\r\n");
         }
@@ -138,7 +138,13 @@ mod tests {
 
     #[panic_handler]
     fn panic_handler(info: &core::panic::PanicInfo) -> ! {
-        let mut uart = unsafe { uart::Controller::uart1() };
+        let mut uart = unsafe {
+            if is_qemu() {
+                uart::Controller::uart0()
+            } else {
+                uart::Controller::uart1()
+            }
+        };
         uart.send_bytes(format!("panic: {}\r\n", info));
         exit(1);
     }
