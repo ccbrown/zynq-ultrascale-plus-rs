@@ -42,7 +42,7 @@ mod tests {
         time::{Duration, Instant},
     };
 
-    #[test]
+    #[test(qemu_only)]
     fn test_interface_dhcp() {
         let controller = unsafe { gem::Controller::gem3() };
         let controller = controller

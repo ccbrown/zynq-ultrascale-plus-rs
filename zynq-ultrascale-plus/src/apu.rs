@@ -283,7 +283,7 @@ impl<'a> Core<'a> {
 mod tests {
     use super::*;
 
-    #[test]
+    #[test(qemu_only)]
     fn test_apu_core_block_on() {
         let mut apu = unsafe { APU::apu() };
         let mut reset_controller = unsafe { crf_apb::Controller::crf_apb() };

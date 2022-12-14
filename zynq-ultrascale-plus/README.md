@@ -1,6 +1,6 @@
 # zynq-ultrascale-plus
 
-## Testing
+## Testing With QEMU
 
 This crate has unit tests that can be run using QEMU.
 
@@ -11,7 +11,7 @@ These prerequisites must be in your PATH:
 
 You must have the `aarch64-unknown-none` target installed with the nightly toolchain.
 
-Once the prerequisites are met, you can simply:
+Once the prerequisites are met, you can simply run:
 
 ```
 cargo +nightly test
@@ -28,3 +28,19 @@ Or to capture network traffic:
 ```
 cargo +nightly test -- -object filter-dump,id=f1,netdev=net0,file=dump.pcap
 ```
+
+## Testing With Real Hardware
+
+This crate's unit tests can also be run with real hardware.
+
+You must have the `aarch64-unknown-none` target installed with the nightly toolchain, you must have Xilinx Vitis installed with `xsct` in your path, and you must have a device connected via USB.
+
+Once the prerequisites are met, you can run:
+
+```
+TEST_RUNNER=jtag cargo +nightly test
+```
+
+That command will run the tests using JTAG boot.
+
+You'll need to inspect the output via UART. Cargo will not wait for the tests or return any error codes.

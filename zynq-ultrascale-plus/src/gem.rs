@@ -548,7 +548,7 @@ mod tests {
     use super::*;
     use alloc::vec::Vec;
 
-    #[test]
+    #[test(qemu_only)]
     fn test_phy_management() {
         let mut controller = unsafe { Controller::gem0() };
 

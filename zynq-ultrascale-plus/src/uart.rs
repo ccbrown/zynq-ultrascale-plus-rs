@@ -61,7 +61,7 @@ mod tests {
 
     #[test]
     fn test_controller() {
-        let uart = unsafe { Controller::uart1() };
+        let uart = unsafe { Controller::uart0() };
         assert!(!uart.is_transmit_full());
     }
 }

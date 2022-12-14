@@ -29,9 +29,9 @@ macro_rules! debug {
     ($($args:expr),*) => {
         {
             let _lock = $crate::PRINT_LOCK.lock().unwrap();
-            let mut uart = unsafe { $crate::uart::Controller::uart0() };
+            let mut uart = unsafe { $crate::uart::Controller::uart1() };
             uart.send_bytes(format!($($args),*));
-            uart.send_byte('\n' as _);
+            uart.send_bytes("\r\n");
         }
     }
 }
@@ -55,13 +55,21 @@ mod tests {
 
     global_asm!(
         r#"
-.global _Reset
-_Reset:
-    ldr x30, =stack_top
-    mov sp, x30
-    bl main
-    b .
-"#
+        .global _vector_table
+        _vector_table:
+            b _Reset
+            nop
+            nop
+            nop
+            nop
+            eret
+        .global _Reset
+        _Reset:
+            ldr x30, =__stack_top__
+            mov sp, x30
+            bl main
+            b .
+        "#
     );
 
     use linked_list_allocator::LockedHeap;
@@ -70,39 +78,68 @@ _Reset:
     static ALLOCATOR: LockedHeap = LockedHeap::empty();
 
     extern "C" {
-        static mut _heap_start: u32;
-        static mut _heap_end: u32;
+        static mut __bss_start__: u32;
+        static mut __bss_end__: u32;
+        static mut __heap_start__: u32;
+        static mut __heap_end__: u32;
     }
 
-    fn init_heap() {
-        unsafe {
-            let heap_start_ptr = &mut _heap_start as *mut u32;
-            let heap_end_ptr = &mut _heap_end as *mut u32;
-            ALLOCATOR.lock().init(
-                heap_start_ptr as *mut u8,
-                heap_end_ptr as usize - heap_start_ptr as usize,
-            );
+    unsafe fn init_bss() {
+        let bss_start_ptr = &mut __bss_start__ as *mut u32;
+        let bss_end_ptr = &mut __bss_end__ as *mut u32;
+        let mut dest = bss_start_ptr;
+        while dest != bss_end_ptr {
+            *dest = 0;
+            dest = dest.offset(1);
         }
+    }
+
+    unsafe fn init_heap() {
+        let heap_start_ptr = &mut __heap_start__ as *mut u32;
+        let heap_end_ptr = &mut __heap_end__ as *mut u32;
+        ALLOCATOR.lock().init(
+            heap_start_ptr as *mut u8,
+            heap_end_ptr as usize - heap_start_ptr as usize,
+        );
     }
 
     #[no_mangle]
     pub unsafe extern "C" fn main() {
+        init_bss();
         init_heap();
         crate::test_main();
-        qemu_exit::AArch64::new().exit(0);
+        exit(0);
+    }
+
+    /// Returns true if we're running in QEMU.
+    pub fn is_qemu() -> bool {
+        use tock_registers::interfaces::Readable;
+        let csu = unsafe { &mut *modules::csu::CSU };
+        let jtag_sec = csu.jtag_sec.get();
+        (jtag_sec & 0x1ff) != 0x1ff
+    }
+
+    pub fn exit(status: u32) -> ! {
+        if is_qemu() {
+            qemu_exit::AArch64::new().exit(status);
+        } else {
+            loop {}
+        }
     }
 
     pub fn runner(tests: &[&dyn Fn()]) {
+        is_qemu();
         debug!("running {} tests", tests.len());
         for test in tests {
             test();
         }
+        debug!("all tests passed");
     }
 
     #[panic_handler]
     fn panic_handler(info: &core::panic::PanicInfo) -> ! {
-        let mut uart = unsafe { uart::Controller::uart0() };
-        uart.send_bytes(format!("panic: {}\n", info));
-        qemu_exit::AArch64::new().exit(1);
+        let mut uart = unsafe { uart::Controller::uart1() };
+        uart.send_bytes(format!("panic: {}\r\n", info));
+        exit(1);
     }
 }
