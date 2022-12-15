@@ -212,7 +212,7 @@ impl Controller {
             .set((tx_queue_addr >> 32) as u32);
 
         // configure networking
-        self.registers.network_config.write(
+        self.registers.network_config.modify(
             NetworkConfig::FULL_DUPLEX::SET
                 + NetworkConfig::NO_BROADCAST::CLEAR
                 + NetworkConfig::MULTICAST_HASH_ENABLE::SET
