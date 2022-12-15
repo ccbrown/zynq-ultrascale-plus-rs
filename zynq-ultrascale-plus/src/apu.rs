@@ -283,8 +283,8 @@ impl<'a> Core<'a> {
 mod tests {
     use super::*;
 
-    #[test(qemu_only)]
-    fn test_apu_core_block_on() {
+    #[test]
+    fn test_apu_core_spawn() {
         let mut apu = unsafe { APU::apu() };
         let mut reset_controller = unsafe { crf_apb::Controller::crf_apb() };
         let mut stack = vec![0u8; 8 * 1024];

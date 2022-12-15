@@ -79,7 +79,7 @@ impl<'a> Core<'a> {
     }
 
     pub fn release_reset(&mut self) {
-        let v = self.controller.registers.rst_fpd_apu.get() & !(1 << self.index);
+        let v = self.controller.registers.rst_fpd_apu.get() & !(0x401 << self.index);
         self.controller.registers.rst_fpd_apu.set(v);
     }
 }
