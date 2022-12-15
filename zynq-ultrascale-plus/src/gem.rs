@@ -558,27 +558,33 @@ mod tests {
             .unwrap();
 
         let device_ids: Vec<_> = controller.phy_management().device_ids().collect();
-        assert_eq!(device_ids.len(), 1);
-        let device_id = device_ids.into_iter().next().unwrap();
         if is_qemu() {
             assert_eq!(
-                device_id,
-                DeviceId {
-                    address: 0,
-                    oui: 0x50_43,
-                    model_number: 12,
-                    revision_number: 2
-                }
+                device_ids,
+                vec![
+                    DeviceId {
+                        address: 0,
+                        oui: 0x50_43,
+                        model_number: 33,
+                        revision_number: 0
+                    },
+                    DeviceId {
+                        address: 1,
+                        oui: 0x50_43,
+                        model_number: 33,
+                        revision_number: 0
+                    },
+                ]
             );
         } else {
             assert_eq!(
-                device_id,
-                DeviceId {
+                device_ids,
+                vec![DeviceId {
                     address: 5,
                     oui: 0x08_00_28,
                     model_number: 35,
                     revision_number: 1
-                }
+                }],
             );
         }
     }
