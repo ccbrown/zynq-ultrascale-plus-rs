@@ -163,11 +163,6 @@ impl Controller {
         Self { registers }
     }
 
-    /// Provides access to the PHY management interface.
-    pub fn phy_management(&mut self) -> PhyManagement {
-        PhyManagement { controller: self }
-    }
-
     /// Provides raw access to the registers.
     ///
     /// # Safety
@@ -324,6 +319,11 @@ impl<'a> ConfiguredController<'a> {
         &self.config
     }
 
+    /// Provides access to the PHY management interface.
+    pub fn phy_management(&mut self) -> PhyManagement<'_, 'a> {
+        PhyManagement { controller: self }
+    }
+
     pub fn get_receive_buffer(&mut self) -> Option<ReceiveBuffer<'_>> {
         self.get_receive_and_transmit_buffers().map(|(rx, _)| rx)
     }
@@ -454,11 +454,11 @@ tock_registers::register_bitfields! [
     ]
 ];
 
-pub struct PhyManagement<'a> {
-    controller: &'a mut Controller,
+pub struct PhyManagement<'a, 'c> {
+    controller: &'a mut ConfiguredController<'c>,
 }
 
-impl<'a> PhyManagement<'a> {
+impl<'a, 'c> PhyManagement<'a, 'c> {
     pub fn is_idle(&mut self) -> bool {
         self.controller
             .registers
@@ -471,7 +471,7 @@ impl<'a> PhyManagement<'a> {
     }
 
     /// Enumerates the devices attached to the controller.
-    pub fn device_ids(&mut self) -> DeviceIds {
+    pub fn device_ids(&mut self) -> DeviceIds<'_, 'c> {
         DeviceIds {
             controller: self.controller,
             next_address: 0,
@@ -507,21 +507,19 @@ impl DeviceId {
     fn new(address: u8, reg1: u16, reg2: u16) -> Self {
         DeviceId {
             address,
-            oui: ((reg1 & 0xfc) as u32) << 10
-                | ((reg1 & 0x3ff) as u32) << 8
-                | (reg2 & 0xFC00) as u32 >> 10,
+            oui: (reg1 as u32) << 6 | (reg2 & 0xFC00) as u32 >> 10,
             model_number: ((reg2 & 0x3F0) >> 4) as u8,
             revision_number: (reg2 & 0xF) as u8,
         }
     }
 }
 
-pub struct DeviceIds<'a> {
+pub struct DeviceIds<'a, 'c> {
     next_address: u8,
-    controller: &'a mut Controller,
+    controller: &'a mut ConfiguredController<'c>,
 }
 
-impl<'a> Iterator for DeviceIds<'a> {
+impl<'a, 'c> Iterator for DeviceIds<'a, 'c> {
     type Item = DeviceId;
 
     fn next(&mut self) -> Option<Self::Item> {
@@ -533,7 +531,7 @@ impl<'a> Iterator for DeviceIds<'a> {
             self.next_address += 1;
             unsafe {
                 let reg1 = self.controller.phy_management().clause_22_read(address, 2);
-                let reg2 = self.controller.phy_management().clause_22_read(address, 2);
+                let reg2 = self.controller.phy_management().clause_22_read(address, 3);
                 if reg1 == 0xffff && reg2 == 0xffff {
                     continue;
                 }
@@ -546,34 +544,42 @@ impl<'a> Iterator for DeviceIds<'a> {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::tests::is_qemu;
     use alloc::vec::Vec;
 
-    #[test(qemu_only)]
-    fn test_phy_management() {
-        let mut controller = unsafe { Controller::gem0() };
-
-        let device_ids: Vec<_> = controller.phy_management().device_ids().collect();
-        assert_eq!(device_ids.len(), 1);
-        let device_id = device_ids.into_iter().next().unwrap();
-        assert_eq!(
-            device_id,
-            DeviceId {
-                address: 0,
-                oui: 82176,
-                model_number: 20,
-                revision_number: 1
-            }
-        );
-    }
-
     #[test]
-    fn test_configured_controller() {
-        let controller = unsafe { Controller::gem0() };
-        controller
+    fn test_phy_management() {
+        let controller = unsafe { Controller::gem3() };
+        let mut controller = controller
             .configure(Config {
                 mac_address: 0,
                 storage: Default::default(),
             })
             .unwrap();
+
+        let device_ids: Vec<_> = controller.phy_management().device_ids().collect();
+        assert_eq!(device_ids.len(), 1);
+        let device_id = device_ids.into_iter().next().unwrap();
+        if is_qemu() {
+            assert_eq!(
+                device_id,
+                DeviceId {
+                    address: 0,
+                    oui: 0x50_43,
+                    model_number: 12,
+                    revision_number: 2
+                }
+            );
+        } else {
+            assert_eq!(
+                device_id,
+                DeviceId {
+                    address: 5,
+                    oui: 0x08_00_28,
+                    model_number: 35,
+                    revision_number: 1
+                }
+            );
+        }
     }
 }

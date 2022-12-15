@@ -31,7 +31,7 @@ macro_rules! debug {
             let _lock = $crate::PRINT_LOCK.lock().unwrap();
             let mut uart = unsafe { if $crate::tests::is_qemu() { $crate::uart::Controller::uart0() } else { $crate::uart::Controller::uart1() } };
             uart.send_bytes(format!($($args),*));
-            uart.send_bytes("\r\n");
+            uart.send_byte('\n' as _);
         }
     }
 }
@@ -145,7 +145,7 @@ mod tests {
                 uart::Controller::uart1()
             }
         };
-        uart.send_bytes(format!("panic: {}\r\n", info));
+        uart.send_bytes(format!("panic: {}\n", info));
         exit(1);
     }
 }
