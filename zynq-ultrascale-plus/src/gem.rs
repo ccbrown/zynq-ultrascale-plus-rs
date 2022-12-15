@@ -19,7 +19,6 @@ pub struct Controller {
 ///  - There must be the same number of receive descriptors and buffers.
 ///  - Receive buffers must be a multiple of 64 bytes in length.
 ///  - Receive buffers must be 64-byte aligned.
-///  - Descriptors must be 32-bit addressible.
 pub struct Storage<'a> {
     pub receive_descriptors: ManagedSlice<'a, ReceiveDescriptor>,
     pub receive_buffers: ManagedSlice<'a, ManagedSlice<'a, u8>>,
@@ -75,12 +74,6 @@ pub enum ConfigurationError {
 
 impl<'a> Storage<'a> {
     fn initialize_descriptors(&mut self) -> Result<(), &'static str> {
-        if self.receive_descriptors.as_ptr() as u64 > 0xffffffff {
-            return Err("receive descriptors must be 32-bit addressable");
-        } else if &mut *self.transmit_descriptor as *mut _ as u64 > 0xffffffff {
-            return Err("transmit descriptor must be 32-bit addressable");
-        }
-
         if self.receive_descriptors.is_empty() {
             return Err("no receive descriptors were given");
         } else if self.receive_descriptors.len() != self.receive_buffers.len() {
@@ -171,6 +164,23 @@ impl Controller {
         self.registers
     }
 
+    /// Provides access to the PHY management interface.
+    pub fn phy_management(&mut self) -> PhyManagement {
+        let is_enabled = self
+            .registers
+            .network_control
+            .is_set(NetworkControlR::MAN_PORT_EN);
+        if !is_enabled {
+            self.registers.network_control.set(
+                NetworkControlW::MAN_PORT_EN::SET.modify(self.registers.network_control.get()),
+            );
+        }
+        PhyManagement {
+            disable_on_drop: !is_enabled,
+            registers: self.registers,
+        }
+    }
+
     /// Configures and enables the controller.
     pub fn configure(self, mut config: Config) -> Result<ConfiguredController, ConfigurationError> {
         // reset / disable everything
@@ -187,23 +197,23 @@ impl Controller {
             .storage
             .initialize_descriptors()
             .map_err(ConfigurationError::BadStorage)?;
+        let rx_queue_addr = config.storage.receive_descriptors.as_ptr() as u64;
+        self.registers.receive_q_ptr.set(rx_queue_addr as u32);
+        self.registers.receive_q1_ptr.set(rx_queue_addr as u32);
         self.registers
-            .receive_q_ptr
-            .set(config.storage.receive_descriptors.as_ptr() as u32);
+            .upper_rx_q_base_addr
+            .set((rx_queue_addr >> 32) as u32);
+        let tx_queue_addr =
+            &mut *config.storage.transmit_descriptor as *mut TransmitDescriptor as u64;
+        self.registers.transmit_q_ptr.set(tx_queue_addr as u32);
+        self.registers.transmit_q1_ptr.set(tx_queue_addr as u32);
         self.registers
-            .receive_q1_ptr
-            .set(config.storage.receive_descriptors.as_ptr() as u32);
-        self.registers
-            .transmit_q_ptr
-            .set(&mut *config.storage.transmit_descriptor as *mut TransmitDescriptor as u32);
-        self.registers
-            .transmit_q1_ptr
-            .set(&mut *config.storage.transmit_descriptor as *mut TransmitDescriptor as u32);
+            .upper_tx_q_base_addr
+            .set((tx_queue_addr >> 32) as u32);
 
         // configure networking
         self.registers.network_config.write(
             NetworkConfig::FULL_DUPLEX::SET
-                + NetworkConfig::GIGABIT_MODE_ENABLE::SET
                 + NetworkConfig::NO_BROADCAST::CLEAR
                 + NetworkConfig::MULTICAST_HASH_ENABLE::SET
                 + NetworkConfig::RECEIVE_CHECKSUM_OFFLOAD_ENABLE::SET
@@ -230,12 +240,12 @@ impl Controller {
                 + DmaConfigW::AMBA_BURST_LENGTH.val(16),
         );
 
-        // program the network control register
+        // enable management
         self.registers
             .network_control
             .set(NetworkControlW::MAN_PORT_EN::SET.modify(self.registers.network_control.get()));
 
-        // TODO: configure the phy and negotiate link speed?
+        // TODO: configure the phy?
 
         // TODO: configure interrupts?
 
@@ -320,8 +330,11 @@ impl<'a> ConfiguredController<'a> {
     }
 
     /// Provides access to the PHY management interface.
-    pub fn phy_management(&mut self) -> PhyManagement<'_, 'a> {
-        PhyManagement { controller: self }
+    pub fn phy_management(&mut self) -> PhyManagement {
+        PhyManagement {
+            disable_on_drop: false,
+            registers: self.registers,
+        }
     }
 
     pub fn get_receive_buffer(&mut self) -> Option<ReceiveBuffer<'_>> {
@@ -454,14 +467,24 @@ tock_registers::register_bitfields! [
     ]
 ];
 
-pub struct PhyManagement<'a, 'c> {
-    controller: &'a mut ConfiguredController<'c>,
+pub struct PhyManagement<'a> {
+    disable_on_drop: bool,
+    registers: &'a Registers,
 }
 
-impl<'a, 'c> PhyManagement<'a, 'c> {
+impl<'a> Drop for PhyManagement<'a> {
+    fn drop(&mut self) {
+        if self.disable_on_drop {
+            self.registers.network_control.set(
+                NetworkControlW::MAN_PORT_EN::CLEAR.modify(self.registers.network_control.get()),
+            );
+        }
+    }
+}
+
+impl<'a> PhyManagement<'a> {
     pub fn is_idle(&mut self) -> bool {
-        self.controller
-            .registers
+        self.registers
             .network_status
             .is_set(NetworkStatus::MAN_DONE)
     }
@@ -471,16 +494,16 @@ impl<'a, 'c> PhyManagement<'a, 'c> {
     }
 
     /// Enumerates the devices attached to the controller.
-    pub fn device_ids(&mut self) -> DeviceIds<'_, 'c> {
+    pub fn device_ids(&mut self) -> DeviceIds<'_, 'a> {
         DeviceIds {
-            controller: self.controller,
+            phy_management: self,
             next_address: 0,
         }
     }
 
     pub unsafe fn clause_22_read(&mut self, phy_address: u8, register_address: u8) -> u16 {
         self.wait_until_idle();
-        self.controller.registers.phy_management.write(
+        self.registers.phy_management.write(
             gem::PhyManagement::WRITE1::SET
                 + gem::PhyManagement::OPERATION.val(2)
                 + gem::PhyManagement::PHY_ADDRESS.val(phy_address as _)
@@ -488,8 +511,7 @@ impl<'a, 'c> PhyManagement<'a, 'c> {
                 + gem::PhyManagement::WRITE10.val(2),
         );
         self.wait_until_idle();
-        self.controller
-            .registers
+        self.registers
             .phy_management
             .read(gem::PhyManagement::PHY_WRITE_READ_DATA) as _
     }
@@ -514,12 +536,12 @@ impl DeviceId {
     }
 }
 
-pub struct DeviceIds<'a, 'c> {
+pub struct DeviceIds<'a, 'b> {
     next_address: u8,
-    controller: &'a mut ConfiguredController<'c>,
+    phy_management: &'a mut PhyManagement<'b>,
 }
 
-impl<'a, 'c> Iterator for DeviceIds<'a, 'c> {
+impl<'a, 'b> Iterator for DeviceIds<'a, 'b> {
     type Item = DeviceId;
 
     fn next(&mut self) -> Option<Self::Item> {
@@ -530,8 +552,8 @@ impl<'a, 'c> Iterator for DeviceIds<'a, 'c> {
             let address = self.next_address;
             self.next_address += 1;
             unsafe {
-                let reg1 = self.controller.phy_management().clause_22_read(address, 2);
-                let reg2 = self.controller.phy_management().clause_22_read(address, 3);
+                let reg1 = self.phy_management.clause_22_read(address, 2);
+                let reg2 = self.phy_management.clause_22_read(address, 3);
                 if reg1 == 0xffff && reg2 == 0xffff {
                     continue;
                 }
@@ -549,13 +571,7 @@ mod tests {
 
     #[test]
     fn test_phy_management() {
-        let controller = unsafe { Controller::gem3() };
-        let mut controller = controller
-            .configure(Config {
-                mac_address: 0,
-                storage: Default::default(),
-            })
-            .unwrap();
+        let mut controller = unsafe { Controller::gem3() };
 
         let device_ids: Vec<_> = controller.phy_management().device_ids().collect();
         if is_qemu() {

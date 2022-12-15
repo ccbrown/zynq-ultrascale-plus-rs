@@ -1,5 +1,7 @@
 use crate::crf_apb;
 use core::arch::global_asm;
+#[cfg(feature = "alloc")]
+use core::sync::atomic::{AtomicU64, Ordering};
 use tock_registers::{interfaces::Writeable, registers::InMemoryRegister};
 use zynq_ultrascale_plus_modules::apu::*;
 
@@ -91,6 +93,14 @@ static mut CORE_ENTRY_DATA: [CoreEntryData; 4] = [
     CoreEntryData::new(),
 ];
 
+#[cfg(feature = "alloc")]
+static CORE_RESULTS: [AtomicU64; 4] = [
+    AtomicU64::new(0),
+    AtomicU64::new(0),
+    AtomicU64::new(0),
+    AtomicU64::new(0),
+];
+
 global_asm!(
     r#"
 .global _ApuCoreReset
@@ -118,18 +128,7 @@ extern "C" {
 }
 
 #[cfg(feature = "alloc")]
-struct SevOnDrop;
-
-#[cfg(feature = "alloc")]
-impl Drop for SevOnDrop {
-    fn drop(&mut self) {
-        aarch64_cpu::asm::sev();
-    }
-}
-
-#[cfg(feature = "alloc")]
 pub struct JoinHandle<T> {
-    result: alloc::sync::Arc<core::sync::atomic::AtomicU64>,
     index: u32,
     _data: core::marker::PhantomData<T>,
 }
@@ -138,8 +137,7 @@ pub struct JoinHandle<T> {
 impl<T> JoinHandle<T> {
     /// Waits for the function to return, resets the core it ran on, and provides the return value.
     pub fn join(self, reset_controller: &mut crf_apb::Controller) -> T {
-        use alloc::{boxed::Box, sync::Arc};
-        use core::sync::atomic::Ordering;
+        use alloc::boxed::Box;
 
         let mut reset_controller_core = match self.index {
             0 => reset_controller.core0(),
@@ -149,15 +147,12 @@ impl<T> JoinHandle<T> {
             _ => unreachable!(),
         };
 
+        let result = &CORE_RESULTS[self.index as usize];
+
         loop {
-            let v = self.result.load(Ordering::SeqCst);
+            let v = result.load(Ordering::SeqCst);
             if v == 0 {
-                if Arc::strong_count(&self.result) == 1 {
-                    unsafe { reset_controller_core.reset() };
-                    panic!("core panicked");
-                } else {
-                    aarch64_cpu::asm::wfe();
-                }
+                aarch64_cpu::asm::wfe();
             } else {
                 let mut v: Box<Option<T>> = unsafe { Box::from_raw(v as *mut _) };
                 unsafe { reset_controller_core.reset() };
@@ -238,40 +233,39 @@ impl<'a> Core<'a> {
         f: F,
         stack: &mut [u8],
     ) -> JoinHandle<T> {
-        use alloc::{boxed::Box, sync::Arc};
-        use core::{
-            marker::PhantomData,
-            mem,
-            sync::atomic::{AtomicU64, Ordering},
-        };
+        use alloc::boxed::Box;
+        use core::{marker::PhantomData, mem};
 
-        let result = Arc::new(AtomicU64::new(0));
-
-        type FnBox = Box<dyn FnOnce() + Send>;
+        type FnBox = Box<dyn FnOnce() -> (u64, usize) + Send>;
 
         extern "C" fn entry(user_data: u64) -> ! {
-            let f: Box<FnBox> = unsafe { Box::from_raw(user_data as _) };
-            f();
+            let (result, index) = {
+                let f: Box<FnBox> = unsafe { Box::from_raw(user_data as _) };
+                f()
+            };
+            // XXX: there must not be any heap allocations owned by this thread at this point
+            CORE_RESULTS[index].store(result, Ordering::SeqCst);
+            aarch64_cpu::asm::sev();
             loop {
                 aarch64_cpu::asm::wfe();
             }
         }
 
         let f: Box<FnBox> = Box::new(Box::new({
-            let result = result.clone();
+            let index = self.index as usize;
             move || {
-                let _sev = SevOnDrop;
                 let r: Box<Option<T>> = Box::new(Some(f()));
-                result.store(Box::into_raw(r) as u64, Ordering::SeqCst);
+                (Box::into_raw(r) as u64, index)
             }
         }));
+
+        CORE_RESULTS[self.index as usize].store(0, Ordering::SeqCst);
 
         let stack = mem::transmute::<&mut [u8], &'static mut [u8]>(stack);
         self.start(reset_controller, entry, Box::into_raw(f) as _, stack);
 
         {
             JoinHandle {
-                result,
                 index: self.index,
                 _data: PhantomData,
             }

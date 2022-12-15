@@ -45,6 +45,7 @@ mod tests {
     #[test(qemu_only)]
     fn test_interface_dhcp() {
         let controller = unsafe { gem::Controller::gem3() };
+
         let controller = controller
             .configure(gem::Config {
                 mac_address: 0x02_00_00_00_00_01,
