@@ -4,8 +4,6 @@
 #![cfg_attr(test, test_runner(crate::tests::runner))]
 #![cfg_attr(test, reexport_test_harness_main = "test_main")]
 #![cfg_attr(test, feature(default_alloc_error_handler))]
-// asm_sym is stabilized, but not yet released. this should be very temporary
-#![feature(asm_sym)]
 
 #[cfg(any(test, feature = "alloc"))]
 #[cfg_attr(test, macro_use)]
