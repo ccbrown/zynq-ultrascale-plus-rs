@@ -45,4 +45,4 @@ That command will run the tests using JTAG boot.
 
 You'll need to inspect the output via UART. Cargo will not wait for the tests or return any error codes.
 
-Some of the tests must make assumptions about the available peripherals, such as ethernet PHY. These tests are tailored to the Kria KV260 starter kit and may fail or hang on other hardware. If needed, you can skip tests on real hardware by replacing the `#[test]` attribute with `#[test(qemu_only)]`.
+Some of the tests must make assumptions about the available peripherals, such as ethernet PHY. These tests are tailored to the Kria KV260 starter kit and may fail or hang on other hardware. If needed, you can skip tests on real hardware by replacing the `#[test]` attribute with `#[test(qemu_only)]`. Conversely, if you want to run a test only on hardware, you can use `#[test(hw_only)]`.

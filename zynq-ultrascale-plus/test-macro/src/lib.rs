@@ -20,7 +20,30 @@ pub fn test(args: TokenStream, item: TokenStream) -> TokenStream {
         _ => false,
     });
 
-    if qemu_only {
+    let hw_only = args.iter().any(|a| match a {
+        syn::NestedMeta::Meta(syn::Meta::Path(path)) => {
+            path.get_ident().map(|id| id == "hw_only").unwrap_or(false)
+        }
+        _ => false,
+    });
+
+    if hw_only {
+        quote! {
+            #[test_case]
+            #(#attrs)*
+            fn #name() #ret {
+                if crate::tests::is_qemu() {
+                    debug!("test {}::{} ... skipping (hw only)", module_path!().strip_prefix("zynq_ultrascale_plus::").unwrap(), #name_string);
+                    return;
+                }
+
+                debug!("test {}::{} ...", module_path!().strip_prefix("zynq_ultrascale_plus::").unwrap(), #name_string);
+
+                #body
+            }
+        }
+        .into()
+    } else if qemu_only {
         quote! {
             #[test_case]
             #(#attrs)*

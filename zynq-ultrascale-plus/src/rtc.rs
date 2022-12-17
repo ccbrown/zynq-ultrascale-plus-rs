@@ -55,9 +55,17 @@ impl Clock {
         self.registers
     }
 
-    /// Sets the clock's time in seconds.
-    pub fn set_time(&mut self, t: u32, calibration: Calibration) {
+    /// Calibrates the clock.
+    pub fn calibrate(&mut self, calibration: Calibration) {
         self.registers.calib_write.set(calibration.to_register());
+    }
+
+    /// Sets the clock's time in seconds.
+    pub fn set_time(&mut self, t: u32) {
+        // Rewrite the calibration so the next tick happens exactly one second from now.
+        self.registers
+            .calib_write
+            .set(self.registers.calib_read.get());
         // Write t + 1 because this value won't be persisted until exactly 1 second later.
         self.registers.set_time_write.set(t + 1);
         self.registers.rtc_int_status.set(0xff);
@@ -78,11 +86,15 @@ mod tests {
     use super::*;
     use core::time::Duration;
 
-    #[test]
+    // The qemu RTC implementation doesn't match the hardware at all. It appears to function by
+    // just offsetting the host clock, so we can't really test it in qemu.
+    //
+    // See: https://github.com/Xilinx/qemu/blob/959afcfa82b7e281b7232402ae7ffb6741cccabf/hw/rtc/xlnx-zynqmp-rtc.c#L182
+    #[test(hw_only)]
     fn test_clock() {
         let mut clock = unsafe { Clock::rtc() };
-        let calib = Calibration::with_frequency(0x8000);
-        clock.set_time(12345, calib);
+        clock.calibrate(Calibration::with_frequency(0x8000));
+        clock.set_time(12345);
         let t = clock.time();
         assert!(t == 12345);
         aarch64_std::thread::sleep(Duration::from_millis(1200));
