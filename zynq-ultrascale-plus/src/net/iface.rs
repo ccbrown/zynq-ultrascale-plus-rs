@@ -42,16 +42,21 @@ mod tests {
         time::{Duration, Instant},
     };
 
-    #[test(qemu_only)]
+    #[test]
     fn test_interface_dhcp() {
         let controller = unsafe { gem::Controller::gem3() };
 
-        let controller = controller
+        let mut controller = controller
             .configure(gem::Config {
                 mac_address: 0x02_00_00_00_00_01,
                 storage: Default::default(),
             })
             .unwrap();
+
+        while controller.link_status().is_none() {
+            controller.poll_link_status();
+        }
+
         let mut iface = from_gem_controller(controller);
 
         let mut dhcp_socket = Dhcpv4Socket::new();
@@ -72,9 +77,7 @@ mod tests {
                     // success!
                     return;
                 }
-                Some(Dhcpv4Event::Deconfigured) => {
-                    panic!("dhcp deconfigured");
-                }
+                Some(Dhcpv4Event::Deconfigured) => {}
             }
         }
     }

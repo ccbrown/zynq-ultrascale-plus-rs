@@ -182,7 +182,10 @@ impl Controller {
     }
 
     /// Configures and enables the controller.
-    pub fn configure(self, mut config: Config) -> Result<ConfiguredController, ConfigurationError> {
+    pub fn configure(
+        mut self,
+        mut config: Config,
+    ) -> Result<ConfiguredController, ConfigurationError> {
         // reset / disable everything
         self.registers.network_control.set(0);
         self.registers
@@ -214,10 +217,15 @@ impl Controller {
         // configure networking
         self.registers.network_config.modify(
             NetworkConfig::FULL_DUPLEX::SET
+                + NetworkConfig::GIGABIT_MODE_ENABLE::SET
                 + NetworkConfig::NO_BROADCAST::CLEAR
                 + NetworkConfig::MULTICAST_HASH_ENABLE::SET
                 + NetworkConfig::RECEIVE_CHECKSUM_OFFLOAD_ENABLE::SET
-                + NetworkConfig::PAUSE_ENABLE::SET,
+                + NetworkConfig::PAUSE_ENABLE::SET
+                + NetworkConfig::COPY_ALL_FRAMES::SET
+                + NetworkConfig::RECEIVE_1536_BYTE_FRAMES::SET
+                + NetworkConfig::SPEED::CLEAR
+                + NetworkConfig::MDC_CLOCK_DIVISION.val(6),
         );
 
         // set the mac address
@@ -245,6 +253,11 @@ impl Controller {
             .network_control
             .set(NetworkControlW::MAN_PORT_EN::SET.modify(self.registers.network_control.get()));
 
+        let phy_device_id = match self.phy_management().device_ids().last() {
+            Some(id) => id,
+            None => return Err(ConfigurationError::NoPhyDevicePresent),
+        };
+
         // TODO: configure the phy?
 
         // TODO: configure interrupts?
@@ -256,6 +269,8 @@ impl Controller {
         );
 
         Ok(ConfiguredController {
+            link_status: None,
+            phy_device_id,
             config,
             registers: self.registers,
         })
@@ -263,6 +278,8 @@ impl Controller {
 }
 
 pub struct ConfiguredController<'a> {
+    link_status: Option<LinkStatus>,
+    phy_device_id: DeviceId,
     config: Config<'a>,
     registers: &'static Registers,
 }
@@ -324,9 +341,51 @@ impl<'a> TransmitBuffer<'a> {
     }
 }
 
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+pub struct LinkStatus {
+    pub full_duplex: bool,
+    pub speed: u32,
+}
+
 impl<'a> ConfiguredController<'a> {
     pub fn config(&self) -> &Config<'a> {
         &self.config
+    }
+
+    pub fn link_status(&self) -> Option<LinkStatus> {
+        self.link_status
+    }
+
+    /// This function must be called regularly so the controller can respond to any changes in link
+    /// status or auto-negotiation.
+    pub fn poll_link_status(&mut self) {
+        let phy_address = self.phy_device_id.address;
+        let status = unsafe { self.phy_management().clause_22_read(phy_address, 0x11) };
+        if (status & (1 << 10)) == 0 {
+            self.link_status = None;
+        } else {
+            let new_link_status = LinkStatus {
+                full_duplex: (status & (1 << 13)) != 0,
+                speed: match (status >> 14) & 0x3 {
+                    0 => 10,
+                    1 => 100,
+                    _ => 1000,
+                },
+            };
+            if self.link_status != Some(new_link_status) {
+                self.registers.network_config.modify(
+                    NetworkConfig::FULL_DUPLEX.val(if new_link_status.full_duplex { 1 } else { 0 })
+                        + NetworkConfig::GIGABIT_MODE_ENABLE
+                            .val(if new_link_status.speed == 1000 { 1 } else { 0 })
+                        + NetworkConfig::SPEED.val(if new_link_status.speed == 100 {
+                            1
+                        } else {
+                            0
+                        }),
+                );
+            }
+            self.link_status = Some(new_link_status);
+        }
     }
 
     /// Provides access to the PHY management interface.

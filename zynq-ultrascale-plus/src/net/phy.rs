@@ -13,6 +13,10 @@ impl<'p> Phy<'p> {
     pub fn new(gem_controller: gem::ConfiguredController<'p>) -> Self {
         Self { gem_controller }
     }
+
+    pub fn gem_controller(&mut self) -> &mut gem::ConfiguredController<'p> {
+        &mut self.gem_controller
+    }
 }
 
 impl<'d, 'p> phy::Device<'d> for Phy<'p> {

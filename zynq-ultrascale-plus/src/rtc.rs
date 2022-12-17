@@ -5,6 +5,33 @@ pub struct Clock {
     registers: &'static Registers,
 }
 
+#[derive(Clone, Debug)]
+pub struct Calibration {
+    /// This value represents the number of cycles at which the RTC gets one clock cycle ahead of
+    /// the real time due to the cumulative fractional inaccuracy of the Oscillator.
+    pub fractional_compensation: Option<u8>,
+
+    /// This value multiplied by the period of the oscillator should equal to 1 second.
+    pub max_tick: u16,
+}
+
+impl Calibration {
+    pub const fn with_frequency(freq: u16) -> Self {
+        Self {
+            max_tick: freq - 1,
+            fractional_compensation: None,
+        }
+    }
+
+    fn to_register(&self) -> u32 {
+        self.max_tick as u32
+            | match self.fractional_compensation {
+                Some(c) => ((0x10 | (c & 0xf)) as u32) << 16,
+                None => 0,
+            }
+    }
+}
+
 impl Clock {
     /// Initiatizes and returns the real time clock.
     ///
@@ -29,17 +56,19 @@ impl Clock {
     }
 
     /// Sets the clock's time in seconds.
-    pub fn set_time(&mut self, t: u32) {
-        self.registers.set_time_write.set(t);
+    pub fn set_time(&mut self, t: u32, calibration: Calibration) {
+        self.registers.calib_write.set(calibration.to_register());
+        // Write t + 1 because this value won't be persisted until exactly 1 second later.
+        self.registers.set_time_write.set(t + 1);
         self.registers.rtc_int_status.set(0xff);
     }
 
     /// Returns the clock's time in seconds.
     pub fn time(&self) -> u32 {
         if self.registers.rtc_int_status.is_set(RtcIntStatus::SECONDS) {
-            self.registers.set_time_read.get()
-        } else {
             self.registers.current_time.get()
+        } else {
+            self.registers.set_time_read.get() - 1
         }
     }
 }
@@ -47,12 +76,18 @@ impl Clock {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use core::time::Duration;
 
     #[test]
     fn test_clock() {
         let mut clock = unsafe { Clock::rtc() };
-        clock.set_time(12345);
+        let calib = Calibration::with_frequency(0x8000);
+        clock.set_time(12345, calib);
         let t = clock.time();
-        assert!(t == 12345 || t == 12346);
+        assert!(t == 12345);
+        aarch64_std::thread::sleep(Duration::from_millis(1200));
+        assert_eq!(clock.time(), t + 1);
+        aarch64_std::thread::sleep(Duration::from_millis(1000));
+        assert_eq!(clock.time(), t + 2);
     }
 }
