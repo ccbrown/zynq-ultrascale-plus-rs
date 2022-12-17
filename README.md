@@ -5,6 +5,7 @@ This repo contains two crates:
 - zynq-ultrascale-plus contains high-ish level, mostly safe code for interfacing with Zynq UltraScale+ devices, including...
   - Interrupt controller
   - UART driver
+  - Real time clock
   - Async runtime
   - GEM controller with [smoltcp](https://github.com/smoltcp-rs/smoltcp) integration
   - APU controller with idiomatic hardware thread spawning and joining.

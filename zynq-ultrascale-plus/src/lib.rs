@@ -41,6 +41,7 @@ pub mod gem;
 pub mod interrupt;
 mod interrupt_vector_table;
 pub mod net;
+pub mod rtc;
 pub mod uart;
 
 pub use zynq_ultrascale_plus_modules as modules;
