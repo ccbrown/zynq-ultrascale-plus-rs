@@ -26,10 +26,19 @@ macro_rules! debug {
 macro_rules! debug {
     ($($args:expr),*) => {
         {
+            use aarch64_cpu::registers::{DBGDTRTX_EL0, MDCCSR_EL0};
+            use tock_registers::interfaces::{Readable, Writeable};
+
             let _lock = $crate::PRINT_LOCK.lock().unwrap();
-            let mut uart = unsafe { if $crate::tests::is_qemu() { $crate::uart::Controller::uart0() } else { $crate::uart::Controller::uart1() } };
-            uart.send_bytes(format!($($args),*));
-            uart.send_byte('\n' as _);
+            let mut uart = unsafe { if $crate::tests::is_qemu() { None } else { Some($crate::uart::Controller::uart1()) } };
+            let s = format!($($args),*);
+            for c in s.as_bytes().iter().chain(&['\n' as u8]) {
+                if let Some(uart) = &mut uart {
+                    uart.send_byte(*c);
+                }
+                while MDCCSR_EL0.is_set(MDCCSR_EL0::TXfull) {}
+                DBGDTRTX_EL0.set(*c as u64);
+            }
         }
     }
 }

@@ -8,14 +8,14 @@ default = ["alloc"]
 alloc = ["smoltcp/alloc"]
 
 [dependencies]
-aarch64-cpu = { git = "https://github.com/ccbrown/aarch64-cpu", rev = "db125991ee5ba515680f555f53475c5a0b6762d0" }
+aarch64-cpu = "9.3.0"
 tock-registers = "0.8.0"
 zynq-ultrascale-plus-modules = { path = "../zynq-ultrascale-plus-modules", features = ["apu", "crf-apb", "gem", "gic400", "rtc", "uart"] }
 smoltcp = { version = "0.8.2", default-features = false, features = ["medium-ethernet", "proto-ipv4", "proto-ipv6", "socket-raw"] }
 managed = { version = "0.8.0", default-features = false }
 
 [dev-dependencies]
-aarch64-std = { git = "https://github.com/ccbrown/aarch64-std", rev = "a9a7913f19cd14ac98e0827576f1f436490ddfc6" }
+aarch64-std = "0.1.2"
 qemu-exit = "3.0.1"
 linked_list_allocator = "0.10.4"
 smoltcp = { version = "0.8.2", default-features = false, features = ["socket-dhcpv4", "alloc"] }

@@ -43,6 +43,8 @@ TEST_RUNNER=jtag cargo +nightly test
 
 That command will run the tests using JTAG boot.
 
-You'll need to inspect the output via UART. Cargo will not wait for the tests or return any error codes.
+Test output will be sent to both UART and DCC. To view via UART, you can use an application such as [PuTTY](https://www.putty.org/). To view via DCC (e.g. if you only have a JTAG connection but no UART), open an XSCT terminal, then use `connect`, `targets -set -filter {name =~ "Cortex-A53 #0"}`, and `jtagterminal -start`.
+
+Cargo will not wait for the tests or return any error codes.
 
 Some of the tests must make assumptions about the available peripherals, such as ethernet PHY. These tests are tailored to the Kria KV260 starter kit and may fail or hang on other hardware. If needed, you can skip tests on real hardware by replacing the `#[test]` attribute with `#[test(qemu_only)]`. Conversely, if you want to run a test only on hardware, you can use `#[test(hw_only)]`.
