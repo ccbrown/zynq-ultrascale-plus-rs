@@ -3,7 +3,6 @@
 #![cfg_attr(test, feature(custom_test_frameworks))]
 #![cfg_attr(test, test_runner(crate::tests::runner))]
 #![cfg_attr(test, reexport_test_harness_main = "test_main")]
-#![cfg_attr(test, feature(default_alloc_error_handler))]
 
 #[cfg(any(test, feature = "alloc"))]
 #[cfg_attr(test, macro_use)]
@@ -58,7 +57,7 @@ pub use zynq_ultrascale_plus_modules as modules;
 #[cfg(test)]
 mod tests {
     use super::*;
-    use core::arch::global_asm;
+    use core::{arch::global_asm, ptr::addr_of_mut};
     use qemu_exit::QEMUExit;
 
     global_asm!(
@@ -93,8 +92,8 @@ mod tests {
     }
 
     unsafe fn init_bss() {
-        let bss_start_ptr = &mut __bss_start__ as *mut u32;
-        let bss_end_ptr = &mut __bss_end__ as *mut u32;
+        let bss_start_ptr = addr_of_mut!(__bss_start__);
+        let bss_end_ptr = addr_of_mut!(__bss_end__);
         let mut dest = bss_start_ptr;
         while dest != bss_end_ptr {
             *dest = 0;
@@ -103,8 +102,8 @@ mod tests {
     }
 
     unsafe fn init_heap() {
-        let heap_start_ptr = &mut __heap_start__ as *mut u32;
-        let heap_end_ptr = &mut __heap_end__ as *mut u32;
+        let heap_start_ptr = addr_of_mut!(__heap_start__);
+        let heap_end_ptr = addr_of_mut!(__heap_end__);
         ALLOCATOR.lock().init(
             heap_start_ptr as *mut u8,
             heap_end_ptr as usize - heap_start_ptr as usize,

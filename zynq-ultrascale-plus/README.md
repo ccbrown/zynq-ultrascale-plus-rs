@@ -6,10 +6,13 @@ This crate has unit tests that can be run using QEMU.
 
 These prerequisites must be in your PATH:
 
-- `qemu-system-aarch64` from [Xilinx/qemu](https://github.com/Xilinx/qemu).
+- `qemu-system-aarch64` from [Xilinx/qemu](https://github.com/Xilinx/qemu). For a minimal build, you can use `--target-list=aarch64-softmmu` during configuration.
 - `aarch64-none-elf-gcc` and friends from the [ARM GNU Toolchain](https://developer.arm.com/downloads/-/arm-gnu-toolchain-downloads).
 
-You must have the `aarch64-unknown-none` target installed with the nightly toolchain.
+You must have the `aarch64-unknown-none` target installed with the nightly toolchain:
+
+- `rustup toolchain install nightly`
+- `rustup target add aarch64-unknown-none --toolchain nightly`
 
 Once the prerequisites are met, you can simply run:
 
