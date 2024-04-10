@@ -6,6 +6,7 @@ This repo contains two crates:
   - Interrupt controller
   - UART driver
   - Real time clock
+  - SD card controller
   - Async runtime
   - GEM controller with [smoltcp](https://github.com/smoltcp-rs/smoltcp) integration
   - APU controller with idiomatic hardware thread spawning and joining.

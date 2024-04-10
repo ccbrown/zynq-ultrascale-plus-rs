@@ -29,6 +29,7 @@ macro_rules! debug {
             use tock_registers::interfaces::{Readable, Writeable};
 
             let _lock = $crate::PRINT_LOCK.lock().unwrap();
+            #[allow(unused_unsafe)]
             let mut uart = unsafe { if $crate::tests::is_qemu() { None } else { Some($crate::uart::Controller::uart1()) } };
             let s = format!($($args),*);
             for c in s.as_bytes().iter().chain(&['\n' as u8]) {
@@ -50,6 +51,7 @@ pub mod interrupt;
 mod interrupt_vector_table;
 pub mod net;
 pub mod rtc;
+pub mod sdio;
 pub mod uart;
 
 pub use zynq_ultrascale_plus_modules as modules;
