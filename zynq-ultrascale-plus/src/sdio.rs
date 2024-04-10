@@ -396,6 +396,10 @@ impl Card {
         &self.id
     }
 
+    pub fn into_controller(self) -> Controller {
+        self.controller
+    }
+
     pub fn block_size(&self) -> usize {
         512
     }
@@ -405,7 +409,7 @@ impl Card {
             return Err(IoError::BadArgument);
         } else if !self.controller.is_present() {
             return Err(IoError::NotPresent);
-        } else if dest.as_ptr() as u64 > 0xffffffff {
+        } else if dest.as_ptr() as u64 > 0xffffffff || (dest.as_ptr() as u64) & 3 != 0 {
             return Err(IoError::MemoryOutOfRange);
         }
 
@@ -468,7 +472,7 @@ impl Card {
             return Err(IoError::BadArgument);
         } else if !self.controller.is_present() {
             return Err(IoError::NotPresent);
-        } else if source.as_ptr() as u64 > 0xffffffff {
+        } else if source.as_ptr() as u64 > 0xffffffff || (source.as_ptr() as u64) & 3 != 0 {
             return Err(IoError::MemoryOutOfRange);
         }
 
