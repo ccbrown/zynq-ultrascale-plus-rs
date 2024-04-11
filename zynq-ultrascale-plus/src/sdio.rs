@@ -1,4 +1,3 @@
-use alloc::vec::Vec;
 use core::fmt::{self, Debug};
 use tock_registers::interfaces::{ReadWriteable, Readable, Writeable};
 use zynq_ultrascale_plus_modules::sdio::*;
@@ -11,23 +10,6 @@ impl Debug for Controller {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         f.debug_struct("Controller").finish()
     }
-}
-
-fn new_adma2_descriptor_table(mut dest_addr: u32, mut len: usize) -> Vec<u64> {
-    let mut desc_table = Vec::new();
-
-    while len > 0 {
-        let entry_len = if len > 0x10000 { 0x10000 } else { len };
-        let end_attr = if len == entry_len { 2 } else { 0 };
-        let attrs = end_attr | 0x21;
-
-        desc_table.push((dest_addr as u64) << 32 | (entry_len as u16 as u64) << 16 | attrs);
-
-        len -= entry_len;
-        dest_addr += entry_len as u32;
-    }
-
-    desc_table
 }
 
 impl Controller {
@@ -341,6 +323,7 @@ impl Controller {
             Ok(Card {
                 id,
                 controller: self,
+                adma2_descriptor_table: [0; MAX_ADMA2_DESC_TABLE_ENTRIES],
             })
         }
     }
@@ -377,9 +360,13 @@ impl From<InitializeError> for Controller {
     }
 }
 
+const MAX_ADMA2_DESC_TABLE_ENTRIES: usize = 32;
+
+#[repr(align(4))]
 pub struct Card {
     id: [u8; 16],
     controller: Controller,
+    adma2_descriptor_table: [u64; MAX_ADMA2_DESC_TABLE_ENTRIES],
 }
 
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
@@ -404,6 +391,29 @@ impl Card {
         512
     }
 
+    fn fill_adma2_descriptor_table(&mut self, mut dest_addr: u32, mut len: usize) -> bool {
+        let mut entries = 0;
+
+        while len > 0 {
+            if entries >= MAX_ADMA2_DESC_TABLE_ENTRIES {
+                return false;
+            }
+
+            let entry_len = if len > 0x10000 { 0x10000 } else { len };
+            let end_attr = if len == entry_len { 2 } else { 0 };
+            let attrs = end_attr | 0x21;
+
+            self.adma2_descriptor_table[entries] =
+                (dest_addr as u64) << 32 | (entry_len as u16 as u64) << 16 | attrs;
+            entries += 1;
+
+            len -= entry_len;
+            dest_addr += entry_len as u32;
+        }
+
+        true
+    }
+
     pub fn read_blocks(&mut self, block_addr: u32, dest: &mut [u8]) -> Result<(), IoError> {
         if dest.len() % self.block_size() != 0 || dest.len() == 0 {
             return Err(IoError::BadArgument);
@@ -413,8 +423,10 @@ impl Card {
             return Err(IoError::MemoryOutOfRange);
         }
 
-        let desc_table = new_adma2_descriptor_table(dest.as_ptr() as u32, dest.len());
-        let desc_table_addr = desc_table.as_ptr() as u64;
+        if !self.fill_adma2_descriptor_table(dest.as_ptr() as u32, dest.len()) {
+            return Err(IoError::BadArgument);
+        }
+        let desc_table_addr = self.adma2_descriptor_table.as_ptr() as u64;
         if desc_table_addr > 0xffffffff {
             return Err(IoError::MemoryOutOfRange);
         }
@@ -476,8 +488,10 @@ impl Card {
             return Err(IoError::MemoryOutOfRange);
         }
 
-        let desc_table = new_adma2_descriptor_table(source.as_ptr() as u32, source.len());
-        let desc_table_addr = desc_table.as_ptr() as u64;
+        if !self.fill_adma2_descriptor_table(source.as_ptr() as u32, source.len()) {
+            return Err(IoError::BadArgument);
+        }
+        let desc_table_addr = self.adma2_descriptor_table.as_ptr() as u64;
         if desc_table_addr > 0xffffffff {
             return Err(IoError::MemoryOutOfRange);
         }

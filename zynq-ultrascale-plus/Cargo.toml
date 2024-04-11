@@ -11,13 +11,13 @@ alloc = ["smoltcp/alloc"]
 aarch64-cpu = "9.3.0"
 tock-registers = "0.8.0"
 zynq-ultrascale-plus-modules = { path = "../zynq-ultrascale-plus-modules", features = ["apu", "crf-apb", "gem", "gic400", "rtc", "sdio", "uart"] }
-smoltcp = { version = "0.8.2", default-features = false, features = ["medium-ethernet", "proto-ipv4", "proto-ipv6", "socket-raw"] }
+smoltcp = { version = "0.11", default-features = false, features = ["medium-ethernet", "proto-ipv4", "proto-ipv6", "socket-raw"] }
 managed = { version = "0.8.0", default-features = false }
 
 [dev-dependencies]
 aarch64-std = "0.1.2"
 qemu-exit = "3.0.1"
 linked_list_allocator = "0.10.4"
-smoltcp = { version = "0.8.2", default-features = false, features = ["socket-dhcpv4", "alloc"] }
+smoltcp = { version = "0.11", default-features = false, features = ["socket-dhcpv4", "alloc"] }
 test-macro = { path = "./test-macro" }
 zynq-ultrascale-plus-modules = { path = "../zynq-ultrascale-plus-modules", features = ["csu"] }
